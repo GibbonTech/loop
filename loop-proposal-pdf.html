@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loop Proposal PDF</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #000;
+            color: #999;
+            font-size: 14px;
+            line-height: 1.6;
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .page {
+            width: 100%;
+            height: 297mm;
+            padding: 20mm 25mm;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 11px;
+            font-weight: 600;
+            color: #444;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15mm;
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 500;
+            color: #fff;
+            margin-bottom: 6mm;
+            line-height: 1.3;
+        }
+
+        p {
+            margin-bottom: 6mm;
+        }
+
+        strong {
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .dim {
+            color: #555;
+        }
+
+        /* Lists */
+        ul {
+            list-style: none;
+            margin: 10mm 0;
+        }
+
+        ul li {
+            padding: 4mm 0;
+            border-bottom: 1px solid #1a1a1a;
+            color: #777;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        ul li:last-child {
+            border-bottom: none;
+        }
+
+        ul li strong {
+            color: #ccc;
+            font-weight: 500;
+            margin-right: 10px;
+        }
+
+        /* Questions Grid */
+        .questions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15mm;
+        }
+
+        .question {
+            margin-bottom: 0;
+        }
+
+        .question p:first-child {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 2mm;
+        }
+
+        .question p:last-child {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.5;
+            margin-bottom: 0;
+        }
+
+        /* Tech Tags */
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            display: inline-block;
+            font-size: 11px;
+            color: #666;
+            border: 1px solid #222;
+            padding: 4px 10px;
+            border-radius: 4px;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: auto;
+            border-top: 1px solid #1a1a1a;
+            padding-top: 6mm;
+            font-size: 10px;
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Layout Utilities */
+        .content-block {
+            margin-bottom: 15mm;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Page 1: Vision & Needs -->
+    <div class="page">
+        <h1>Loop — Proposition Technique</h1>
+
+        <div class="content-block">
+            <h2>Vision</h2>
+            <p>
+                Vous faites du <strong>portage salarial pour chauffeurs VTC</strong>. 
+                Vous gérez déjà tout le back-office métier (contrats, paie, fiscalité).
+            </p>
+            <p>
+                Le besoin aujourd'hui est <strong>l'interface client</strong>. 
+                Un portail où vos chauffeurs voient leurs revenus, téléchargent leurs documents 
+                et soumettent leurs frais, sans intervention manuelle de votre part.
+            </p>
+        </div>
+
+        <div class="content-block">
+            <h2>Le Périmètre</h2>
+            <p class="dim">Un portail web et une application mobile native.</p>
+            
+            <ul>
+                <li>
+                    <strong>Dashboard</strong> 
+                    <span>Revenus par jour/mois, détail par plateforme</span>
+                </li>
+                <li>
+                    <strong>Répartition</strong> 
+                    <span>CA → indemnités km → brut → net</span>
+                </li>
+                <li>
+                    <strong>Sync Plateformes</strong> 
+                    <span>Uber, Bolt, Heetch centralisés automatiquement</span>
+                </li>
+                <li>
+                    <strong>Documents</strong> 
+                    <span>Bulletins de paie (PDF), contrats, attestations</span>
+                </li>
+                <li>
+                    <strong>Notes de Frais</strong> 
+                    <span>Upload factures, tracking TVA</span>
+                </li>
+                <li>
+                    <strong>Profil</strong> 
+                    <span>Infos chauffeur + véhicule (modifiable)</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="content-block">
+            <h2>Approche Technique</h2>
+            <p>
+                Une seule base de code pour deux interfaces. 
+                Mise à jour en temps réel via connexion API aux plateformes VTC.
+            </p>
+            <div class="tags">
+                <span class="tag">Next.js 14</span>
+                <span class="tag">Expo (iOS/Android)</span>
+                <span class="tag">TypeScript</span>
+                <span class="tag">PostgreSQL</span>
+                <span class="tag">Prisma</span>
+                <span class="tag">Vercel</span>
+            </div>
+        </div >
+
+        <div class="footer">
+            <span>Loop — Proposition</span>
+            <span>Page 1 / 2</span>
+        </div>
+    </div>
+
+    <!-- Page 2: Questions -->
+    <div class="page page-break">
+        <h1>Points de Clarification</h1>
+
+        <div class="content-block">
+            <p class="dim" style="margin-bottom: 10mm;">
+                Pour garantir une implémentation précise, nous devons valider ces workflows.
+            </p>
+
+            <div class="questions-grid">
+                <div class="question">
+                    <p>Calcul Salaire Net</p>
+                    <p>Le calcul CA → Net est-il fait par votre fiscaliste avant affichage, ou l'app doit-elle intégrer vos règles de calcul ?</p>
+                </div>
+
+                <div class="question">
+                    <p>Source des Données</p>
+                    <p>Privilégie-t-on la sync auto (API) ou l'import CSV par le chauffeur ? Quel est le fallback ?</p>
+                </div>
+
+                <div class="question">
+                    <p>Origine Bulletins de Paie</p>
+                    <p>Proviennent-ils d'un logiciel tiers (Silae, PayFit) via API, ou d'un upload manuel de votre part ?</p>
+                </div>
+
+                <div class="question">
+                    <p>Validation Notes de Frais</p>
+                    <p>Simple tracking pour le chauffeur, ou workflow de validation par vos soins avant remboursement ?</p>
+                </div>
+
+                <div class="question">
+                    <p>Périmètre Plateformes</p>
+                    <p>Uber, Bolt, Heetch sont confirmés. Y a-t-il d'autres acteurs majeurs (FreeNow, LeCab) pour le MVP ?</p>
+                </div>
+
+                <div class="question">
+                    <p>Gestion Documents</p>
+                    <p>Outre contrat/mutuelle, y a-t-il des documents spécifiques nécessitant une signature électronique ?</p>
+                </div>
+
+                <div class="question">
+                    <p>Modification Profil</p>
+                    <p>Le chauffeur peut-il modifier son SIRET/Véhicule librement, ou cela requiert-il votre validation ?</p>
+                </div>
+
+                <div class="question">
+                    <p>Timeline & Priorité</p>
+                    <p>L'usage sera-t-il majoritairement mobile (app) ou desktop ? Quelle est la date cible de lancement ?</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <span>Loop — Proposition</span>
+            <span>Page 2 / 2</span>
+        </div>
+    </div>
+
+</body>
+</html>

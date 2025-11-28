@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loop</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #000;
+            color: #888;
+            font-size: 17px;
+            line-height: 1.7;
+        }
+
+        .container {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 120px 24px;
+        }
+
+        section {
+            margin-bottom: 160px;
+        }
+
+        h1 {
+            font-size: 14px;
+            font-weight: 500;
+            color: #444;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 48px;
+        }
+
+        p {
+            margin-bottom: 24px;
+        }
+
+        strong {
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .highlight {
+            color: #fff;
+        }
+
+        .dim {
+            color: #555;
+        }
+
+        ul {
+            list-style: none;
+            margin: 32px 0;
+        }
+
+        ul li {
+            padding: 16px 0;
+            border-bottom: 1px solid #1a1a1a;
+            color: #666;
+        }
+
+        ul li:last-child {
+            border-bottom: none;
+        }
+
+        .question {
+            margin-bottom: 40px;
+        }
+
+        .question p:first-child {
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .question p:last-child {
+            font-size: 15px;
+            color: #555;
+            margin-bottom: 0;
+        }
+
+        .spacer {
+            height: 80px;
+        }
+
+        .divider {
+            width: 40px;
+            height: 1px;
+            background: #333;
+            margin: 80px 0;
+        }
+
+        a {
+            color: #fff;
+            text-decoration: none;
+            border-bottom: 1px solid #333;
+        }
+
+        a:hover {
+            border-color: #fff;
+        }
+
+        .tag {
+            display: inline-block;
+            font-size: 13px;
+            color: #555;
+            border: 1px solid #222;
+            padding: 4px 12px;
+            border-radius: 4px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .end {
+            text-align: center;
+            color: #333;
+            font-size: 14px;
+            padding: 80px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- Intro -->
+        <section>
+            <h1>Loop</h1>
+            <p>
+                Vous faites du <strong>portage salarial pour chauffeurs VTC</strong>.
+            </p>
+            <p>
+                Vous gérez déjà tout : contrats, paie, cotisations, fiscalité. 
+                Le métier est là. Ce qui manque, c'est <strong>l'interface</strong>.
+            </p>
+            <p>
+                Un endroit où vos chauffeurs voient leurs revenus, 
+                téléchargent leurs documents, soumettent leurs frais. 
+                Sans vous appeler. Sans WhatsApp.
+            </p>
+        </section>
+
+        <!-- Le besoin -->
+        <section>
+            <h1>Le besoin</h1>
+            <p>
+                Un <strong>portail chauffeur</strong> — web et mobile.
+            </p>
+            <ul>
+                <li><strong>Dashboard</strong> — revenus par jour, semaine, mois, par plateforme</li>
+                <li><strong>Répartition</strong> — CA → indemnités km → brut → net</li>
+                <li><strong>Sync plateformes</strong> — Uber, Bolt, Heetch centralisés</li>
+                <li><strong>Bulletins de paie</strong> — PDF téléchargeables</li>
+                <li><strong>Notes de frais</strong> — upload factures, récup TVA</li>
+                <li><strong>Documents</strong> — contrat, mutuelle, attestations</li>
+                <li><strong>Profil</strong> — infos chauffeur + véhicule</li>
+            </ul>
+            <p>
+                Plus un <strong>back-office</strong> pour vous. 
+                Upload des fiches de paie, validation des frais, gestion des chauffeurs.
+            </p>
+        </section>
+
+        <!-- Comment -->
+        <section>
+            <h1>Comment</h1>
+            <p>
+                Le chauffeur connecte ses comptes VTC via un widget sécurisé. 
+                Ses revenus remontent automatiquement. Pas de saisie manuelle.
+            </p>
+            <p>
+                Une seule base de code. Deux interfaces : <strong>web</strong> pour l'ordi, 
+                <strong>app native</strong> pour iOS et Android.
+            </p>
+            <p>
+                Vous uploadez les bulletins de paie quand ils sont prêts. 
+                Le chauffeur reçoit une notif, télécharge en un clic.
+            </p>
+        </section>
+
+        <!-- Stack -->
+        <section>
+            <h1>Stack</h1>
+            <p class="dim" style="margin-bottom: 24px;">
+                Technologies modernes, maintenables.
+            </p>
+            <div>
+                <span class="tag">Next.js</span>
+                <span class="tag">Expo</span>
+                <span class="tag">TypeScript</span>
+                <span class="tag">PostgreSQL</span>
+                <span class="tag">Prisma</span>
+                <span class="tag">shadcn/ui</span>
+                <span class="tag">Vercel</span>
+            </div>
+        </section>
+
+        <!-- Ce que je dois savoir -->
+        <section>
+            <h1>Ce que je dois savoir</h1>
+            
+            <p class="dim" style="margin-bottom: 48px;">
+                Pour construire exactement ce qu'il vous faut.
+            </p>
+
+            <div class="question">
+                <p>La répartition CA → salaire net, c'est vous qui la calculez ?</p>
+                <p>Votre fiscaliste fait le calcul, puis vous l'affichez ? Ou l'app doit calculer elle-même ?</p>
+            </div>
+
+            <div class="question">
+                <p>Comment les données arrivent dans l'app ?</p>
+                <p>Le chauffeur connecte ses comptes VTC (sync auto) ? Ou il importe un CSV ? Ou vous saisissez manuellement côté admin ?</p>
+            </div>
+
+            <div class="question">
+                <p>Les bulletins de paie viennent d'où ?</p>
+                <p>Générés par un logiciel de paie (Silae, PayFit) ? Vous les uploadez à la main ? Ou l'app doit les générer ?</p>
+            </div>
+
+            <div class="question">
+                <p>Workflow des notes de frais ?</p>
+                <p>Chauffeur soumet → vous validez → remboursé sur la paie ? Ou juste du tracking sans validation ?</p>
+            </div>
+
+            <div class="question">
+                <p>Quelles plateformes VTC à intégrer ?</p>
+                <p>Uber, Bolt, Heetch ? D'autres ? FreeNow, LeCab, Deliveroo ?</p>
+            </div>
+
+            <div class="question">
+                <p>Quels documents administratifs ?</p>
+                <p>Contrat de travail, mutuelle, attestation employeur, assurance RC Pro... Autre chose de spécifique ?</p>
+            </div>
+
+            <div class="question">
+                <p>Le chauffeur peut modifier ses infos librement ?</p>
+                <p>Ou certaines infos (SIRET, véhicule) doivent être validées par vous avant mise à jour ?</p>
+            </div>
+
+            <div class="question">
+                <p>Notifications ?</p>
+                <p>Email quand nouveau bulletin dispo ? Push mobile ? Les deux ?</p>
+            </div>
+
+            <div class="question">
+                <p>Priorité web ou mobile ?</p>
+                <p>Vos chauffeurs sont plutôt sur téléphone entre deux courses, ou sur ordi le soir ?</p>
+            </div>
+
+            <div class="question">
+                <p>Timeline ?</p>
+                <p>Vous avez une date en tête ? Un lancement prévu ?</p>
+            </div>
+
+        </section>
+
+        <!-- Next -->
+        <section>
+            <h1>Next</h1>
+            <p>
+                Vous me répondez à ces questions. 
+                Je reviens avec un périmètre précis et un planning.
+            </p>
+        </section>
+
+        <div class="end">
+            —
+        </div>
+
+    </div>
+</body>
+</html>

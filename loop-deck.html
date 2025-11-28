@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loop | Présentation 2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            DEFAULT: '#fd521a',
+                            glow: '#ff7043', 
+                            dark: '#591c0a'
+                        },
+                        glass: {
+                            surface: 'rgba(255, 255, 255, 0.03)',
+                            border: 'rgba(255, 255, 255, 0.08)',
+                            highlight: 'rgba(255, 255, 255, 0.15)'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['General Sans', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'glass': '0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.1)',
+                        'brand-glow': '0 0 40px rgba(253, 82, 26, 0.4)',
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://api.fontshare.com/v2/css?f[]=general-sans@200,300,400,500,600,700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body {
+            font-family: 'General Sans', sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+            -webkit-font-smoothing: antialiased;
+            padding: 40px 0;
+        }
+
+        .liquid-glass {
+            background: rgba(20, 20, 20, 0.4);
+            backdrop-filter: blur(50px) saturate(180%);
+            -webkit-backdrop-filter: blur(50px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+        }
+        
+        .grid-pattern {
+            background-size: 60px 60px; 
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            mask-image: linear-gradient(to bottom, black 10%, transparent 100%);
+        }
+
+        .page-break {
+            page-break-before: always;
+            margin-top: 120px;
+            padding-top: 80px;
+            border-top: 1px solid #222;
+        }
+
+        @media print {
+            body { padding: 0; background: #000; }
+            .page-break { page-break-before: always; margin-top: 0; padding-top: 40px; border-top: none; }
+            .no-print { display: none; }
+        }
+
+        h1, h2, h3 { letter-spacing: -0.03em; }
+    </style>
+</head>
+<body class="max-w-5xl mx-auto px-8">
+
+    <div class="fixed inset-0 grid-pattern pointer-events-none z-0"></div>
+    <div class="fixed top-[-200px] left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-brand/10 blur-[150px] rounded-full pointer-events-none z-0"></div>
+
+    <!-- COVER -->
+    <section class="relative z-10 min-h-[80vh] flex flex-col justify-between py-20">
+        <div>
+            <div class="inline-block px-4 py-1.5 rounded-full border border-brand/10 bg-brand/[0.03] text-[10px] font-bold tracking-[0.2em] uppercase text-brand/80 mb-8">
+                2025
+            </div>
+            <h1 class="text-8xl md:text-[8rem] font-semibold leading-[0.9] tracking-tighter mb-12">
+                PRÉSENTATION<br>
+                <span class="text-white/20">DE PROJET</span>
+            </h1>
+            <div class="flex items-center gap-6">
+                <div class="w-20 h-20 rounded-full bg-brand shadow-[0_0_40px_#fd521a]"></div>
+                <span class="text-6xl font-bold tracking-tight">LOOP</span>
+            </div>
+        </div>
+
+        <div class="mt-24">
+            <h3 class="text-xs text-white/40 uppercase tracking-[0.2em] mb-8 border-b border-white/10 pb-4">Sommaire</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-4">
+                <div>
+                    <div class="text-brand text-sm font-bold mb-2">01</div>
+                    <div class="text-lg font-medium">A propos</div>
+                </div>
+                <div>
+                    <div class="text-brand text-sm font-bold mb-2">05</div>
+                    <div class="text-lg font-medium">Le marché</div>
+                </div>
+                <div>
+                    <div class="text-brand text-sm font-bold mb-2">02</div>
+                    <div class="text-lg font-medium">Nos valeurs</div>
+                </div>
+                <div>
+                    <div class="text-brand text-sm font-bold mb-2">06</div>
+                    <div class="text-lg font-medium">Objectifs</div>
+                </div>
+                <div>
+                    <div class="text-brand text-sm font-bold mb-2">03</div>
+                    <div class="text-lg font-medium">Les chiffres</div>
+                </div>
+                <div>
+                    <div class="text-brand text-sm font-bold mb-2">07</div>
+                    <div class="text-lg font-medium">Pourquoi LOOP</div>
+                </div>
+                <div>
+                    <div class="text-brand text-sm font-bold mb-2">04</div>
+                    <div class="text-lg font-medium">L'équipe</div>
+                </div>
+                <div>
+                    <div class="text-brand text-sm font-bold mb-2">08</div>
+                    <div class="text-lg font-medium">Avantages LOOP</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 01 A PROPOS -->
+    <section class="relative z-10 page-break">
+        <div class="flex items-baseline justify-between mb-16 border-b border-white/10 pb-6">
+            <h2 class="text-5xl font-medium tracking-tight">01 <span class="text-white/30">A PROPOS</span></h2>
+            <span class="text-white/40 text-sm uppercase tracking-widest">A PROPOS DE NOUS</span>
+        </div>
+
+        <p class="text-2xl text-white/80 leading-relaxed mb-16 max-w-4xl">
+            LOOP est une coopérative d’activité et d’emploi qui offre aux chauffeurs VTC la <span class="text-brand">sécurité d’un CDI</span> tout en gardant la <span class="text-brand">liberté d’un indépendant</span>.
+        </p>
+
+        <div class="grid md:grid-cols-2 gap-12">
+            <div class="space-y-12">
+                <div>
+                    <h3 class="text-xl font-bold mb-6 text-white border-l-2 border-brand pl-4">Ce que propose LOOP</h3>
+                    <ul class="space-y-4 text-lg text-white/60">
+                        <li class="flex gap-4"><i data-lucide="check" class="w-6 h-6 text-brand shrink-0"></i> Statut d’entrepreneur-salarié (100 % indépendant)</li>
+                        <li class="flex gap-4"><i data-lucide="check" class="w-6 h-6 text-brand shrink-0"></i> Maintien jusqu’a 83% de ton chiffre d’affaires en salaire déclaré</li>
+                        <li class="flex gap-4"><i data-lucide="check" class="w-6 h-6 text-brand shrink-0"></i> Fiche de paie, retraite, chômage, mutuelle et prévoyance</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-xl font-bold mb-6 text-white border-l-2 border-brand pl-4">Ce qu’on gère pour toi</h3>
+                    <ul class="space-y-4 text-lg text-white/60">
+                        <li class="flex gap-4"><i data-lucide="shield-check" class="w-6 h-6 text-white shrink-0"></i> URSSAF, TVA et cotisations sociales</li>
+                        <li class="flex gap-4"><i data-lucide="file-text" class="w-6 h-6 text-white shrink-0"></i> Comptabilité et déclarations</li>
+                    </ul>
+                </div>
+
+                <div class="liquid-glass p-6 rounded-2xl border border-white/10">
+                    <p class="text-white font-medium text-lg">👉 Résultat : zéro paperasse, tu te concentres sur ton activité et ta clientèle</p>
+                </div>
+            </div>
+
+            <div class="liquid-glass p-8 rounded-3xl border border-white/10 h-full">
+                <h3 class="text-xl font-bold mb-8 text-brand">Pourquoi choisir LOOP ?</h3>
+                <div class="space-y-8">
+                    <div>
+                        <h4 class="text-white font-bold mb-1">Sécurité</h4>
+                        <p class="text-white/50">Véritable statut entrepreneur-salarié (indépendant)</p>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-bold mb-1">Liberté</h4>
+                        <p class="text-white/50">Choix des plateformes et des horaires</p>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-bold mb-1">Transparence</h4>
+                        <p class="text-white/50">Vision claire de ton CA et de ton salaire</p>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-bold mb-1">Accompagnement</h4>
+                        <p class="text-white/50">Une équipe qui connaît le métier de chauffeur VTC</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 02 NOS VALEURS -->
+    <section class="relative z-10 page-break">
+        <div class="flex items-baseline justify-between mb-16 border-b border-white/10 pb-6">
+            <h2 class="text-5xl font-medium tracking-tight">02 <span class="text-white/30">NOS VALEURS</span></h2>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="liquid-glass p-10 rounded-[2rem] group hover:border-brand/30 transition-all duration-500">
+                <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-brand mb-8 group-hover:scale-110 transition-transform">
+                    <i data-lucide="users" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-6 text-white uppercase tracking-wide">SOLIDARITÉ</h3>
+                <p class="text-white/60 leading-relaxed text-lg">
+                    Chez LOOP, chaque chauffeur est membre de la coopérative. Nous mutualisons les moyens pour offrir plus de sécurité, de soutien et de sérénité au quotidien.
+                </p>
+            </div>
+
+            <div class="liquid-glass p-10 rounded-[2rem] group hover:border-brand/30 transition-all duration-500">
+                <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-brand mb-8 group-hover:scale-110 transition-transform">
+                    <i data-lucide="search" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-6 text-white uppercase tracking-wide">TRANSPARENCE & EQUITÉ</h3>
+                <p class="text-white/60 leading-relaxed text-lg">
+                    Aucun coût caché, des règles claires et partagées. Chaque euro est expliqué, chaque décision est prise dans l’intérêt des chauffeurs.
+                </p>
+            </div>
+
+            <div class="liquid-glass p-10 rounded-[2rem] group hover:border-brand/30 transition-all duration-500">
+                <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-brand mb-8 group-hover:scale-110 transition-transform">
+                    <i data-lucide="zap" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-6 text-white uppercase tracking-wide">AUTONOMIE RESPONSABILISÉE</h3>
+                <p class="text-white/60 leading-relaxed text-lg">
+                    Liberté de choisir ses plateformes, ses horaires et son rythme de travail. LOOP donne le cadre et les outils, le chauffeur reste acteur de son activité
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 03 LES CHIFFRES -->
+    <section class="relative z-10 page-break">
+        <div class="flex items-baseline justify-between mb-20 border-b border-white/10 pb-6">
+            <h2 class="text-5xl font-medium tracking-tight">03 <span class="text-white/30">LES CHIFFRES</span></h2>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-12 text-center">
+            <div class="p-8">
+                <div class="text-7xl font-bold text-white mb-4 tracking-tighter">+ 71 000</div>
+                <div class="text-brand font-bold uppercase tracking-widest text-sm mb-6">Chauffeurs VTC</div>
+                <p class="text-white/50 text-lg leading-relaxed">Actifs sur les plateformes en France en 2024, un marché en forte progression.</p>
+            </div>
+
+            <div class="p-8 border-x border-white/5 relative">
+                <div class="absolute inset-0 bg-gradient-to-b from-transparent via-white/5 to-transparent opacity-50"></div>
+                <div class="relative z-10">
+                    <div class="text-7xl font-bold text-white mb-4 tracking-tighter">≈ 4 Mds €</div>
+                    <div class="text-brand font-bold uppercase tracking-widest text-sm mb-6">Chiffre d’affaires</div>
+                    <p class="text-white/50 text-lg leading-relaxed">Poids estimé du marché VTC en France en 2022, avec une croissance continue.</p>
+                </div>
+            </div>
+
+            <div class="p-8">
+                <div class="text-7xl font-bold text-white mb-4 tracking-tighter">81 %</div>
+                <div class="text-brand font-bold uppercase tracking-widest text-sm mb-6">de l’activité en Île-de-France</div>
+                <p class="text-white/50 text-lg leading-relaxed">La majorité des courses se concentre sur la région parisienne, cœur de l’activité VTC</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 04 L'EQUIPE -->
+    <section class="relative z-10 page-break">
+        <div class="flex items-baseline justify-between mb-20 border-b border-white/10 pb-6">
+            <h2 class="text-5xl font-medium tracking-tight">04 <span class="text-white/30">L'ÉQUIPE</span></h2>
+        </div>
+        
+        <div class="grid md:grid-cols-2 gap-24 max-w-4xl mx-auto">
+            <div class="text-center group cursor-pointer">
+                <div class="w-56 h-56 mx-auto bg-[#111] rounded-full mb-8 border border-white/10 group-hover:border-brand transition-all duration-500 flex items-center justify-center text-6xl shadow-2xl group-hover:shadow-brand-glow">
+                    ADIL
+                </div>
+                <h3 class="text-3xl font-bold text-white mb-2">ADIL ESSAKAKI</h3>
+                <div class="w-12 h-1 bg-brand mx-auto rounded-full"></div>
+            </div>
+            <div class="text-center group cursor-pointer">
+                <div class="w-56 h-56 mx-auto bg-[#111] rounded-full mb-8 border border-white/10 group-hover:border-brand transition-all duration-500 flex items-center justify-center text-6xl shadow-2xl group-hover:shadow-brand-glow">
+                    ILYES
+                </div>
+                <h3 class="text-3xl font-bold text-white mb-2">ILYES BOUGUELLAB</h3>
+                <div class="w-12 h-1 bg-brand mx-auto rounded-full"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 05 LE MARCHE -->
+    <section class="relative z-10 page-break">
+        <div class="flex items-baseline justify-between mb-16 border-b border-white/10 pb-6">
+            <h2 class="text-5xl font-medium tracking-tight">05 <span class="text-white/30">LE MARCHÉ</span></h2>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-16">
+            <div class="space-y-10">
+                <div class="liquid-glass p-8 rounded-[2rem]">
+                    <h3 class="text-2xl font-bold mb-6 text-white">Un marché en pleine mutation</h3>
+                    <p class="text-xl text-white/80">+ de 71 000 chauffeurs VTC actifs en France en 2024</p>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-bold mb-6 text-red-400 flex items-center gap-3">
+                        <i data-lucide="alert-triangle" class="w-6 h-6"></i> Une réalité souvent précaire
+                    </h3>
+                    <ul class="space-y-6 text-white/60 text-lg">
+                        <li class="pl-4 border-l border-white/10">
+                            <strong class="text-white block mb-1">Statut auto-entrepreneur très répandu</strong>
+                            revenus irréguliers
+                        </li>
+                        <li class="pl-4 border-l border-white/10">
+                            <strong class="text-white block mb-1">Protection sociale limitée</strong>
+                            pas de contrat, pas de chômage garanti, congés et arrêts maladie peu sécurisés
+                        </li>
+                        <li class="pl-4 border-l border-white/10">
+                            <strong class="text-white block mb-1">Complexité administrative</strong>
+                            URSSAF, TVA, comptabilité laissées au chauffeur
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="text-lg text-white/40 italic pl-4">
+                    👉 Des chauffeurs souvent livrés à eux-mêmes face aux plateformes : revenus instables, charges sociales lourdes, protection sociale limitée.
+                </div>
+            </div>
+
+            <div class="liquid-glass p-10 rounded-[2rem] border border-brand/20 bg-gradient-to-b from-brand/[0.02] to-transparent">
+                <h3 class="text-3xl font-bold mb-10 text-brand">L’opportunité pour LOOP</h3>
+                <ul class="space-y-8 text-xl text-white/80">
+                    <li class="flex gap-6">
+                        <div class="w-10 h-10 rounded-full bg-brand/10 flex items-center justify-center text-brand shrink-0 font-bold">1</div>
+                        <span>Apporter la sécurité du salariat (contrat d’entrepreneur-salarié : 100% indépendant)</span>
+                    </li>
+                    <li class="flex gap-6">
+                        <div class="w-10 h-10 rounded-full bg-brand/10 flex items-center justify-center text-brand shrink-0 font-bold">2</div>
+                        <span>Transformer le chiffre d’affaires plateforme en salaire net protégé</span>
+                    </li>
+                    <li class="flex gap-6">
+                        <div class="w-10 h-10 rounded-full bg-brand/10 flex items-center justify-center text-brand shrink-0 font-bold">3</div>
+                        <span>Offrir une alternative aux modèles classiques de plateformes.</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- 06 OBJECTIFS -->
+    <section class="relative z-10 page-break">
+        <div class="flex items-baseline justify-between mb-16 border-b border-white/10 pb-6">
+            <h2 class="text-5xl font-medium tracking-tight">06 <span class="text-white/30">OBJECTIFS DE LOOP</span></h2>
+        </div>
+
+        <div class="grid gap-8">
+            <div class="liquid-glass p-10 rounded-[2rem] flex flex-col md:flex-row gap-8 items-start group hover:bg-white/5 transition-colors">
+                <div class="w-20 h-20 bg-brand rounded-2xl flex items-center justify-center text-white text-4xl shrink-0 shadow-lg group-hover:scale-105 transition-transform">
+                    🛡
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold mb-3 text-white uppercase tracking-wide">SÉCURISER LE REVENU DES CHAUFFEURS</h3>
+                    <p class="text-white/60 text-xl leading-relaxed">Transformer le chiffre d’affaires en salaire stable et optimisé, grâce au contrat d’entrepreneur-salarié.</p>
+                </div>
+            </div>
+
+            <div class="liquid-glass p-10 rounded-[2rem] flex flex-col md:flex-row gap-8 items-start group hover:bg-white/5 transition-colors">
+                <div class="w-20 h-20 bg-[#1a1a1a] border border-white/10 rounded-2xl flex items-center justify-center text-white text-4xl shrink-0 shadow-lg group-hover:scale-105 transition-transform">
+                    📄
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold mb-3 text-white uppercase tracking-wide">SUPPRIMER LA CHARGE ADMINISTRATIVE</h3>
+                    <p class="text-white/60 text-xl leading-relaxed">Prendre en charge URSSAF, TVA, comptabilité et déclarations, pour que le chauffeur se concentre sur la route et sur le développement de sa clientèle.</p>
+                </div>
+            </div>
+
+            <div class="liquid-glass p-10 rounded-[2rem] flex flex-col md:flex-row gap-8 items-start group hover:bg-white/5 transition-colors">
+                <div class="w-20 h-20 bg-[#1a1a1a] border border-white/10 rounded-2xl flex items-center justify-center text-white text-4xl shrink-0 shadow-lg group-hover:scale-105 transition-transform">
+                    🔓
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold mb-3 text-white uppercase tracking-wide">ALLIER LIBERTÉ ET PROTECTION</h3>
+                    <p class="text-white/60 text-xl leading-relaxed">Conserver la liberté des horaires et des plateformes, avec tous les avantages du salariat : fiche de paie, retraite, chômage, mutuelle, prévoyance.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 07 POURQUOI LOOP (08 in original summary but listed as "Pourquoi Loop") -->
+    <section class="relative z-10 page-break">
+        <div class="flex items-baseline justify-between mb-16 border-b border-white/10 pb-6">
+            <h2 class="text-5xl font-medium tracking-tight">08 <span class="text-white/30">POURQUOI LOOP ?</span></h2>
+        </div>
+
+        <div class="liquid-glass rounded-[2.5rem] p-12 border border-brand/20 overflow-hidden relative mb-16">
+            <div class="absolute top-0 right-0 w-96 h-96 bg-brand/10 blur-[100px] rounded-full pointer-events-none"></div>
+            
+            <div class="text-center mb-16">
+                <h3 class="text-3xl md:text-5xl font-bold mb-4 text-white">JUSQU’À 83 % DE VOTRE CA POUR VOUS</h3>
+                <p class="text-brand font-bold uppercase tracking-[0.2em] text-sm">EXEMPLE DE RÉMUNERATION : 4000 € DE CHIFFRE D’AFFAIRES TTC / MOIS</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-16 items-center">
+                <!-- Donut Chart Visualization -->
+                <div class="relative aspect-square max-w-md mx-auto">
+                    <div class="absolute inset-0 rounded-full border-[40px] border-white/5"></div>
+                    <div class="absolute inset-0 rounded-full border-[40px] border-brand border-t-transparent border-l-transparent -rotate-45 shadow-[0_0_50px_rgba(253,82,26,0.3)]"></div>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                        <div class="text-5xl font-bold text-white">83%</div>
+                        <div class="text-white/40 uppercase tracking-widest text-xs mt-2">Pour Vous</div>
+                    </div>
+                </div>
+
+                <!-- Detailed Table -->
+                <div class="bg-white/5 rounded-3xl p-8 border border-white/5">
+                    <div class="flex justify-between items-center pb-4 border-b border-white/10 text-white/60">
+                        <span>CA RECUPERÉ</span>
+                        <span class="font-medium text-white">82,86 % (3 314 €)</span>
+                    </div>
+                    <div class="flex justify-between items-center py-4 border-b border-white/10 text-white/60">
+                        <span>LOOP</span>
+                        <span class="font-medium text-white">10 % (400 €)</span>
+                    </div>
+                    <div class="flex justify-between items-center py-4 border-b border-white/10 text-white/60">
+                        <span>TVA DEDUCTIBLE</span>
+                        <span class="font-medium text-white">8% (316 €)</span>
+                    </div>
+                    
+                    <div class="mt-6 pt-6 bg-brand/5 rounded-xl p-6 border border-brand/10">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-brand/80 text-sm uppercase font-bold">Total INDEMINITÉS (55%)</span>
+                            <span class="text-brand font-bold text-xl">2 215 €</span>
+                        </div>
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-white/80 text-sm uppercase font-bold">SALAIRE NET</span>
+                            <span class="text-white font-bold text-xl">784 €</span>
+                        </div>
+                        <div class="flex justify-between items-center pt-4 border-t border-brand/20">
+                            <span class="text-white font-bold text-lg">CHIFFRE D’AFFAIRES NET</span>
+                            <span class="text-white font-bold text-3xl">~ 3 000 €</span>
+                        </div>
+                        <div class="text-center mt-4 text-xs text-white/40 uppercase tracking-widest">
+                            IMPÔT 0% — NON IMPOSABLE : 100% OPTIMISÉ
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="liquid-glass p-8 rounded-3xl">
+                <h4 class="font-bold text-brand mb-2">LIBERTÉ TOTALE PRÉSERVÉE</h4>
+                <p class="text-white/60 text-sm">Vous choisissez quand et où vous travaillez. Aucune obligation.</p>
+            </div>
+            <div class="liquid-glass p-8 rounded-3xl">
+                <h4 class="font-bold text-brand mb-2">PROTECTION SOCIALE</h4>
+                <p class="text-white/60 text-sm">Chômage, retraite, maladie, arrêts maladie. Tous vos droits préservés.</p>
+            </div>
+            <div class="liquid-glass p-8 rounded-3xl">
+                <h4 class="font-bold text-brand mb-2">REVENUS TRANSPARENTS</h4>
+                <p class="text-white/60 text-sm">Pas de frais cachés. Modèle clair et compétitif pour maximiser vos gains.</p>
+            </div>
+            <div class="liquid-glass p-8 rounded-3xl">
+                <h4 class="font-bold text-brand mb-2">COMMUNAUTÉ</h4>
+                <p class="text-white/60 text-sm">Coaching, formations et entraide entre chauffeurs.</p>
+            </div>
+            <div class="liquid-glass p-8 rounded-3xl col-span-2 bg-brand/10 border-brand/30">
+                <h4 class="font-bold text-white mb-2">ZERO PAPERASSE</h4>
+                <p class="text-white/60 text-sm">Fini l'URSSAF, la TVA, la compta. On gère tout pour vous</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 08 AVANTAGES (COMPARISON TABLE) -->
+    <section class="relative z-10 page-break pb-20">
+        <div class="flex items-baseline justify-between mb-16 border-b border-white/10 pb-6">
+            <h2 class="text-5xl font-medium tracking-tight">AVANTAGES <span class="text-white/30">COMPARATIF</span></h2>
+            <span class="text-white/40 text-sm uppercase tracking-widest">LES AVANTAGES DU STATUT DE CHAUFFEUR VTC AVEC LOOP</span>
+        </div>
+
+        <div class="overflow-hidden rounded-[2rem] border border-white/10 bg-[#111]">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-white/5">
+                        <th class="p-6 text-xs font-bold text-white/40 uppercase tracking-widest w-1/3"></th>
+                        <th class="p-6 text-sm font-bold text-brand uppercase tracking-widest text-center bg-brand/10 border-b-4 border-brand w-1/6">LOOP</th>
+                        <th class="p-6 text-xs font-bold text-white/40 uppercase tracking-widest text-center border-l border-white/5 w-1/6">Salariat<br>Rattachement</th>
+                        <th class="p-6 text-xs font-bold text-white/40 uppercase tracking-widest text-center border-l border-white/5 w-1/6">Micro-<br>Entreprise</th>
+                        <th class="p-6 text-xs font-bold text-white/40 uppercase tracking-widest text-center border-l border-white/5 w-1/6">SASU/EURL</th>
+                    </tr>
+                </thead>
+                <tbody class="text-sm font-medium text-white/80">
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                        <td class="p-6 pl-8">Application mobile dédiée</td>
+                        <td class="p-6 text-center bg-brand/5"><i data-lucide="check" class="inline w-6 h-6 text-brand"></i></td>
+                        <td class="p-6 text-center border-l border-white/5"><i data-lucide="x" class="inline w-5 h-5 text-white/20"></i></td>
+                        <td class="p-6 text-center border-l border-white/5"><i data-lucide="x" class="inline w-5 h-5 text-white/20"></i></td>
+                        <td class="p-6 text-center border-l border-white/5"><i data-lucide="x" class="inline w-5 h-5 text-white/20"></i></td>
+                    </tr>
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                        <td class="p-6 pl-8">Frais professionnels récupérables</td>
+                        <td class="p-6 text-center bg-brand/5"><i data-lucide="check" class="inline w-6 h-6 text-brand"></i></td>
+                        <td class="p-6 text-center border-l border-white/5"><i data-lucide="x" class="inline w-5 h-5 text-white/20"></i></td>
+                        <td class="p-6 text-center border-l border-white/5"><i data-lucide="x" class="inline w-5 h-5 text-white/20"></i></td>
+                        <td class="p-6 text-center border-l border-white/5"><i data-lucide="check" class="inline w-5 h-5 text-white/40"></i></td>
+                    </tr>
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                        <td class="p-6 pl-8">Aucune limite de chiffre d’affaires</td>
+                        <td class="p-6 text-center bg-brand/5"><i data-lucide="check" class="inline w-6 h-6 text-brand"></i></td>
+                        <td class="p-6 text-center border-l border-white/5"><i data-lucide="x" class="inline w-5 h-5 text-white/20"></i></td>
+                        <td class="p-6 text-center border-l border-white/5"><i data-lucide="x" class="inline w-5 h-5 text-white/20"></i></td>
+                        <td class="p-6 text-center border-l border-white/5"><i data-lucide="check" class="inline w-5 h-5 text-white/40"></i></td>
+                    </tr>
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                        <td class="p-6 pl-8">Zéro demarches administratives</td>
+                        <td class="p-6 text-center bg-brand/5"><i data-lucide="check" class="inline w-6 h-6 text-brand"></i></td>
+                        <td class="p-6 text-center border-l border-white/5"><i data-lucide="check" class="inline w-5 h-5 text-white/40"></i></td>
+                        <td class="p-6 text-center border-l border-white/5"><i data-lucide="x" class="inline w-5 h-5 text-white/20"></i></td>
+                        <td class="p-6 text-center border-l border-white/5"><i data-lucide="x" class="inline w-5 h-5 text-white/20"></i></td>
+                    </tr>
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                        <td class="p-6 pl-8">Accès au crédit bancaire</td>
+                        <td class="p-6 text-center bg-brand/5"><i data-lucide="check" class="inline w-6 h-6 text-brand"></i></td>
+                        <td class="p-6 text-center border-l border-white/5"><i data-lucide="check" class="inline w-5 h-5 text-white/40"></i></td>
+                        <td class="p-6 text-center border-l border-white/5 text-white/30 text-xs">Difficile</td>
+                        <td class="p-6 text-center border-l border-white/5 text-white/30 text-xs">Difficile</td>
+                    </tr>
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                        <td class="p-6 pl-8">Couverture sociale</td>
+                        <td class="p-6 text-center bg-brand/5"><i data-lucide="check" class="inline w-6 h-6 text-brand"></i></td>
+                        <td class="p-6 text-center border-l border-white/5"><i data-lucide="check" class="inline w-5 h-5 text-white/40"></i></td>
+                        <td class="p-6 text-center border-l border-white/5"><i data-lucide="x" class="inline w-5 h-5 text-white/20"></i></td>
+                        <td class="p-6 text-center border-l border-white/5 text-white/30 text-xs">RSI/SSI</td>
+                    </tr>
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                        <td class="p-6 pl-8">Arrêts maladie</td>
+                        <td class="p-6 text-center bg-brand/5"><i data-lucide="check" class="inline w-6 h-6 text-brand"></i></td>
+                        <td class="p-6 text-center border-l border-white/5"><i data-lucide="check" class="inline w-5 h-5 text-white/40"></i></td>
+                        <td class="p-6 text-center border-l border-white/5 text-white/30 text-xs">Faible</td>
+                        <td class="p-6 text-center border-l border-white/5 text-white/30 text-xs">Faible</td>
+                    </tr>
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                        <td class="p-6 pl-8">Congés payés</td>
+                        <td class="p-6 text-center bg-brand/5"><i data-lucide="check" class="inline w-6 h-6 text-brand"></i></td>
+                        <td class="p-6 text-center border-l border-white/5"><i data-lucide="check" class="inline w-5 h-5 text-white/40"></i></td>
+                        <td class="p-6 text-center border-l border-white/5"><i data-lucide="x" class="inline w-5 h-5 text-white/20"></i></td>
+                        <td class="p-6 text-center border-l border-white/5"><i data-lucide="x" class="inline w-5 h-5 text-white/20"></i></td>
+                    </tr>
+                    <tr class="hover:bg-white/5 transition-colors">
+                        <td class="p-6 pl-8">Temps de travail flexible</td>
+                        <td class="p-6 text-center bg-brand/5"><i data-lucide="check" class="inline w-6 h-6 text-brand"></i></td>
+                        <td class="p-6 text-center border-l border-white/5"><i data-lucide="x" class="inline w-5 h-5 text-white/20"></i></td>
+                        <td class="p-6 text-center border-l border-white/5"><i data-lucide="check" class="inline w-5 h-5 text-white/40"></i></td>
+                        <td class="p-6 text-center border-l border-white/5"><i data-lucide="check" class="inline w-5 h-5 text-white/40"></i></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="mt-32 text-center pt-20 border-t border-white/10">
+            <h2 class="text-5xl font-bold mb-6 tracking-tight">MERCI POUR VOTRE ATTENTION</h2>
+            <div class="inline-block px-8 py-3 rounded-full bg-brand/10 border border-brand/20 text-brand font-bold text-2xl tracking-[0.3em] shadow-brand-glow">
+                LOOP
+            </div>
+            <div class="mt-6 text-white/30 font-medium">2025</div>
+        </div>
+    </section>
+
+</body>
+</html>
