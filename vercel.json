@@ -1,0 +1,6 @@
+{
+  "buildCommand": "cd loop && npm run build",
+  "outputDirectory": "loop/.next",
+  "installCommand": "cd loop && npm install",
+  "framework": "nextjs"
+}
