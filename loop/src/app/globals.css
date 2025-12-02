@@ -3,15 +3,8 @@
 @theme inline {
   --color-brand: #fd521a;
   --color-brand-glow: #ff7043;
-  --color-brand-dark: #591c0a;
-}
-
-body {
-  font-family: 'General Sans', sans-serif;
-  background-color: #000000;
-  color: #ffffff;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
+  --color-brand-dark: #d63f0e;
+  --color-brand-accent: #ff8a65;
 }
 
 html {
@@ -23,48 +16,52 @@ html {
   color: white;
 }
 
-/* --- UI COMPONENTS --- */
-
+/* --- PASTEL LIQUID GLASS --- */
 .liquid-glass {
-  background: rgba(20, 20, 20, 0.4);
-  backdrop-filter: blur(50px) saturate(180%);
-  -webkit-backdrop-filter: blur(50px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
-  transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 
+    0 8px 32px -4px rgba(168, 162, 158, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-.liquid-glass:hover {
-  background: rgba(25, 25, 25, 0.5);
-  border-color: rgba(255, 255, 255, 0.12);
-  box-shadow: 0 40px 70px -15px rgba(0, 0, 0, 0.6), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+.liquid-card {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.7), rgba(250, 250, 249, 0.5));
+  backdrop-filter: blur(32px) saturate(120%);
+  -webkit-backdrop-filter: blur(32px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 
+    0 20px 40px -12px rgba(168, 162, 158, 0.15),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.8),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.liquid-card:hover {
+  transform: translateY(-4px) scale(1.005);
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 
+    0 30px 60px -12px rgba(168, 162, 158, 0.2),
+    inset 0 1px 0 0 rgba(255, 255, 255, 1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
 }
 
 .btn-primary {
   background: #fd521a;
   color: white;
-  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-  position: relative;
-  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 8px 20px -4px rgba(253, 82, 26, 0.3);
 }
 .btn-primary:hover {
-  background: #ff642e;
-  box-shadow: 0 0 40px rgba(253, 82, 26, 0.3);
+  background: #e0410e;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -4px rgba(253, 82, 26, 0.4);
 }
 .btn-primary:active {
-  transform: scale(0.98);
-}
-
-.btn-secondary {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
-  transition: all 0.4s ease;
-}
-.btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.2);
+  transform: scale(0.97);
 }
 
 input[type=range] {
@@ -77,58 +74,38 @@ input[type=range]::-webkit-slider-thumb {
   width: 28px;
   border-radius: 50%;
   background: #fd521a;
-  border: 4px solid #1a1a1a;
+  border: 4px solid #ffffff;
   cursor: pointer;
   margin-top: -12px;
-  box-shadow: 0 0 20px rgba(253, 82, 26, 0.4);
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 input[type=range]::-webkit-slider-thumb:hover {
-  transform: scale(1.1);
-  background: #ff7043;
+  transform: scale(1.15);
 }
 input[type=range]::-webkit-slider-runnable-track {
   width: 100%;
   height: 4px;
   cursor: pointer;
-  background: rgba(255,255,255,0.1);
+  background: #e5e5e5;
   border-radius: 999px;
 }
 
-.ambient-light {
-  position: fixed;
-  width: 100vw;
-  height: 100vh;
-  top: 0;
-  left: 0;
-  z-index: -1;
-  background: radial-gradient(circle at 50% 0%, #1a0802 0%, #000000 60%);
-}
-
-.glow-spot {
-  position: absolute;
-  background: radial-gradient(circle, rgba(253, 82, 26, 0.12) 0%, rgba(0,0,0,0) 70%);
-  filter: blur(120px);
-  opacity: 0.5;
-  pointer-events: none;
-}
-
 .heading-hero {
-  letter-spacing: -0.04em;
-  line-height: 0.95;
+  letter-spacing: -0.06em;
+  line-height: 0.9;
+  font-weight: 650;
 }
 
-.grid-pattern {
-  background-size: 60px 60px;
-  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-  mask-image: linear-gradient(to bottom, black 10%, transparent 100%);
-}
-
-.phone-frame {
-  box-shadow: 0 0 0 2px #222, 0 0 0 4px #000;
-  border-radius: 44px;
-  background: #000;
+.phone-frame-glass {
+  box-shadow: 
+    0 40px 80px -20px rgba(0,0,0,0.12), 
+    inset 0 0 0 2px rgba(255,255,255,0.6),
+    inset 0 0 20px rgba(255,255,255,0.5);
+  border-radius: 52px;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(40px) saturate(150%);
+  border: 6px solid rgba(255,255,255,0.3);
 }
 
 details > summary {
@@ -138,23 +115,31 @@ details > summary::-webkit-details-marker {
   display: none;
 }
 details[open] summary ~ * {
-  animation: sweep .3s ease-in-out;
+  animation: sweep .2s ease-out;
 }
 @keyframes sweep {
   0%    {opacity: 0; transform: translateY(-5px)}
   100%  {opacity: 1; transform: translateY(0)}
 }
 
-.app-scroll::-webkit-scrollbar {
+.no-scrollbar::-webkit-scrollbar {
   width: 0px;
 }
 
-@keyframes fluid {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(1%, -1%) scale(1.02); }
-  66% { transform: translate(-0.5%, 1%) scale(0.99); }
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
 }
 
-.animate-fluid {
-  animation: fluid 60s ease infinite;
+.animate-float {
+  animation: float 8s ease-in-out infinite;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-out forwards;
 }
