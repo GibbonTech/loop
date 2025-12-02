@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loop | Pitch Deck 2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: '#fd521a',
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://api.fontshare.com/v2/css?f[]=general-sans@200,300,400,500,600,700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'General Sans', sans-serif;
+            background: #000;
+            color: #fff;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .slide {
+            width: 1280px;
+            height: 720px;
+            background: #000;
+            position: relative;
+            overflow: hidden;
+            page-break-after: always;
+            margin: 0 auto 40px;
+            border: 1px solid #222;
+        }
+
+        .slide-inner {
+            padding: 60px 80px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(253, 82, 26, 0.15) 0%, transparent 70%);
+            filter: blur(80px);
+            pointer-events: none;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+        }
+
+        @media print {
+            body { background: #000; }
+            .slide { 
+                margin: 0; 
+                border: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+            }
+            .no-print { display: none; }
+        }
+
+        @page {
+            size: 1280px 720px;
+            margin: 0;
+        }
+    </style>
+</head>
+<body class="p-10 no-print:p-10">
+
+    <!-- SLIDE 1: COVER -->
+    <div class="slide">
+        <div class="glow top-[-200px] right-[-100px]"></div>
+        <div class="slide-inner justify-between">
+            <div>
+                <div class="inline-block px-4 py-1.5 rounded-full border border-brand/20 bg-brand/5 text-[11px] font-bold tracking-[0.25em] uppercase text-brand mb-8">
+                    Pitch Deck 2025
+                </div>
+                <h1 class="text-[7rem] font-semibold leading-[0.9] tracking-[-0.04em] mb-6">
+                    LOOP
+                </h1>
+                <p class="text-2xl text-white/50 font-light max-w-xl">
+                    L'indépendance protégée pour les chauffeurs VTC
+                </p>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-brand shadow-[0_0_30px_rgba(253,82,26,0.5)]"></div>
+                <span class="text-white/30 text-sm font-medium">Coopérative d'Activité et d'Emploi</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: LE PROBLÈME -->
+    <div class="slide">
+        <div class="glow top-[-100px] left-[-200px]"></div>
+        <div class="slide-inner">
+            <div class="flex items-center gap-4 mb-12">
+                <span class="text-brand font-bold text-sm">01</span>
+                <h2 class="text-4xl font-semibold tracking-tight">Le Problème</h2>
+            </div>
+            
+            <div class="flex-1 grid grid-cols-2 gap-12">
+                <div>
+                    <h3 class="text-6xl font-bold text-white mb-4 tracking-tight">71 000+</h3>
+                    <p class="text-xl text-white/50 mb-8">chauffeurs VTC en France, majoritairement en auto-entreprise</p>
+                    
+                    <div class="space-y-6">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center shrink-0">
+                                <i data-lucide="trending-down" class="w-5 h-5 text-red-400"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white mb-1">Revenus instables</h4>
+                                <p class="text-white/40 text-sm">Pas de filet de sécurité, revenus irréguliers</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center shrink-0">
+                                <i data-lucide="shield-off" class="w-5 h-5 text-red-400"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white mb-1">Zéro protection</h4>
+                                <p class="text-white/40 text-sm">Pas de chômage, pas de congés payés, maladie = 0€</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center shrink-0">
+                                <i data-lucide="file-x" class="w-5 h-5 text-red-400"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white mb-1">Paperasse complexe</h4>
+                                <p class="text-white/40 text-sm">URSSAF, TVA, comptabilité à gérer seul</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="glass p-8 flex flex-col justify-center">
+                    <div class="text-center">
+                        <div class="text-red-400 text-sm font-bold uppercase tracking-widest mb-4">TVA perdue chaque année</div>
+                        <div class="text-6xl font-bold text-white mb-2">~3 000€</div>
+                        <p class="text-white/40">par chauffeur auto-entrepreneur</p>
+                    </div>
+                    <div class="border-t border-white/10 mt-8 pt-8 text-center">
+                        <p class="text-white/50 text-lg italic">"Des chauffeurs livrés à eux-mêmes face aux plateformes"</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: LA SOLUTION -->
+    <div class="slide">
+        <div class="glow bottom-[-200px] right-[-100px]"></div>
+        <div class="slide-inner">
+            <div class="flex items-center gap-4 mb-12">
+                <span class="text-brand font-bold text-sm">02</span>
+                <h2 class="text-4xl font-semibold tracking-tight">La Solution LOOP</h2>
+            </div>
+            
+            <div class="flex-1 flex items-center">
+                <div class="grid grid-cols-2 gap-16 w-full">
+                    <div>
+                        <h3 class="text-5xl font-bold text-white leading-tight mb-6">
+                            La sécurité du CDI.<br>
+                            <span class="text-white/30">La liberté de l'indépendant.</span>
+                        </h3>
+                        <p class="text-xl text-white/50 leading-relaxed mb-8">
+                            LOOP est une coopérative d'activité et d'emploi qui transforme votre CA en salaire protégé, tout en préservant votre autonomie totale.
+                        </p>
+                        <div class="inline-block px-6 py-3 bg-brand/10 border border-brand/20 rounded-full">
+                            <span class="text-brand font-bold">Statut entrepreneur-salarié = 100% indépendant</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="glass p-6 flex items-center gap-5">
+                            <div class="w-14 h-14 rounded-2xl bg-brand/10 flex items-center justify-center">
+                                <i data-lucide="wallet" class="w-7 h-7 text-brand"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white text-lg">Jusqu'à 83% de votre CA</h4>
+                                <p class="text-white/40">Transformé en salaire net optimisé</p>
+                            </div>
+                        </div>
+                        <div class="glass p-6 flex items-center gap-5">
+                            <div class="w-14 h-14 rounded-2xl bg-brand/10 flex items-center justify-center">
+                                <i data-lucide="shield-check" class="w-7 h-7 text-brand"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white text-lg">Protection complète</h4>
+                                <p class="text-white/40">Chômage, retraite, mutuelle, prévoyance</p>
+                            </div>
+                        </div>
+                        <div class="glass p-6 flex items-center gap-5">
+                            <div class="w-14 h-14 rounded-2xl bg-brand/10 flex items-center justify-center">
+                                <i data-lucide="sparkles" class="w-7 h-7 text-brand"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white text-lg">Zéro paperasse</h4>
+                                <p class="text-white/40">URSSAF, TVA, comptabilité = on gère tout</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: COMMENT ÇA MARCHE -->
+    <div class="slide">
+        <div class="glow top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2"></div>
+        <div class="slide-inner">
+            <div class="flex items-center gap-4 mb-12">
+                <span class="text-brand font-bold text-sm">03</span>
+                <h2 class="text-4xl font-semibold tracking-tight">Comment ça marche</h2>
+            </div>
+            
+            <div class="flex-1 flex items-center">
+                <div class="grid grid-cols-3 gap-8 w-full">
+                    <div class="text-center">
+                        <div class="w-20 h-20 mx-auto rounded-3xl bg-brand/10 border border-brand/20 flex items-center justify-center mb-6">
+                            <i data-lucide="smartphone" class="w-10 h-10 text-brand"></i>
+                        </div>
+                        <div class="text-brand font-bold text-sm mb-3">ÉTAPE 1</div>
+                        <h3 class="text-2xl font-bold text-white mb-3">Inscrivez-vous</h3>
+                        <p class="text-white/50">Téléchargez l'app, signez votre contrat en ligne. Démarrage en 48h.</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="w-20 h-20 mx-auto rounded-3xl bg-brand/10 border border-brand/20 flex items-center justify-center mb-6">
+                            <i data-lucide="link" class="w-10 h-10 text-brand"></i>
+                        </div>
+                        <div class="text-brand font-bold text-sm mb-3">ÉTAPE 2</div>
+                        <h3 class="text-2xl font-bold text-white mb-3">Connectez vos apps</h3>
+                        <p class="text-white/50">Liez Uber, Bolt, Heetch. On récupère votre CA automatiquement.</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="w-20 h-20 mx-auto rounded-3xl bg-brand/10 border border-brand/20 flex items-center justify-center mb-6">
+                            <i data-lucide="banknote" class="w-10 h-10 text-brand"></i>
+                        </div>
+                        <div class="text-brand font-bold text-sm mb-3">ÉTAPE 3</div>
+                        <h3 class="text-2xl font-bold text-white mb-3">Recevez votre salaire</h3>
+                        <p class="text-white/50">Salaire net + fiche de paie + cotisations. Versé sous 48h.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="glass p-6 flex items-center justify-center gap-8 mt-8">
+                <span class="text-white/50">Compatible avec</span>
+                <span class="text-xl font-bold text-white/80">UBER</span>
+                <span class="text-xl font-bold text-white/80">BOLT</span>
+                <span class="text-xl font-bold text-white/80">HEETCH</span>
+                <span class="text-xl font-bold text-white/80">FREENOW</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5: SIMULATION REVENUS -->
+    <div class="slide">
+        <div class="glow top-[-100px] right-[-100px]"></div>
+        <div class="slide-inner">
+            <div class="flex items-center gap-4 mb-8">
+                <span class="text-brand font-bold text-sm">04</span>
+                <h2 class="text-4xl font-semibold tracking-tight">Simulation de revenus</h2>
+            </div>
+            
+            <div class="flex-1 grid grid-cols-2 gap-12 items-center">
+                <div>
+                    <div class="text-white/40 text-sm uppercase tracking-widest mb-2">Exemple pour</div>
+                    <div class="text-6xl font-bold text-white mb-2">4 000€</div>
+                    <div class="text-xl text-white/50 mb-8">de chiffre d'affaires TTC / mois</div>
+                    
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center py-3 border-b border-white/10">
+                            <span class="text-white/60">Commission LOOP</span>
+                            <span class="text-white font-medium">10% (400€)</span>
+                        </div>
+                        <div class="flex justify-between items-center py-3 border-b border-white/10">
+                            <span class="text-white/60">TVA récupérée</span>
+                            <span class="text-green-400 font-medium">+316€</span>
+                        </div>
+                        <div class="flex justify-between items-center py-3 border-b border-white/10">
+                            <span class="text-white/60">Indemnités kilométriques</span>
+                            <span class="text-white font-medium">2 215€</span>
+                        </div>
+                        <div class="flex justify-between items-center py-3 border-b border-white/10">
+                            <span class="text-white/60">Salaire net</span>
+                            <span class="text-white font-medium">784€</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="glass p-10 bg-gradient-to-br from-brand/10 to-transparent border-brand/20">
+                    <div class="text-center">
+                        <div class="text-brand text-sm font-bold uppercase tracking-widest mb-4">Total dans votre poche</div>
+                        <div class="text-8xl font-bold text-white mb-2">~3 000€</div>
+                        <div class="text-2xl text-white/50 mb-6">soit 83% de votre CA</div>
+                        
+                        <div class="inline-block px-6 py-3 bg-green-500/10 border border-green-500/20 rounded-full">
+                            <span class="text-green-400 font-bold">Impôt 0% — Non imposable</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: COMPARATIF -->
+    <div class="slide">
+        <div class="slide-inner">
+            <div class="flex items-center gap-4 mb-8">
+                <span class="text-brand font-bold text-sm">05</span>
+                <h2 class="text-4xl font-semibold tracking-tight">Comparatif des statuts</h2>
+            </div>
+            
+            <div class="flex-1">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b border-white/10">
+                            <th class="py-4 text-white/40 text-sm font-medium w-1/4"></th>
+                            <th class="py-4 text-center">
+                                <div class="inline-block px-4 py-2 bg-brand/10 border border-brand/30 rounded-full">
+                                    <span class="text-brand font-bold">LOOP</span>
+                                </div>
+                            </th>
+                            <th class="py-4 text-white/40 text-sm font-medium text-center">Auto-Entreprise</th>
+                            <th class="py-4 text-white/40 text-sm font-medium text-center">SASU/EURL</th>
+                            <th class="py-4 text-white/40 text-sm font-medium text-center">Salariat classique</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm">
+                        <tr class="border-b border-white/5">
+                            <td class="py-4 text-white/80">Liberté horaires</td>
+                            <td class="py-4 text-center"><i data-lucide="check" class="inline w-5 h-5 text-brand"></i></td>
+                            <td class="py-4 text-center"><i data-lucide="check" class="inline w-5 h-5 text-white/30"></i></td>
+                            <td class="py-4 text-center"><i data-lucide="check" class="inline w-5 h-5 text-white/30"></i></td>
+                            <td class="py-4 text-center"><i data-lucide="x" class="inline w-5 h-5 text-white/20"></i></td>
+                        </tr>
+                        <tr class="border-b border-white/5">
+                            <td class="py-4 text-white/80">Chômage</td>
+                            <td class="py-4 text-center"><i data-lucide="check" class="inline w-5 h-5 text-brand"></i></td>
+                            <td class="py-4 text-center"><i data-lucide="x" class="inline w-5 h-5 text-white/20"></i></td>
+                            <td class="py-4 text-center"><i data-lucide="x" class="inline w-5 h-5 text-white/20"></i></td>
+                            <td class="py-4 text-center"><i data-lucide="check" class="inline w-5 h-5 text-white/30"></i></td>
+                        </tr>
+                        <tr class="border-b border-white/5">
+                            <td class="py-4 text-white/80">Récupération TVA</td>
+                            <td class="py-4 text-center"><i data-lucide="check" class="inline w-5 h-5 text-brand"></i></td>
+                            <td class="py-4 text-center"><i data-lucide="x" class="inline w-5 h-5 text-white/20"></i></td>
+                            <td class="py-4 text-center"><i data-lucide="check" class="inline w-5 h-5 text-white/30"></i></td>
+                            <td class="py-4 text-center"><i data-lucide="x" class="inline w-5 h-5 text-white/20"></i></td>
+                        </tr>
+                        <tr class="border-b border-white/5">
+                            <td class="py-4 text-white/80">Congés payés</td>
+                            <td class="py-4 text-center"><i data-lucide="check" class="inline w-5 h-5 text-brand"></i></td>
+                            <td class="py-4 text-center"><i data-lucide="x" class="inline w-5 h-5 text-white/20"></i></td>
+                            <td class="py-4 text-center"><i data-lucide="x" class="inline w-5 h-5 text-white/20"></i></td>
+                            <td class="py-4 text-center"><i data-lucide="check" class="inline w-5 h-5 text-white/30"></i></td>
+                        </tr>
+                        <tr class="border-b border-white/5">
+                            <td class="py-4 text-white/80">Zéro paperasse</td>
+                            <td class="py-4 text-center"><i data-lucide="check" class="inline w-5 h-5 text-brand"></i></td>
+                            <td class="py-4 text-center"><i data-lucide="x" class="inline w-5 h-5 text-white/20"></i></td>
+                            <td class="py-4 text-center"><i data-lucide="x" class="inline w-5 h-5 text-white/20"></i></td>
+                            <td class="py-4 text-center"><i data-lucide="check" class="inline w-5 h-5 text-white/30"></i></td>
+                        </tr>
+                        <tr class="border-b border-white/5">
+                            <td class="py-4 text-white/80">Accès crédit bancaire</td>
+                            <td class="py-4 text-center"><i data-lucide="check" class="inline w-5 h-5 text-brand"></i></td>
+                            <td class="py-4 text-center text-white/30 text-xs">Difficile</td>
+                            <td class="py-4 text-center text-white/30 text-xs">Difficile</td>
+                            <td class="py-4 text-center"><i data-lucide="check" class="inline w-5 h-5 text-white/30"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="py-4 text-white/80">Arrêts maladie indemnisés</td>
+                            <td class="py-4 text-center"><i data-lucide="check" class="inline w-5 h-5 text-brand"></i></td>
+                            <td class="py-4 text-center text-white/30 text-xs">Faible</td>
+                            <td class="py-4 text-center text-white/30 text-xs">Faible</td>
+                            <td class="py-4 text-center"><i data-lucide="check" class="inline w-5 h-5 text-white/30"></i></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: LE MARCHÉ -->
+    <div class="slide">
+        <div class="glow bottom-[-200px] left-[-100px]"></div>
+        <div class="slide-inner">
+            <div class="flex items-center gap-4 mb-12">
+                <span class="text-brand font-bold text-sm">06</span>
+                <h2 class="text-4xl font-semibold tracking-tight">Le Marché</h2>
+            </div>
+            
+            <div class="flex-1 grid grid-cols-3 gap-8">
+                <div class="glass p-8 text-center flex flex-col justify-center">
+                    <div class="text-6xl font-bold text-white mb-2">71 000+</div>
+                    <div class="text-brand font-bold uppercase tracking-widest text-sm mb-4">Chauffeurs VTC</div>
+                    <p class="text-white/40">actifs en France en 2024</p>
+                </div>
+                
+                <div class="glass p-8 text-center flex flex-col justify-center bg-gradient-to-b from-brand/5 to-transparent border-brand/20">
+                    <div class="text-6xl font-bold text-white mb-2">≈4 Mds€</div>
+                    <div class="text-brand font-bold uppercase tracking-widest text-sm mb-4">Marché VTC France</div>
+                    <p class="text-white/40">en croissance continue</p>
+                </div>
+                
+                <div class="glass p-8 text-center flex flex-col justify-center">
+                    <div class="text-6xl font-bold text-white mb-2">81%</div>
+                    <div class="text-brand font-bold uppercase tracking-widest text-sm mb-4">Île-de-France</div>
+                    <p class="text-white/40">concentration de l'activité</p>
+                </div>
+            </div>
+            
+            <div class="glass p-6 mt-8 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="target" class="w-6 h-6 text-brand"></i>
+                    <span class="text-white font-medium">Cible initiale : Île-de-France</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <i data-lucide="trending-up" class="w-6 h-6 text-green-400"></i>
+                    <span class="text-white/60">Marché en forte croissance depuis 2015</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 8: NOS VALEURS -->
+    <div class="slide">
+        <div class="glow top-[50%] right-[-200px]"></div>
+        <div class="slide-inner">
+            <div class="flex items-center gap-4 mb-12">
+                <span class="text-brand font-bold text-sm">07</span>
+                <h2 class="text-4xl font-semibold tracking-tight">Nos Valeurs</h2>
+            </div>
+            
+            <div class="flex-1 grid grid-cols-3 gap-8">
+                <div class="glass p-8">
+                    <div class="w-16 h-16 rounded-2xl bg-brand/10 flex items-center justify-center mb-6">
+                        <i data-lucide="users" class="w-8 h-8 text-brand"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-4">Solidarité</h3>
+                    <p class="text-white/50 leading-relaxed">
+                        Chaque chauffeur est membre de la coopérative. Nous mutualisons les moyens pour offrir plus de sécurité et de soutien.
+                    </p>
+                </div>
+                
+                <div class="glass p-8">
+                    <div class="w-16 h-16 rounded-2xl bg-brand/10 flex items-center justify-center mb-6">
+                        <i data-lucide="eye" class="w-8 h-8 text-brand"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-4">Transparence</h3>
+                    <p class="text-white/50 leading-relaxed">
+                        Aucun coût caché, des règles claires. Chaque euro est expliqué, chaque décision prise dans l'intérêt des chauffeurs.
+                    </p>
+                </div>
+                
+                <div class="glass p-8">
+                    <div class="w-16 h-16 rounded-2xl bg-brand/10 flex items-center justify-center mb-6">
+                        <i data-lucide="zap" class="w-8 h-8 text-brand"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-4">Autonomie</h3>
+                    <p class="text-white/50 leading-relaxed">
+                        Liberté de choisir ses plateformes, horaires et rythme. LOOP donne le cadre, le chauffeur reste acteur de son activité.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 9: L'ÉQUIPE -->
+    <div class="slide">
+        <div class="glow top-[-100px] left-[50%] -translate-x-1/2"></div>
+        <div class="slide-inner">
+            <div class="flex items-center gap-4 mb-12">
+                <span class="text-brand font-bold text-sm">08</span>
+                <h2 class="text-4xl font-semibold tracking-tight">L'Équipe</h2>
+            </div>
+            
+            <div class="flex-1 flex items-center justify-center">
+                <div class="grid grid-cols-2 gap-24">
+                    <div class="text-center">
+                        <div class="w-48 h-48 mx-auto rounded-full bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a] border border-white/10 flex items-center justify-center mb-8 shadow-2xl">
+                            <span class="text-5xl font-bold text-white/20">AE</span>
+                        </div>
+                        <h3 class="text-3xl font-bold text-white mb-2">Adil Essakaki</h3>
+                        <div class="w-12 h-1 bg-brand mx-auto rounded-full mb-4"></div>
+                        <p class="text-white/40">Co-fondateur</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="w-48 h-48 mx-auto rounded-full bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a] border border-white/10 flex items-center justify-center mb-8 shadow-2xl">
+                            <span class="text-5xl font-bold text-white/20">IB</span>
+                        </div>
+                        <h3 class="text-3xl font-bold text-white mb-2">Ilyes Bouguellab</h3>
+                        <div class="w-12 h-1 bg-brand mx-auto rounded-full mb-4"></div>
+                        <p class="text-white/40">Co-fondateur</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 10: CLOSING -->
+    <div class="slide">
+        <div class="glow top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px]"></div>
+        <div class="slide-inner justify-center items-center text-center">
+            <div class="mb-8">
+                <div class="w-24 h-24 mx-auto rounded-full bg-brand shadow-[0_0_60px_rgba(253,82,26,0.5)] mb-8"></div>
+                <h2 class="text-7xl font-bold text-white mb-4 tracking-tight">LOOP</h2>
+                <p class="text-2xl text-white/50 mb-12">L'indépendance protégée</p>
+            </div>
+            
+            <div class="glass px-12 py-8 inline-block">
+                <div class="text-white/40 text-sm uppercase tracking-widest mb-2">Contact</div>
+                <div class="text-2xl text-white font-medium">hello@loop-vtc.fr</div>
+            </div>
+            
+            <div class="mt-12 text-white/20 text-sm">
+                2025 — Pitch Deck
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+
+    <!-- Print Button -->
+    <div class="no-print fixed bottom-8 right-8 flex gap-4">
+        <button onclick="window.print()" class="px-6 py-3 bg-brand text-white font-bold rounded-full hover:bg-brand/80 transition-colors shadow-lg">
+            Exporter en PDF
+        </button>
+    </div>
+
+</body>
+</html>
