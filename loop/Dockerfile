@@ -48,6 +48,7 @@ COPY --from=builder --chown=loop:nodejs /app/dist ./dist
 COPY --from=builder --chown=loop:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=loop:nodejs /app/package.json ./package.json
 COPY --from=builder --chown=loop:nodejs /app/server.mjs ./server.mjs
+COPY --from=builder --chown=loop:nodejs /app/drizzle.config.ts ./drizzle.config.ts
 
 # Set environment variables
 ENV NODE_ENV=production
