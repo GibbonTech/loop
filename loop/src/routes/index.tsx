@@ -37,7 +37,7 @@ function HomePage() {
             onClick={() => window.scrollTo(0, 0)}
           >
             <div className="h-2.5 w-2.5 rounded-full bg-[#fd521a] shadow-[0_0_10px_rgba(253,82,26,0.5)]"></div>
-            LOOP
+            DRIIVO
           </a>
 
           <div className="hidden items-center gap-6 text-sm font-medium text-gray-600 md:flex">
@@ -69,21 +69,21 @@ function HomePage() {
         {/* Hero Section */}
         <section className="mb-24 flex min-h-[60vh] flex-col items-center justify-center text-center">
           <div className="mb-6 animate-fade-in rounded-full border border-white/50 bg-white/60 px-5 py-2 text-[11px] font-bold uppercase tracking-[0.15em] text-[#fd521a] shadow-sm backdrop-blur-md">
-            La Première Coopérative VTC
+            Nouveau Statut VTC
           </div>
 
           <h1 className="mb-6 text-6xl font-bold tracking-tight text-[#111] md:text-7xl lg:text-[5.5rem]">
-            Indépendant.
+            Devenez
             <br />
-            <span className="text-gray-400/80">Protégé.</span>
+            <span className="text-[#fd521a]">entrepreneur salarié</span>
           </h1>
 
           <p className="mb-10 max-w-lg text-xl font-medium leading-relaxed text-gray-600">
-            Transformez votre activité VTC en{" "}
-            <span className="font-bold text-[#111]">salaire</span> sans jamais
-            avoir de patron.
+            Restez indépendant tout en bénéficiant d&apos;un{" "}
+            <span className="font-bold text-[#111]">vrai CDI</span> :
+            fiche de paie, retraite, mutuelle, chômage.
             <span className="mt-2 block text-base text-gray-400">
-              Le statut de salarié. La liberté de l&apos;indépendant.
+              La liberté en plus. La sécurité en prime.
             </span>
           </p>
 
@@ -160,7 +160,7 @@ function HomePage() {
               </div>
               <h3 className="mb-3 text-lg font-bold">On transforme</h3>
               <p className="text-sm leading-relaxed text-gray-500">
-                Loop encaisse votre CA, déduit la TVA et les frais, et
+                Driivo encaisse votre CA, déduit la TVA et les frais, et
                 transforme le reste en salaire net.
               </p>
             </div>
@@ -196,7 +196,7 @@ function HomePage() {
                 </h3>
                 <p className="max-w-sm text-gray-500">
                   Contrairement aux &quot;startups&quot; qui veulent vous
-                  salarier, Loop est une coopérative. Vous êtes membre, pas
+                  salarier, Driivo est une coopérative. Vous êtes membre, pas
                   employé.
                 </p>
               </div>
@@ -293,7 +293,7 @@ function HomePage() {
               <div className="scale-105 rounded-[2rem] bg-[#fd521a] p-6 text-white shadow-xl">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="font-bold text-white">LOOP</h4>
+                    <h4 className="font-bold text-white">DRIIVO</h4>
                     <p className="mt-1 text-xs font-bold text-[#ff8a65]">
                       10% • Protection Totale
                     </p>
@@ -341,7 +341,7 @@ function HomePage() {
             to="/inscription"
             className="rounded-full bg-[#fd521a] px-10 py-4 text-lg font-bold text-white shadow-xl transition-transform hover:scale-105"
           >
-            Devenir Membre Loop
+            Devenir Membre Driivo
           </Link>
           <p className="mt-6 text-xs uppercase tracking-widest text-gray-400">
             Sans engagement • Démarrage 48h
@@ -350,7 +350,7 @@ function HomePage() {
 
         <footer className="border-t border-gray-200/50 py-10 text-center text-xs font-medium text-gray-400">
           <p>
-            © 2025 Coopérative Loop. Fait par des chauffeurs, pour des
+            © 2025 Coopérative Driivo. Fait par des chauffeurs, pour des
             chauffeurs.
           </p>
         </footer>

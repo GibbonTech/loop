@@ -116,7 +116,7 @@ function InscriptionPage() {
         <div className="mx-auto flex h-16 max-w-4xl items-center justify-between px-4">
           <Link to="/" className="flex items-center gap-2 text-lg font-bold tracking-tighter">
             <div className="h-2.5 w-2.5 rounded-full bg-[#fd521a]"></div>
-            LOOP
+            DRIIVO
           </Link>
           <div className="text-sm text-gray-500">
             Étape {currentStep} sur {TOTAL_STEPS}

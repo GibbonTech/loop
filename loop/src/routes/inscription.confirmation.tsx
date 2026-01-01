@@ -50,7 +50,7 @@ function ConfirmationPage() {
 
           <h1 className="mb-3 text-3xl font-bold tracking-tight">Candidature envoyée !</h1>
           <p className="mb-8 text-gray-500">
-            Merci d'avoir choisi Loop. Notre équipe va examiner votre dossier et vous contacter dans
+            Merci d'avoir choisi Driivo. Notre équipe va examiner votre dossier et vous contacter dans
             les 24h.
           </p>
 
@@ -128,12 +128,12 @@ function ConfirmationPage() {
           <div className="flex gap-2">
             <input
               type="text"
-              value="https://loop.fr/r/JD2025"
+              value="https://driivo.fr/r/JD2025"
               readOnly
               className="flex-1 rounded-lg border border-gray-200 bg-gray-100 px-4 py-2 text-xs"
             />
             <button
-              onClick={() => navigator.clipboard.writeText("https://loop.fr/r/JD2025")}
+              onClick={() => navigator.clipboard.writeText("https://driivo.fr/r/JD2025")}
               className="rounded-lg bg-[#fd521a] px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-[#e04a17]"
             >
               Copier

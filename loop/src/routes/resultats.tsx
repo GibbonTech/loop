@@ -46,7 +46,7 @@ function ResultatsPage() {
             className="flex items-center gap-2 text-lg font-bold tracking-tighter text-black"
           >
             <div className="h-2.5 w-2.5 rounded-full bg-[#fd521a] shadow-[0_0_10px_rgba(253,82,26,0.5)]"></div>
-            LOOP
+            DRIIVO
           </Link>
           <Link
             to="/inscription"
@@ -80,7 +80,7 @@ function ResultatsPage() {
               {formatNumber(net)} €
             </div>
             <p className="mt-2 text-sm text-gray-400">
-              Après cotisations sociales et frais Loop
+              Après cotisations sociales et frais Driivo
             </p>
           </div>
 
@@ -93,7 +93,7 @@ function ResultatsPage() {
                 <span className="font-bold">{formatNumber(ca)} €</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Frais Loop (10%)</span>
+                <span className="text-sm text-gray-600">Frais Driivo (10%)</span>
                 <span className="font-bold text-[#fd521a]">- {formatNumber(fees)} €</span>
               </div>
               <div className="flex items-center justify-between">
@@ -144,7 +144,7 @@ function ResultatsPage() {
                 <div className="mt-1 text-[10px] text-red-500">❌ Pas de chômage ni retraite</div>
               </div>
               <div className="rounded-xl border border-[#fd521a]/20 bg-[#fd521a]/5 p-4">
-                <div className="mb-2 text-xs font-bold text-[#fd521a]">Avec Loop</div>
+                <div className="mb-2 text-xs font-bold text-[#fd521a]">Avec Driivo</div>
                 <div className="text-2xl font-bold text-[#111]">{formatNumber(net)} €</div>
                 <div className="mt-1 text-[10px] text-green-600">✓ Protection sociale complète</div>
               </div>

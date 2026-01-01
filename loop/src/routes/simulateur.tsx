@@ -61,7 +61,7 @@ function SimulateurPage() {
             className="flex items-center gap-2 text-lg font-bold tracking-tighter text-black"
           >
             <div className="h-2.5 w-2.5 rounded-full bg-[#fd521a] shadow-[0_0_10px_rgba(253,82,26,0.5)]"></div>
-            LOOP
+            DRIIVO
           </Link>
           <div className="hidden items-center gap-6 text-sm font-medium text-gray-600 md:flex">
             <Link to="/" className="transition-colors hover:text-black">

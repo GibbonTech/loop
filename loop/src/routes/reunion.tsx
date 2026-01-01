@@ -92,7 +92,7 @@ function ReunionPage() {
             className="flex items-center gap-2 text-lg font-bold tracking-tighter text-black"
           >
             <div className="h-2.5 w-2.5 rounded-full bg-[#fd521a] shadow-[0_0_10px_rgba(253,82,26,0.5)]"></div>
-            LOOP
+            DRIIVO
           </Link>
         </div>
       </nav>
@@ -104,7 +104,7 @@ function ReunionPage() {
           <div>
             <h1 className="mb-4 text-3xl font-bold tracking-tight">Réservez votre appel</h1>
             <p className="mb-8 text-gray-500">
-              15 minutes pour découvrir Loop et poser toutes vos questions à un conseiller.
+              15 minutes pour découvrir Driivo et poser toutes vos questions à un conseiller.
             </p>
 
             {/* What to expect */}
@@ -145,7 +145,7 @@ function ReunionPage() {
               </div>
               <div>
                 <div className="text-sm font-bold">Mehdi F.</div>
-                <div className="text-xs text-gray-400">Conseiller Loop</div>
+                <div className="text-xs text-gray-400">Conseiller Driivo</div>
               </div>
             </div>
           </div>
