@@ -1,27 +1,55 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState, useMemo } from "react";
 import { MessageCircle, Calculator, Rocket, ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/reunion")({
   component: ReunionPage,
+  head: () => ({
+    meta: [
+      { title: "Réserver un Appel | Driivo" },
+      { name: "description", content: "Réservez un appel de 15 minutes avec un conseiller Driivo pour découvrir le statut d'entrepreneur salarié." },
+    ],
+  }),
 });
 
 function ReunionPage() {
+  const navigate = useNavigate();
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [currentWeekOffset, setCurrentWeekOffset] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [contactInfo, setContactInfo] = useState({
+    name: "",
+    email: "",
+    phone: "",
+  });
 
   const slots = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00"];
   const dayNames = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
+
+  // Deterministic slot availability based on day and slot
+  const getSlotAvailability = useMemo(() => {
+    const availabilityMap: Record<string, boolean[]> = {};
+    return (dayDate: string) => {
+      if (!availabilityMap[dayDate]) {
+        // Use day of month as seed for deterministic "randomness"
+        const dayNum = new Date(dayDate).getDate();
+        availabilityMap[dayDate] = slots.map((_, idx) => {
+          // Simple deterministic pattern: most slots available, some blocked
+          return !((dayNum + idx) % 4 === 0);
+        });
+      }
+      return availabilityMap[dayDate];
+    };
+  }, []);
 
   const getDays = () => {
     const today = new Date();
     today.setDate(today.getDate() + currentWeekOffset * 7);
     const days = [];
 
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < 14; i++) {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
       const dayOfWeek = date.getDay();
@@ -44,7 +72,10 @@ function ReunionPage() {
   };
 
   const handleConfirm = async () => {
-    if (!selectedDay || !selectedSlot) return;
+    if (!selectedDay || !selectedSlot || !contactInfo.name || !contactInfo.email || !contactInfo.phone) {
+      toast.error("Veuillez remplir tous les champs");
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -54,9 +85,16 @@ function ReunionPage() {
         body: JSON.stringify({
           date: selectedDay,
           time: selectedSlot,
+          name: contactInfo.name,
+          email: contactInfo.email,
+          phone: contactInfo.phone,
         }),
       });
       toast.success("Créneau réservé ! Vous recevrez un email de confirmation.");
+      // Redirect to confirmation after short delay
+      setTimeout(() => {
+        navigate({ to: "/inscription/confirmation" });
+      }, 1500);
     } catch (error) {
       console.error("Error booking meeting:", error);
       toast.error("Erreur lors de la réservation");
@@ -72,6 +110,8 @@ function ReunionPage() {
     setSelectedDay(null);
     setSelectedSlot(null);
   };
+
+  const isFormValid = selectedDay && selectedSlot && contactInfo.name && contactInfo.email && contactInfo.phone;
 
   return (
     <div className="min-h-screen bg-[#f2f2f0] text-[#1c1917] selection:bg-[#fd521a] selection:text-white">
@@ -150,13 +190,14 @@ function ReunionPage() {
             </div>
           </div>
 
-          {/* Right: Calendar */}
+          {/* Right: Calendar & Form */}
           <div className="rounded-[2rem] border border-white/50 bg-gradient-to-br from-white/80 to-[#fafaf9]/60 p-6 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15)] backdrop-blur-3xl">
             {/* Calendar Header */}
             <div className="mb-6 flex items-center justify-between">
               <button
                 onClick={() => changeWeek(-1)}
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 transition-colors hover:bg-gray-200"
+                disabled={currentWeekOffset === 0}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
@@ -191,14 +232,15 @@ function ReunionPage() {
             </div>
 
             {/* Time Slots */}
-            <div>
+            <div className="mb-6">
               <div className="mb-3 text-xs font-bold text-gray-400">
                 {selectedDay ? "Créneaux disponibles" : "Sélectionnez un jour"}
               </div>
               {selectedDay && (
                 <div className="grid grid-cols-3 gap-2">
-                  {slots.map((slot) => {
-                    const available = Math.random() > 0.3;
+                  {slots.map((slot, idx) => {
+                    const availability = getSlotAvailability(selectedDay);
+                    const available = availability[idx];
                     return (
                       <button
                         key={slot}
@@ -206,7 +248,7 @@ function ReunionPage() {
                         onClick={() => setSelectedSlot(slot)}
                         className={`rounded-lg border px-3 py-2 text-sm font-medium transition-all ${
                           selectedSlot === slot
-                            ? "border-[#fd521a] bg-[#fd521a]/10"
+                            ? "border-[#fd521a] bg-[#fd521a]/10 text-[#fd521a]"
                             : available
                               ? "border-gray-200 hover:border-[#fd521a] hover:bg-[#fd521a]/5"
                               : "cursor-not-allowed border-gray-100 text-gray-300"
@@ -220,11 +262,39 @@ function ReunionPage() {
               )}
             </div>
 
+            {/* Contact Form */}
+            {selectedSlot && (
+              <div className="mb-6 space-y-3 border-t border-gray-200 pt-6">
+                <div className="text-xs font-bold text-gray-400">Vos coordonnées</div>
+                <input
+                  type="text"
+                  placeholder="Votre nom"
+                  value={contactInfo.name}
+                  onChange={(e) => setContactInfo({ ...contactInfo, name: e.target.value })}
+                  className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm focus:border-[#fd521a] focus:outline-none focus:ring-2 focus:ring-[#fd521a]/10"
+                />
+                <input
+                  type="email"
+                  placeholder="Votre email"
+                  value={contactInfo.email}
+                  onChange={(e) => setContactInfo({ ...contactInfo, email: e.target.value })}
+                  className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm focus:border-[#fd521a] focus:outline-none focus:ring-2 focus:ring-[#fd521a]/10"
+                />
+                <input
+                  type="tel"
+                  placeholder="Votre téléphone"
+                  value={contactInfo.phone}
+                  onChange={(e) => setContactInfo({ ...contactInfo, phone: e.target.value })}
+                  className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm focus:border-[#fd521a] focus:outline-none focus:ring-2 focus:ring-[#fd521a]/10"
+                />
+              </div>
+            )}
+
             {/* Confirm Button */}
             <button
-              disabled={!selectedDay || !selectedSlot || isSubmitting}
+              disabled={!isFormValid || isSubmitting}
               onClick={handleConfirm}
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[#fd521a] py-4 text-base font-bold text-white shadow-[0_8px_20px_-4px_rgba(253,82,26,0.3)] transition-all hover:-translate-y-0.5 hover:bg-[#e0410e] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#fd521a] py-4 text-base font-bold text-white shadow-[0_8px_20px_-4px_rgba(253,82,26,0.3)] transition-all hover:-translate-y-0.5 hover:bg-[#e0410e] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
             >
               {isSubmitting ? "Réservation..." : "Confirmer le créneau"}
               <Check className="h-5 w-5" />

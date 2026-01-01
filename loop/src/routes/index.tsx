@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import {
   ArrowRight,
   Car,
@@ -17,9 +18,26 @@ import {
 
 export const Route = createFileRoute("/")({
   component: HomePage,
+  head: () => ({
+    meta: [
+      { title: "Driivo - Devenez Entrepreneur Salarié VTC" },
+      { name: "description", content: "Restez indépendant tout en bénéficiant d'un vrai CDI : fiche de paie, retraite, mutuelle, chômage. La liberté en plus, la sécurité en prime." },
+    ],
+  }),
 });
 
 function HomePage() {
+  const [ca, setCa] = useState(5000);
+  
+  // Calculate results
+  const fees = Math.round(ca * 0.1);
+  const cotisations = Math.round(ca * 0.14);
+  const net = ca - fees - cotisations;
+  
+  const formatNumber = (num: number) => {
+    return num.toString().replace(/\B(?=(?:\d{3})+(?!\d))/g, " ");
+  };
+
   return (
     <div
       className="min-h-screen bg-[#f2f2f0] text-[#1c1917] selection:bg-[#fd521a] selection:text-white"
@@ -135,6 +153,67 @@ function HomePage() {
               <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
                 Frais seulement
               </span>
+            </div>
+          </div>
+        </section>
+
+        {/* MINI CALCULATOR - Inline Value Preview */}
+        <section id="simulateur" className="mb-10 py-8">
+          <div className="mx-auto max-w-2xl rounded-[2.5rem] border border-white/50 bg-gradient-to-br from-white/80 to-[#fafaf9]/60 p-8 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15)] backdrop-blur-3xl md:p-10">
+            <div className="mb-6 text-center">
+              <h2 className="mb-2 text-2xl font-bold">Combien vous reste-t-il en net ?</h2>
+              <p className="text-sm text-gray-500">Glissez le curseur pour voir votre salaire</p>
+            </div>
+            
+            {/* Slider */}
+            <div className="mb-6">
+              <div className="mb-4 flex items-baseline justify-center gap-2">
+                <span className="text-5xl font-bold tracking-tighter text-[#111]">{formatNumber(ca)}</span>
+                <span className="text-2xl text-gray-300">€/mois</span>
+              </div>
+              <input
+                type="range"
+                min="2000"
+                max="12000"
+                step="500"
+                value={ca}
+                onChange={(e) => setCa(parseInt(e.target.value))}
+                className="w-full accent-[#fd521a]"
+              />
+              <div className="mt-2 flex justify-between text-xs text-gray-400">
+                <span>2 000 €</span>
+                <span>12 000 €</span>
+              </div>
+            </div>
+
+            {/* Results */}
+            <div className="mb-6 grid gap-4 md:grid-cols-2">
+              <div className="rounded-2xl bg-green-50 p-4 text-center">
+                <div className="text-xs font-bold uppercase tracking-wider text-green-600">Votre salaire net</div>
+                <div className="text-3xl font-bold text-green-700">{formatNumber(net)} €</div>
+              </div>
+              <div className="rounded-2xl bg-gray-100 p-4 text-center">
+                <div className="text-xs font-bold uppercase tracking-wider text-gray-500">Cotisations payées</div>
+                <div className="text-2xl font-bold text-gray-600">{formatNumber(cotisations)} €</div>
+                <div className="text-[10px] text-gray-400">Chômage, retraite, mutuelle inclus</div>
+              </div>
+            </div>
+
+            {/* CTA */}
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+              <Link
+                to="/simulateur"
+                className="flex items-center justify-center gap-2 rounded-full bg-[#fd521a] px-6 py-3 text-sm font-bold text-white shadow-[0_8px_20px_-4px_rgba(253,82,26,0.3)] transition-all hover:-translate-y-0.5 hover:bg-[#e0410e]"
+              >
+                Simulation détaillée
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                to="/inscription"
+                className="flex items-center justify-center gap-2 rounded-full border border-gray-200 bg-white px-6 py-3 text-sm font-bold transition-all hover:-translate-y-0.5 hover:border-[#fd521a] hover:text-[#fd521a]"
+              >
+                Rejoindre maintenant
+              </Link>
             </div>
           </div>
         </section>
@@ -524,6 +603,17 @@ function HomePage() {
               <h4 className="mb-1 text-sm font-bold">C&apos;est parti !</h4>
               <p className="text-xs text-gray-400">Roulez dès 48h</p>
             </div>
+          </div>
+          
+          {/* CTA for 5-step section */}
+          <div className="mt-10 text-center">
+            <Link
+              to="/inscription"
+              className="inline-flex items-center gap-2 rounded-full bg-[#fd521a] px-8 py-4 text-base font-bold text-white shadow-[0_8px_20px_-4px_rgba(253,82,26,0.3)] transition-all hover:-translate-y-0.5 hover:bg-[#e0410e]"
+            >
+              Commencer ma candidature
+              <ArrowRight className="h-5 w-5" />
+            </Link>
           </div>
         </section>
 

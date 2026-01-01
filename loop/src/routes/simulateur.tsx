@@ -1,19 +1,31 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowRight, Lock, Clock, Phone, ShieldCheck, Heart, PiggyBank } from "lucide-react";
+import { ArrowRight, Clock, Phone, ShieldCheck, Heart, PiggyBank } from "lucide-react";
 
 export const Route = createFileRoute("/simulateur")({
   component: SimulateurPage,
+  head: () => ({
+    meta: [
+      { title: "Simulateur de Revenus | Driivo" },
+      { name: "description", content: "Calculez votre salaire net en tant qu'entrepreneur salarié VTC avec Driivo." },
+    ],
+  }),
 });
 
 function SimulateurPage() {
   const navigate = useNavigate();
   const [ca, setCa] = useState(5000);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     prenom: "",
     email: "",
     telephone: "",
   });
+
+  // Calculate real results
+  const fees = Math.round(ca * 0.1);
+  const cotisations = Math.round(ca * 0.14);
+  const net = ca - fees - cotisations;
 
   const formatNumber = (num: number) => {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
@@ -21,6 +33,7 @@ function SimulateurPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     // Save lead to database
     try {
@@ -37,6 +50,8 @@ function SimulateurPage() {
       });
     } catch (error) {
       console.error("Error saving lead:", error);
+    } finally {
+      setIsSubmitting(false);
     }
 
     // Navigate to results
@@ -123,55 +138,43 @@ function SimulateurPage() {
             </div>
           </div>
 
-          {/* Results Preview (Blurred) */}
-          <div className="relative">
-            <div className="pointer-events-none select-none blur-sm">
-              <div className="mb-6 rounded-2xl border border-white bg-white/60 p-6">
-                <div className="grid gap-6 md:grid-cols-2">
-                  <div>
-                    <div className="mb-1 text-[10px] font-bold uppercase tracking-widest text-[#fd521a]">
-                      Votre salaire net
-                    </div>
-                    <div className="text-4xl font-bold tracking-tight">
-                      3 800 €
-                    </div>
+          {/* Results Preview - Real calculated values */}
+          <div>
+            <div className="mb-6 rounded-2xl border border-white bg-white/60 p-6">
+              <div className="grid gap-6 md:grid-cols-2">
+                <div>
+                  <div className="mb-1 text-[10px] font-bold uppercase tracking-widest text-[#fd521a]">
+                    Votre salaire net
                   </div>
-                  <div>
-                    <div className="mb-1 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                      Cotisations payées
-                    </div>
-                    <div className="text-2xl font-bold text-gray-500">
-                      1 200 €
-                    </div>
+                  <div className="text-4xl font-bold tracking-tight text-green-600">
+                    {formatNumber(net)} €
                   </div>
                 </div>
-              </div>
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div className="rounded-xl bg-green-50 p-4">
-                  <ShieldCheck className="mx-auto mb-2 h-6 w-6 text-green-600" />
-                  <div className="text-xs font-bold text-green-700">Chômage</div>
-                </div>
-                <div className="rounded-xl bg-blue-50 p-4">
-                  <Heart className="mx-auto mb-2 h-6 w-6 text-blue-600" />
-                  <div className="text-xs font-bold text-blue-700">Mutuelle</div>
-                </div>
-                <div className="rounded-xl bg-purple-50 p-4">
-                  <PiggyBank className="mx-auto mb-2 h-6 w-6 text-purple-600" />
-                  <div className="text-xs font-bold text-purple-700">Retraite</div>
+                <div>
+                  <div className="mb-1 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                    Cotisations payées
+                  </div>
+                  <div className="text-2xl font-bold text-gray-500">
+                    {formatNumber(cotisations)} €
+                  </div>
                 </div>
               </div>
             </div>
-
-            {/* Overlay */}
-            <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-white/30 backdrop-blur-[2px]">
-              <div className="text-center">
-                <Lock className="mx-auto mb-3 h-8 w-8 text-gray-400" />
-                <p className="mb-1 text-sm font-bold text-gray-600">
-                  Résultats personnalisés
-                </p>
-                <p className="text-xs text-gray-400">
-                  Entrez vos infos pour voir vos résultats
-                </p>
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div className="rounded-xl bg-green-50 p-4">
+                <ShieldCheck className="mx-auto mb-2 h-6 w-6 text-green-600" />
+                <div className="text-xs font-bold text-green-700">Chômage</div>
+                <div className="text-[10px] text-green-600">Cotisé</div>
+              </div>
+              <div className="rounded-xl bg-blue-50 p-4">
+                <Heart className="mx-auto mb-2 h-6 w-6 text-blue-600" />
+                <div className="text-xs font-bold text-blue-700">Mutuelle</div>
+                <div className="text-[10px] text-blue-600">Incluse</div>
+              </div>
+              <div className="rounded-xl bg-purple-50 p-4">
+                <PiggyBank className="mx-auto mb-2 h-6 w-6 text-purple-600" />
+                <div className="text-xs font-bold text-purple-700">Retraite</div>
+                <div className="text-[10px] text-purple-600">Cotisée</div>
               </div>
             </div>
           </div>
@@ -227,9 +230,10 @@ function SimulateurPage() {
             </div>
             <button
               type="submit"
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#fd521a] py-4 text-base font-bold text-white shadow-[0_8px_20px_-4px_rgba(253,82,26,0.3)] transition-all hover:-translate-y-0.5 hover:bg-[#e0410e] hover:shadow-[0_12px_28px_-4px_rgba(253,82,26,0.4)]"
+              disabled={isSubmitting}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#fd521a] py-4 text-base font-bold text-white shadow-[0_8px_20px_-4px_rgba(253,82,26,0.3)] transition-all hover:-translate-y-0.5 hover:bg-[#e0410e] hover:shadow-[0_12px_28px_-4px_rgba(253,82,26,0.4)] disabled:cursor-not-allowed disabled:opacity-70"
             >
-              Voir mes résultats
+              {isSubmitting ? "Chargement..." : "Voir le détail complet"}
               <ArrowRight className="h-5 w-5" />
             </button>
             <p className="text-center text-[10px] text-gray-400">

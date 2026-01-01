@@ -5,6 +5,12 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/inscription/confirmation")({
   component: ConfirmationPage,
+  head: () => ({
+    meta: [
+      { title: "Candidature Envoyée | Driivo" },
+      { name: "description", content: "Votre candidature a été envoyée avec succès. Découvrez les prochaines étapes." },
+    ],
+  }),
 });
 
 function ConfirmationPage() {

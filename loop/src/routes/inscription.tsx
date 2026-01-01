@@ -4,6 +4,12 @@ import { User, FileText, Car, ArrowRight, Check, Lock } from "lucide-react";
 
 export const Route = createFileRoute("/inscription")({
   component: InscriptionPage,
+  head: () => ({
+    meta: [
+      { title: "Rejoindre Driivo | Candidature" },
+      { name: "description", content: "Rejoignez Driivo en 3 étapes simples et devenez entrepreneur salarié VTC." },
+    ],
+  }),
 });
 
 function InscriptionPage() {

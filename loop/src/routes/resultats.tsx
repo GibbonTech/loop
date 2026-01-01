@@ -3,6 +3,12 @@ import { ArrowRight, MessageCircle, ShieldCheck, Heart, PiggyBank, FileText } fr
 
 export const Route = createFileRoute("/resultats")({
   component: ResultatsPage,
+  head: () => ({
+    meta: [
+      { title: "Vos Résultats | Driivo" },
+      { name: "description", content: "Découvrez votre salaire net estimé en tant qu'entrepreneur salarié VTC." },
+    ],
+  }),
   validateSearch: (search: Record<string, unknown>) => {
     return {
       ca: (search.ca as string) || "5000",
@@ -150,20 +156,20 @@ function ResultatsPage() {
         <div className="rounded-[2rem] border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-8 text-center shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15),inset_0_1px_0_0_rgba(255,255,255,0.8)] backdrop-blur-3xl">
           <h2 className="mb-3 text-2xl font-bold">Ça vous paraît bien ?</h2>
           <p className="mb-6 text-gray-500">On peut démarrer ensemble en 48h.</p>
-          <div className="flex flex-col justify-center gap-4 sm:flex-row">
+          <div className="flex flex-col justify-center gap-4">
             <Link
               to="/inscription"
-              className="flex items-center justify-center gap-2 rounded-full bg-[#fd521a] px-8 py-4 text-base font-bold text-white shadow-[0_8px_20px_-4px_rgba(253,82,26,0.3)] transition-all hover:-translate-y-0.5 hover:bg-[#e0410e] hover:shadow-[0_12px_28px_-4px_rgba(253,82,26,0.4)]"
+              className="flex items-center justify-center gap-2 rounded-full bg-[#fd521a] px-8 py-4 text-lg font-bold text-white shadow-[0_8px_20px_-4px_rgba(253,82,26,0.3)] transition-all hover:-translate-y-0.5 hover:bg-[#e0410e] hover:shadow-[0_12px_28px_-4px_rgba(253,82,26,0.4)]"
             >
-              C&apos;est parti
+              Rejoindre Driivo maintenant
               <ArrowRight className="h-5 w-5" />
             </Link>
             <Link
               to="/reunion"
-              className="flex items-center justify-center gap-2 rounded-full bg-[#111] px-8 py-4 text-base font-bold text-white shadow-[0_8px_20px_-4px_rgba(0,0,0,0.2)] transition-all hover:-translate-y-0.5 hover:bg-[#fd521a]"
+              className="flex items-center justify-center gap-2 text-sm font-medium text-gray-500 transition-colors hover:text-[#fd521a]"
             >
-              J&apos;ai des questions
-              <MessageCircle className="h-5 w-5" />
+              <MessageCircle className="h-4 w-4" />
+              J&apos;ai des questions, je veux en parler
             </Link>
           </div>
         </div>
