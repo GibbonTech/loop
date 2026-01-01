@@ -8,18 +8,18 @@ import {
   ShieldCheck,
   Check,
   ChevronDown,
+  CheckCircle,
+  ShieldOff,
+  FileX2,
+  Ban,
+  Star,
 } from "lucide-react";
-import { useState } from "react";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
 function HomePage() {
-  const [ca, setCa] = useState(5000);
-  const net = Math.round(ca * 0.76);
-  const charges = ca - net;
-
   return (
     <div
       className="min-h-screen bg-[#f2f2f0] text-[#1c1917] selection:bg-[#fd521a] selection:text-white"
@@ -30,7 +30,7 @@ function HomePage() {
     >
       {/* Navigation */}
       <nav className="fixed left-0 top-6 z-50 flex w-full justify-center px-4">
-        <div className="flex max-w-3xl items-center gap-8 rounded-full bg-white/70 px-3 py-2 pl-6 shadow-lg backdrop-blur-xl">
+        <div className="flex max-w-3xl items-center gap-8 rounded-full border border-white/40 bg-white/60 px-3 py-2 pl-6 shadow-[0_8px_32px_-4px_rgba(168,162,158,0.1),inset_0_0_0_1px_rgba(255,255,255,0.5)] backdrop-blur-2xl">
           <a
             href="#"
             className="flex items-center gap-2 text-lg font-bold tracking-tighter text-black"
@@ -41,23 +41,23 @@ function HomePage() {
           </a>
 
           <div className="hidden items-center gap-6 text-sm font-medium text-gray-600 md:flex">
-            <a href="#mission" className="transition-colors hover:text-black">
-              Mission
+            <a href="#probleme" className="transition-colors hover:text-black">
+              Le Problème
             </a>
-            <Link
-              to="/simulateur"
-              className="transition-colors hover:text-black"
-            >
+            <a href="#solution" className="transition-colors hover:text-black">
+              La Solution
+            </a>
+            <Link to="/simulateur" className="transition-colors hover:text-black">
               Simulateur
             </Link>
-            <a href="#revenus" className="transition-colors hover:text-black">
-              Gains
+            <a href="#faq" className="transition-colors hover:text-black">
+              FAQ
             </a>
           </div>
 
           <Link
             to="/inscription"
-            className="rounded-full bg-[#111] px-5 py-2 text-xs font-bold tracking-wide text-white shadow-lg transition-colors hover:bg-[#fd521a]"
+            className="rounded-full bg-[#111] px-5 py-2 text-xs font-bold tracking-wide text-white shadow-[0_8px_20px_-4px_rgba(0,0,0,0.2)] transition-all hover:-translate-y-0.5 hover:bg-[#fd521a] hover:shadow-[0_12px_28px_-4px_rgba(253,82,26,0.4)]"
           >
             REJOINDRE
           </Link>
@@ -66,70 +66,148 @@ function HomePage() {
 
       {/* Main Container */}
       <main className="relative z-10 mx-auto max-w-[1040px] px-4 pt-32 md:px-8 md:pt-40">
-        {/* Hero Section */}
-        <section className="mb-24 flex min-h-[60vh] flex-col items-center justify-center text-center">
-          <div className="mb-6 animate-fade-in rounded-full border border-white/50 bg-white/60 px-5 py-2 text-[11px] font-bold uppercase tracking-[0.15em] text-[#fd521a] shadow-sm backdrop-blur-md">
+        {/* HERO SECTION */}
+        <section className="mb-16 flex min-h-[70vh] flex-col items-center justify-center text-center">
+          <div className="mb-6 rounded-full border border-white/50 bg-white/60 px-5 py-2 text-[11px] font-bold uppercase tracking-[0.15em] text-[#fd521a] shadow-sm backdrop-blur-md">
             Nouveau Statut VTC
           </div>
 
-          <h1 className="mb-6 text-6xl font-bold tracking-tight text-[#111] md:text-7xl lg:text-[5.5rem]">
+          <h1 className="mb-6 text-6xl font-[650] leading-[0.9] tracking-[-0.06em] text-[#111] md:text-7xl lg:text-[5.5rem]">
             Devenez
             <br />
             <span className="text-[#fd521a]">entrepreneur salarié</span>
           </h1>
 
-          <p className="mb-10 max-w-lg text-xl font-medium leading-relaxed text-gray-600">
+          <p className="mb-10 max-w-xl text-xl font-medium leading-relaxed text-gray-600">
             Restez indépendant tout en bénéficiant d&apos;un{" "}
-            <span className="font-bold text-[#111]">vrai CDI</span> :
-            fiche de paie, retraite, mutuelle, chômage.
+            <span className="font-bold text-[#111]">vrai CDI</span> : fiche de
+            paie, retraite, mutuelle, chômage.
             <span className="mt-2 block text-base text-gray-400">
               La liberté en plus. La sécurité en prime.
             </span>
           </p>
 
-          <div className="mb-16 flex w-full flex-col items-center justify-center gap-4 sm:flex-row">
+          <div className="mb-10 flex w-full flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               to="/simulateur"
-              className="flex w-full items-center justify-center gap-2 rounded-full bg-[#fd521a] px-8 py-4 text-base font-bold text-white shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl sm:w-auto"
+              className="flex w-full items-center justify-center gap-2 rounded-full bg-[#fd521a] px-8 py-4 text-base font-bold text-white shadow-[0_8px_20px_-4px_rgba(253,82,26,0.3)] transition-all hover:-translate-y-0.5 hover:bg-[#e0410e] hover:shadow-[0_12px_28px_-4px_rgba(253,82,26,0.4)] sm:w-auto"
             >
               Simulez vos revenus
               <ArrowRight className="h-5 w-5" />
             </Link>
             <Link
               to="/inscription"
-              className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-200 bg-white/50 px-6 py-4 text-base font-bold backdrop-blur-sm transition-all hover:-translate-y-1 sm:w-auto"
+              className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-200/50 bg-white/50 px-6 py-4 text-base font-bold shadow-[inset_0_0_0_1px_rgba(255,255,255,0.4)] backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-white/80 sm:w-auto"
             >
               Rejoindre maintenant
             </Link>
           </div>
 
-          {/* Social Proof */}
-          <div className="grid grid-cols-3 gap-8 opacity-40 grayscale transition-opacity duration-500 hover:opacity-100 hover:grayscale-0 md:gap-16">
+          {/* Trust Badges */}
+          <div className="mb-16 flex flex-wrap items-center justify-center gap-6 text-xs font-bold uppercase tracking-widest text-gray-400">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="h-4 w-4 text-green-500" /> Démarrage 48h
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle className="h-4 w-4 text-green-500" /> Sans engagement
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle className="h-4 w-4 text-green-500" /> 100% légal
+            </div>
+          </div>
+
+          {/* Statistics */}
+          <div className="grid grid-cols-3 gap-8 border-t border-gray-200/50 pt-10 md:gap-16">
             <div className="flex flex-col items-center gap-2">
-              <span className="text-2xl font-bold text-[#111]">10%</span>
-              <span className="text-[10px] font-bold uppercase tracking-widest">
+              <span className="text-3xl font-bold text-[#111] md:text-4xl">500+</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                Chauffeurs actifs
+              </span>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <span className="text-3xl font-bold text-[#fd521a] md:text-4xl">+500€</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                Gain moyen / mois
+              </span>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <span className="text-3xl font-bold text-[#111] md:text-4xl">10%</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
                 Frais seulement
-              </span>
-            </div>
-            <div className="flex flex-col items-center gap-2">
-              <span className="text-2xl font-bold text-[#111]">0</span>
-              <span className="text-[10px] font-bold uppercase tracking-widest">
-                Paperasse
-              </span>
-            </div>
-            <div className="flex flex-col items-center gap-2">
-              <span className="text-2xl font-bold text-[#111]">100%</span>
-              <span className="text-[10px] font-bold uppercase tracking-widest">
-                Liberté
               </span>
             </div>
           </div>
         </section>
 
-        {/* HOW IT WORKS */}
-        <section className="mb-10 py-16">
+        {/* THE PROBLEM SECTION */}
+        <section id="probleme" className="mb-10 py-16">
+          <div className="mb-12 text-center">
+            <div className="mb-3 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+              Le constat
+            </div>
+            <h2 className="mb-4 text-3xl font-bold md:text-4xl">
+              Chauffeur VTC n&apos;est pas
+              <br />
+              un métier facile.
+            </h2>
+            <p className="mx-auto max-w-lg text-gray-500">
+              Le statut indépendant promet la liberté. Mais à quel prix ?
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            <div className="rounded-[2rem] border border-black/5 bg-gradient-to-b from-[#f7f7f5] to-[#f2f2f0] p-8">
+              <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-red-500">
+                <ShieldOff className="h-6 w-6" />
+              </div>
+              <h3 className="mb-3 text-lg font-bold">Zéro protection sociale</h3>
+              <p className="text-sm leading-relaxed text-gray-500">
+                Pas de chômage si vous arrêtez. Pas de retraite digne. Une
+                mutuelle hors de prix. En cas de pépin, vous êtes seul.
+              </p>
+            </div>
+
+            <div className="rounded-[2rem] border border-black/5 bg-gradient-to-b from-[#f7f7f5] to-[#f2f2f0] p-8">
+              <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-500">
+                <FileX2 className="h-6 w-6" />
+              </div>
+              <h3 className="mb-3 text-lg font-bold">La paperasse sans fin</h3>
+              <p className="text-sm leading-relaxed text-gray-500">
+                Urssaf, TVA, comptabilité... Vous passez vos dimanches sur des
+                formulaires au lieu de vous reposer ou d&apos;être en famille.
+              </p>
+            </div>
+
+            <div className="rounded-[2rem] border border-black/5 bg-gradient-to-b from-[#f7f7f5] to-[#f2f2f0] p-8">
+              <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100 text-gray-500">
+                <Ban className="h-6 w-6" />
+              </div>
+              <h3 className="mb-3 text-lg font-bold">Les portes fermées</h3>
+              <p className="text-sm leading-relaxed text-gray-500">
+                Prêt immobilier refusé. Loueur qui exige des garanties. Sans
+                fiche de paie, vous n&apos;existez pas pour les banques.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-10 text-center">
+            <p className="text-sm italic text-gray-400">
+              Et si vous pouviez garder la liberté... sans les inconvénients ?
+            </p>
+          </div>
+        </section>
+
+        {/* THE SOLUTION SECTION */}
+        <section id="solution" className="mb-10 py-16">
           <div className="mb-16 text-center">
-            <h2 className="mb-4 text-3xl font-bold">Comment ça marche ?</h2>
+            <div className="mb-3 text-[10px] font-bold uppercase tracking-widest text-[#fd521a]">
+              La solution
+            </div>
+            <h2 className="mb-4 text-3xl font-bold md:text-4xl">
+              Driivo transforme votre CA
+              <br />
+              en salaire.
+            </h2>
             <p className="mx-auto max-w-lg text-gray-500">
               On ne change rien à votre façon de travailler. On change juste ce
               que vous gagnez.
@@ -137,7 +215,7 @@ function HomePage() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-3">
-            <div className="group relative rounded-[2rem] border border-white/60 bg-white/50 p-8 shadow-sm backdrop-blur-sm">
+            <div className="group relative rounded-[2rem] border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-8 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15),inset_0_1px_0_0_rgba(255,255,255,0.8)] backdrop-blur-3xl transition-all duration-300 hover:-translate-y-1 hover:bg-white/85">
               <div className="absolute right-6 top-6 -z-10 text-6xl font-bold text-gray-100 transition-colors group-hover:text-[#fd521a]/5">
                 1
               </div>
@@ -147,11 +225,11 @@ function HomePage() {
               <h3 className="mb-3 text-lg font-bold">Vous roulez</h3>
               <p className="text-sm leading-relaxed text-gray-500">
                 Uber, Bolt, Heetch... Gardez vos applis, vos clients, votre
-                voiture. Vous restez le patron.
+                voiture. Vous restez le patron de vos horaires.
               </p>
             </div>
 
-            <div className="group relative rounded-[2rem] border border-white/60 bg-white/50 p-8 shadow-sm backdrop-blur-sm">
+            <div className="group relative rounded-[2rem] border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-8 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15),inset_0_1px_0_0_rgba(255,255,255,0.8)] backdrop-blur-3xl transition-all duration-300 hover:-translate-y-1 hover:bg-white/85">
               <div className="absolute right-6 top-6 -z-10 text-6xl font-bold text-gray-100 transition-colors group-hover:text-[#fd521a]/5">
                 2
               </div>
@@ -161,30 +239,30 @@ function HomePage() {
               <h3 className="mb-3 text-lg font-bold">On transforme</h3>
               <p className="text-sm leading-relaxed text-gray-500">
                 Driivo encaisse votre CA, déduit la TVA et les frais, et
-                transforme le reste en salaire net.
+                transforme le reste en un vrai salaire net.
               </p>
             </div>
 
-            <div className="group relative rounded-[2rem] border border-white/60 bg-white/50 p-8 shadow-sm backdrop-blur-sm">
+            <div className="group relative rounded-[2rem] border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-8 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15),inset_0_1px_0_0_rgba(255,255,255,0.8)] backdrop-blur-3xl transition-all duration-300 hover:-translate-y-1 hover:bg-white/85">
               <div className="absolute right-6 top-6 -z-10 text-6xl font-bold text-gray-100 transition-colors group-hover:text-[#fd521a]/5">
                 3
               </div>
               <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#fd521a]/10 text-[#fd521a]">
                 <CreditCard className="h-6 w-6" />
               </div>
-              <h3 className="mb-3 text-lg font-bold">Vous encaissez</h3>
+              <h3 className="mb-3 text-lg font-bold">Vous êtes payé</h3>
               <p className="text-sm leading-relaxed text-gray-500">
-                Fiche de paie, cotisations chômage, retraite. Tout est payé.
-                Vous recevez votre net.
+                Fiche de paie mensuelle, cotisations chômage et retraite payées.
+                Vous recevez votre net, point final.
               </p>
             </div>
           </div>
         </section>
 
-        {/* VALUE PROPOSITION */}
-        <section id="mission" className="py-16">
+        {/* VALUE PROPOSITION BENTO */}
+        <section className="py-16">
           <div className="grid gap-6 md:grid-cols-12">
-            <div className="flex min-h-[300px] flex-col justify-between rounded-[2.5rem] border border-white/60 bg-white/50 p-10 shadow-sm backdrop-blur-sm md:col-span-7">
+            <div className="flex min-h-[300px] flex-col justify-between rounded-[2.5rem] border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-10 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15),inset_0_1px_0_0_rgba(255,255,255,0.8)] backdrop-blur-3xl md:col-span-7">
               <div>
                 <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gray-100 bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">
                   <Unlock className="h-3 w-3" /> Liberté Totale
@@ -196,26 +274,31 @@ function HomePage() {
                 </h3>
                 <p className="max-w-sm text-gray-500">
                   Contrairement aux &quot;startups&quot; qui veulent vous
-                  salarier, Driivo est une coopérative. Vous êtes membre, pas
-                  employé.
+                  employer, Driivo est une coopérative. Vous êtes membre, pas
+                  employé. Vos décisions restent les vôtres.
                 </p>
               </div>
-              <div className="mt-8 flex gap-4">
+              <div className="mt-8 flex flex-wrap gap-4">
                 <div className="rounded-xl border border-white/60 bg-white/50 px-4 py-2 text-xs font-bold text-gray-600">
                   Vos Horaires
                 </div>
                 <div className="rounded-xl border border-white/60 bg-white/50 px-4 py-2 text-xs font-bold text-gray-600">
                   Vos Zones
                 </div>
+                <div className="rounded-xl border border-white/60 bg-white/50 px-4 py-2 text-xs font-bold text-gray-600">
+                  Vos Applis
+                </div>
               </div>
             </div>
 
-            <div className="rounded-[2.5rem] border border-white/60 bg-white/40 p-10 shadow-sm backdrop-blur-sm md:col-span-5">
+            <div className="rounded-[2.5rem] border border-white/50 bg-white/40 p-10 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15)] backdrop-blur-3xl md:col-span-5">
               <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gray-100 bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                <ShieldCheck className="h-3 w-3" /> Sécurité
+                <ShieldCheck className="h-3 w-3" /> Sécurité Totale
               </div>
               <h3 className="mb-4 text-2xl font-bold">
-                Le filet de sécurité du salarié.
+                Le filet de sécurité
+                <br />
+                du salarié.
               </h3>
               <ul className="mt-6 space-y-3">
                 <li className="flex items-center gap-3 text-sm font-medium text-gray-600">
@@ -236,122 +319,352 @@ function HomePage() {
                   </div>
                   Prévoyance Accident
                 </li>
+                <li className="flex items-center gap-3 text-sm font-medium text-gray-600">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-green-100 text-green-600">
+                    <Check className="h-3 w-3" />
+                  </div>
+                  Fiche de paie mensuelle
+                </li>
               </ul>
+            </div>
+
+            {/* THE DEAL CARD */}
+            <div className="relative mt-4 overflow-hidden rounded-[2.5rem] border border-[#fd521a]/10 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-8 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15)] backdrop-blur-3xl md:col-span-12 md:p-12">
+              <div className="absolute -mr-20 -mt-20 right-0 top-0 h-64 w-64 rounded-full bg-[#fd521a]/5 blur-3xl"></div>
+
+              <div className="relative z-10 flex flex-col items-end justify-between gap-8 md:flex-row md:items-center">
+                <div className="max-w-md">
+                  <div className="mb-4 inline-block rounded-full bg-[#fd521a]/5 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#fd521a]">
+                    Le Pacte Driivo
+                  </div>
+                  <h3 className="mb-2 text-3xl font-bold">90% pour vous.</h3>
+                  <p className="text-gray-500">
+                    On prend 10% pour faire tourner la coopérative. Le reste est
+                    à vous. C&apos;est ça, la transparence.
+                  </p>
+                </div>
+
+                <div className="w-full rounded-3xl border border-white/60 bg-white/50 p-6 md:w-1/2">
+                  <div className="mb-6">
+                    <div className="mb-2 flex justify-between text-sm font-bold">
+                      <span>Votre Part</span>
+                      <span className="text-green-600">90%</span>
+                    </div>
+                    <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200">
+                      <div className="h-full w-[90%] rounded-r-full bg-[#111]"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="mb-2 flex justify-between text-sm font-bold">
+                      <span className="text-[#fd521a]">Frais Driivo</span>
+                      <span className="text-[#fd521a]">10%</span>
+                    </div>
+                    <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200">
+                      <div className="h-full w-[10%] rounded-r-full bg-[#fd521a]"></div>
+                    </div>
+                    <p className="mt-2 text-right text-[10px] text-gray-400">
+                      *Contre 15-20% chez les concurrents
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* SIMULATOR */}
-        <section id="revenus" className="py-20">
-          <div className="grid gap-8 lg:grid-cols-2">
-            <div className="rounded-[2.5rem] border border-white/60 bg-white/50 p-8 shadow-sm backdrop-blur-sm">
-              <h3 className="mb-6 text-2xl font-bold">Simulateur</h3>
-              <div className="mb-8">
-                <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                  Votre CA Mensuel
-                </label>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-6xl font-bold tracking-tighter text-[#111]">
-                    {ca}
-                  </span>
-                  <span className="text-2xl text-gray-300">€</span>
-                </div>
-              </div>
-              <input
-                type="range"
-                min="3000"
-                max="10000"
-                step="500"
-                value={ca}
-                onChange={(e) => setCa(parseInt(e.target.value))}
-                className="mb-10 w-full accent-[#fd521a]"
-              />
+        {/* TESTIMONIALS */}
+        <section className="py-16">
+          <div className="mb-12 text-center">
+            <div className="mb-3 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+              Ils nous font confiance
+            </div>
+            <h2 className="mb-4 text-3xl font-bold">
+              Ce que les chauffeurs disent de nous
+            </h2>
+          </div>
 
-              <div className="rounded-2xl border border-white bg-white/60 p-6">
-                <div className="flex items-end justify-between">
-                  <div>
-                    <div className="mb-1 text-[10px] font-bold uppercase tracking-widest text-[#fd521a]">
-                      Net dans votre poche
-                    </div>
-                    <div className="text-4xl font-bold tracking-tight">
-                      {net} €
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="mb-1 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                      Frais & Charges
-                    </div>
-                    <div className="text-lg font-bold text-gray-500">
-                      {charges} €
-                    </div>
+          <div className="grid gap-6 md:grid-cols-3">
+            <div className="rounded-3xl border border-white/60 bg-white/85 p-8 shadow-[0_4px_16px_rgba(0,0,0,0.04)]">
+              <div className="mb-4 flex items-center gap-1 text-[#fd521a]">
+                <Star className="h-4 w-4 fill-current" />
+                <Star className="h-4 w-4 fill-current" />
+                <Star className="h-4 w-4 fill-current" />
+                <Star className="h-4 w-4 fill-current" />
+                <Star className="h-4 w-4 fill-current" />
+              </div>
+              <p className="mb-6 text-sm leading-relaxed text-gray-600">
+                &quot;Depuis que j&apos;ai rejoint en Mars, j&apos;ai enfin pu
+                obtenir un prêt pour ma maison. La fiche de paie change
+                tout.&quot;
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-sm font-bold">
+                  KM
+                </div>
+                <div>
+                  <div className="text-sm font-bold">Karim M.</div>
+                  <div className="text-xs text-gray-400">
+                    Chauffeur depuis 4 ans • Paris
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col justify-center">
-              <div className="scale-105 rounded-[2rem] bg-[#fd521a] p-6 text-white shadow-xl">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-bold text-white">DRIIVO</h4>
-                    <p className="mt-1 text-xs font-bold text-[#ff8a65]">
-                      10% • Protection Totale
-                    </p>
-                  </div>
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#fd521a]">
-                    <Check className="h-4 w-4" />
+            <div className="rounded-3xl border border-white/60 bg-white/85 p-8 shadow-[0_4px_16px_rgba(0,0,0,0.04)]">
+              <div className="mb-4 flex items-center gap-1 text-[#fd521a]">
+                <Star className="h-4 w-4 fill-current" />
+                <Star className="h-4 w-4 fill-current" />
+                <Star className="h-4 w-4 fill-current" />
+                <Star className="h-4 w-4 fill-current" />
+                <Star className="h-4 w-4 fill-current" />
+              </div>
+              <p className="mb-6 text-sm leading-relaxed text-gray-600">
+                &quot;Je gagne pareil qu&apos;avant mais maintenant je cotise
+                pour ma retraite. Et surtout, plus de galère avec
+                l&apos;Urssaf.&quot;
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-sm font-bold">
+                  AB
+                </div>
+                <div>
+                  <div className="text-sm font-bold">Abdel B.</div>
+                  <div className="text-xs text-gray-400">
+                    Chauffeur depuis 2 ans • Lyon
                   </div>
                 </div>
               </div>
+            </div>
+
+            <div className="rounded-3xl border border-white/60 bg-white/85 p-8 shadow-[0_4px_16px_rgba(0,0,0,0.04)]">
+              <div className="mb-4 flex items-center gap-1 text-[#fd521a]">
+                <Star className="h-4 w-4 fill-current" />
+                <Star className="h-4 w-4 fill-current" />
+                <Star className="h-4 w-4 fill-current" />
+                <Star className="h-4 w-4 fill-current" />
+                <Star className="h-4 w-4 fill-current" />
+              </div>
+              <p className="mb-6 text-sm leading-relaxed text-gray-600">
+                &quot;J&apos;étais sceptique au début. Mais quand j&apos;ai vu
+                ma première fiche de paie avec les cotisations, j&apos;ai
+                compris.&quot;
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-sm font-bold">
+                  SD
+                </div>
+                <div>
+                  <div className="text-sm font-bold">Sofiane D.</div>
+                  <div className="text-xs text-gray-400">
+                    Chauffeur depuis 6 ans • Marseille
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-16 text-center">
+            <p className="mb-6 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+              Compatible avec toutes vos applis préférées
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-8 opacity-50">
+              <div className="text-2xl font-bold tracking-tighter">Uber</div>
+              <div className="text-2xl font-bold tracking-tighter">Bolt</div>
+              <div className="text-2xl font-bold tracking-tighter">Heetch</div>
+              <div className="text-2xl font-bold tracking-tighter">FreeNow</div>
+              <div className="text-2xl font-bold tracking-tighter">+6</div>
+            </div>
+          </div>
+        </section>
+
+        {/* 5 STEPS TO JOIN */}
+        <section className="py-16">
+          <div className="mb-12 text-center">
+            <div className="mb-3 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+              Inscription
+            </div>
+            <h2 className="mb-4 text-3xl font-bold">
+              5 étapes pour devenir chauffeur Driivo
+            </h2>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-5">
+            <div className="p-4 text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#fd521a] font-bold text-white">
+                1
+              </div>
+              <h4 className="mb-1 text-sm font-bold">Candidature</h4>
+              <p className="text-xs text-gray-400">2 minutes en ligne</p>
+            </div>
+            <div className="p-4 text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-200 font-bold text-gray-600">
+                2
+              </div>
+              <h4 className="mb-1 text-sm font-bold">Vérification</h4>
+              <p className="text-xs text-gray-400">On valide vos docs</p>
+            </div>
+            <div className="p-4 text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-200 font-bold text-gray-600">
+                3
+              </div>
+              <h4 className="mb-1 text-sm font-bold">Entretien</h4>
+              <p className="text-xs text-gray-400">Appel de 15 min</p>
+            </div>
+            <div className="p-4 text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-200 font-bold text-gray-600">
+                4
+              </div>
+              <h4 className="mb-1 text-sm font-bold">Signature</h4>
+              <p className="text-xs text-gray-400">Contrat en ligne</p>
+            </div>
+            <div className="p-4 text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-500 font-bold text-white">
+                <Check className="h-5 w-5" />
+              </div>
+              <h4 className="mb-1 text-sm font-bold">C&apos;est parti !</h4>
+              <p className="text-xs text-gray-400">Roulez dès 48h</p>
             </div>
           </div>
         </section>
 
         {/* FAQ */}
-        <section className="mx-auto max-w-2xl py-20">
-          <h2 className="mb-10 text-center text-2xl font-bold">
-            Questions Fréquentes
-          </h2>
+        <section id="faq" className="mx-auto max-w-2xl py-20">
+          <div className="mb-12 text-center">
+            <div className="mb-3 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+              FAQ
+            </div>
+            <h2 className="mb-4 text-3xl font-bold">
+              Les réponses à vos questions
+            </h2>
+          </div>
           <div className="space-y-3">
-            <details className="group cursor-pointer rounded-2xl border border-white/60 bg-white/50 p-5 shadow-sm backdrop-blur-sm">
+            <details className="group cursor-pointer rounded-2xl border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-5 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15)] backdrop-blur-3xl">
               <summary className="flex list-none select-none items-center justify-between text-sm font-bold">
-                Est-ce un CDI ?
+                C&apos;est quoi exactement l&apos;Entrepreneur Salarié ?
                 <ChevronDown className="h-4 w-4 text-gray-400 transition-transform group-open:rotate-180" />
               </summary>
               <p className="mt-3 text-sm leading-relaxed text-gray-500">
-                Non, vous restez indépendant. C&apos;est un statut hybride
-                (Entrepreneur Salarié) qui combine le meilleur des deux mondes.
+                C&apos;est un statut légal (CESA) qui vous permet de rester
+                totalement indépendant dans votre activité, tout en étant
+                rattaché à une coopérative (comme Driivo) qui vous verse un
+                salaire. Vous gardez votre liberté, mais vous gagnez la
+                protection sociale d&apos;un salarié.
               </p>
             </details>
-            <details className="group cursor-pointer rounded-2xl border border-white/60 bg-white/50 p-5 shadow-sm backdrop-blur-sm">
+
+            <details className="group cursor-pointer rounded-2xl border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-5 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15)] backdrop-blur-3xl">
               <summary className="flex list-none select-none items-center justify-between text-sm font-bold">
-                Engagement de durée ?
+                Est-ce que c&apos;est un vrai CDI ?
                 <ChevronDown className="h-4 w-4 text-gray-400 transition-transform group-open:rotate-180" />
               </summary>
               <p className="mt-3 text-sm leading-relaxed text-gray-500">
-                Aucun. Vous partez quand vous voulez. Liberté totale.
+                Oui. C&apos;est un CDI inscrit au registre du commerce. Vous
+                recevez une fiche de paie tous les mois, vous cotisez pour la
+                retraite et le chômage, et vous bénéficiez d&apos;une mutuelle.
+                C&apos;est le statut le plus protecteur qui existe pour un
+                chauffeur VTC.
+              </p>
+            </details>
+
+            <details className="group cursor-pointer rounded-2xl border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-5 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15)] backdrop-blur-3xl">
+              <summary className="flex list-none select-none items-center justify-between text-sm font-bold">
+                Je garde mes horaires et mes applis ?
+                <ChevronDown className="h-4 w-4 text-gray-400 transition-transform group-open:rotate-180" />
+              </summary>
+              <p className="mt-3 text-sm leading-relaxed text-gray-500">
+                100% oui. Vous travaillez quand vous voulez, où vous voulez, sur
+                les plateformes que vous voulez (Uber, Bolt, Heetch...). Driivo
+                ne vous impose rien. C&apos;est ça, le modèle coopératif.
+              </p>
+            </details>
+
+            <details className="group cursor-pointer rounded-2xl border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-5 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15)] backdrop-blur-3xl">
+              <summary className="flex list-none select-none items-center justify-between text-sm font-bold">
+                Combien ça coûte ?
+                <ChevronDown className="h-4 w-4 text-gray-400 transition-transform group-open:rotate-180" />
+              </summary>
+              <p className="mt-3 text-sm leading-relaxed text-gray-500">
+                10% de votre chiffre d&apos;affaires HT. C&apos;est tout. Pas de
+                frais cachés, pas de coûts d&apos;inscription. On est moins cher
+                que la concurrence (15-20%), et vous récupérez la TVA sur vos
+                achats (essence, entretien...).
+              </p>
+            </details>
+
+            <details className="group cursor-pointer rounded-2xl border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-5 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15)] backdrop-blur-3xl">
+              <summary className="flex list-none select-none items-center justify-between text-sm font-bold">
+                Il y a un engagement de durée ?
+                <ChevronDown className="h-4 w-4 text-gray-400 transition-transform group-open:rotate-180" />
+              </summary>
+              <p className="mt-3 text-sm leading-relaxed text-gray-500">
+                Non. Vous pouvez partir quand vous voulez, sans frais ni
+                pénalités. On ne vous retient pas. Si Driivo ne vous convient
+                pas, vous êtes libre.
+              </p>
+            </details>
+
+            <details className="group cursor-pointer rounded-2xl border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-5 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15)] backdrop-blur-3xl">
+              <summary className="flex list-none select-none items-center justify-between text-sm font-bold">
+                Quelles sont les conditions pour rejoindre ?
+                <ChevronDown className="h-4 w-4 text-gray-400 transition-transform group-open:rotate-180" />
+              </summary>
+              <p className="mt-3 text-sm leading-relaxed text-gray-500">
+                Avoir votre carte VTC et un véhicule. C&apos;est tout. Si vous
+                roulez déjà en indépendant, vous avez déjà ce qu&apos;il faut.
+                On s&apos;occupe du reste.
               </p>
             </details>
           </div>
         </section>
 
-        {/* Final CTA */}
-        <section className="py-20 text-center">
-          <Link
-            to="/inscription"
-            className="rounded-full bg-[#fd521a] px-10 py-4 text-lg font-bold text-white shadow-xl transition-transform hover:scale-105"
-          >
-            Devenir Membre Driivo
-          </Link>
-          <p className="mt-6 text-xs uppercase tracking-widest text-gray-400">
-            Sans engagement • Démarrage 48h
-          </p>
+        {/* FINAL CTA */}
+        <section className="py-20">
+          <div className="relative overflow-hidden rounded-[3rem] border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-12 text-center shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15)] backdrop-blur-3xl">
+            <div className="absolute -ml-32 -mt-32 left-0 top-0 h-64 w-64 rounded-full bg-[#fd521a]/10 blur-3xl"></div>
+            <div className="absolute -mb-32 -mr-32 bottom-0 right-0 h-64 w-64 rounded-full bg-[#fd521a]/10 blur-3xl"></div>
+
+            <div className="relative z-10">
+              <h2 className="mb-4 text-3xl font-bold md:text-4xl">
+                On commence quand ?
+              </h2>
+              <p className="mx-auto mb-8 max-w-md text-gray-500">
+                48h pour passer de &quot;intéressé&quot; à &quot;premier salaire
+                versé&quot;.
+              </p>
+              <Link
+                to="/inscription"
+                className="inline-block rounded-full bg-[#fd521a] px-10 py-4 text-lg font-bold text-white shadow-xl transition-transform hover:scale-105"
+              >
+                Je me lance
+              </Link>
+            </div>
+          </div>
         </section>
 
-        <footer className="border-t border-gray-200/50 py-10 text-center text-xs font-medium text-gray-400">
-          <p>
-            © 2025 Coopérative Driivo. Fait par des chauffeurs, pour des
-            chauffeurs.
+        {/* FOOTER */}
+        <footer className="border-t border-gray-200/50 py-10">
+          <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
+            <div className="flex items-center gap-2 text-lg font-bold tracking-tighter text-black">
+              <div className="h-2.5 w-2.5 rounded-full bg-[#fd521a] shadow-[0_0_10px_rgba(253,82,26,0.5)]"></div>
+              DRIIVO
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-6 text-xs font-medium text-gray-400">
+              <a href="#" className="transition-colors hover:text-black">
+                Mentions Légales
+              </a>
+              <a href="#" className="transition-colors hover:text-black">
+                CGV
+              </a>
+              <a href="#" className="transition-colors hover:text-black">
+                Politique de Cookies
+              </a>
+              <a href="#" className="transition-colors hover:text-black">
+                Contact
+              </a>
+            </div>
+          </div>
+          <p className="mt-6 text-center text-xs text-gray-400">
+            © 2025 Coopérative Driivo. Tous droits réservés.
           </p>
         </footer>
       </main>

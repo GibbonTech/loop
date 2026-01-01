@@ -1,46 +1,36 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, MessageCircle, ShieldCheck, Heart, PiggyBank, FileText } from "lucide-react";
 
-type ResultsSearch = {
-  ca?: string;
-  prenom?: string;
-  email?: string;
-  tel?: string;
-};
-
 export const Route = createFileRoute("/resultats")({
-  validateSearch: (search: Record<string, unknown>): ResultsSearch => {
+  component: ResultatsPage,
+  validateSearch: (search: Record<string, unknown>) => {
     return {
-      ca: search.ca as string | undefined,
-      prenom: search.prenom as string | undefined,
-      email: search.email as string | undefined,
-      tel: search.tel as string | undefined,
+      ca: (search.ca as string) || "5000",
+      prenom: (search.prenom as string) || "Jean",
+      email: (search.email as string) || "",
+      tel: (search.tel as string) || "",
     };
   },
-  component: ResultatsPage,
 });
 
 function ResultatsPage() {
-  const { ca: caParam, prenom } = Route.useSearch();
+  const { ca, prenom } = Route.useSearch();
 
-  const ca = parseInt(caParam || "5000");
-  const userName = prenom || "Jean";
+  const caNum = parseInt(ca) || 5000;
+  const fees = Math.round(caNum * 0.1);
+  const cotisations = Math.round(caNum * 0.14);
+  const net = caNum - fees - cotisations;
+  const aeNet = Math.round(caNum * 0.75);
 
   const formatNumber = (num: number) => {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
   };
 
-  // Calculate values
-  const fees = Math.round(ca * 0.1);
-  const cotisations = Math.round(ca * 0.14);
-  const net = ca - fees - cotisations;
-  const aeNet = Math.round(ca * 0.75); // Auto-entrepreneur ~25% charges
-
   return (
-    <div className="min-h-screen bg-[#f2f2f0] selection:bg-[#fd521a] selection:text-white">
+    <div className="min-h-screen bg-[#f2f2f0] text-[#1c1917] selection:bg-[#fd521a] selection:text-white">
       {/* Navigation */}
       <nav className="fixed left-0 top-6 z-50 flex w-full justify-center px-4">
-        <div className="flex max-w-3xl items-center gap-8 rounded-full bg-white/70 px-3 py-2 pl-6 shadow-lg backdrop-blur-xl">
+        <div className="flex max-w-3xl items-center gap-8 rounded-full border border-white/40 bg-white/60 px-3 py-2 pl-6 shadow-[0_8px_32px_-4px_rgba(168,162,158,0.1),inset_0_0_0_1px_rgba(255,255,255,0.5)] backdrop-blur-2xl">
           <Link
             to="/"
             className="flex items-center gap-2 text-lg font-bold tracking-tighter text-black"
@@ -62,15 +52,15 @@ function ResultatsPage() {
         {/* Personalized Header */}
         <div className="mb-10 text-center">
           <h1 className="mb-3 text-3xl font-bold tracking-tight md:text-4xl">
-            {userName}, voilà ce que ça donne
+            {prenom}, voilà ce que ça donne
           </h1>
           <p className="text-gray-500">
-            Pour un CA de <strong>{formatNumber(ca)} €</strong>/mois
+            Pour un CA de <strong>{formatNumber(caNum)} €</strong>/mois
           </p>
         </div>
 
         {/* Main Results Card */}
-        <div className="mb-8 rounded-[2.5rem] border border-white/60 bg-white/50 p-8 shadow-lg backdrop-blur-sm md:p-12">
+        <div className="mb-8 rounded-[2.5rem] border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-8 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15),inset_0_1px_0_0_rgba(255,255,255,0.8)] backdrop-blur-3xl md:p-12">
           {/* Big Number */}
           <div className="mb-10 text-center">
             <div className="mb-2 text-[10px] font-bold uppercase tracking-widest text-[#fd521a]">
@@ -89,8 +79,8 @@ function ResultatsPage() {
             <h3 className="mb-4 text-sm font-bold">Détail de votre rémunération</h3>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Chiffre d'affaires HT</span>
-                <span className="font-bold">{formatNumber(ca)} €</span>
+                <span className="text-sm text-gray-600">Chiffre d&apos;affaires HT</span>
+                <span className="font-bold">{formatNumber(caNum)} €</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Frais Driivo (10%)</span>
@@ -141,34 +131,38 @@ function ResultatsPage() {
                 <div className="text-2xl font-bold text-gray-400 line-through">
                   {formatNumber(aeNet)} €
                 </div>
-                <div className="mt-1 text-[10px] text-red-500">❌ Pas de chômage ni retraite</div>
+                <div className="mt-1 text-[10px] text-red-500">
+                  ❌ Pas de chômage ni retraite
+                </div>
               </div>
               <div className="rounded-xl border border-[#fd521a]/20 bg-[#fd521a]/5 p-4">
                 <div className="mb-2 text-xs font-bold text-[#fd521a]">Avec Driivo</div>
                 <div className="text-2xl font-bold text-[#111]">{formatNumber(net)} €</div>
-                <div className="mt-1 text-[10px] text-green-600">✓ Protection sociale complète</div>
+                <div className="mt-1 text-[10px] text-green-600">
+                  ✓ Protection sociale complète
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* CTA Section */}
-        <div className="rounded-[2rem] border border-white/60 bg-white/50 p-8 text-center shadow-lg backdrop-blur-sm">
+        <div className="rounded-[2rem] border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-8 text-center shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15),inset_0_1px_0_0_rgba(255,255,255,0.8)] backdrop-blur-3xl">
           <h2 className="mb-3 text-2xl font-bold">Ça vous paraît bien ?</h2>
           <p className="mb-6 text-gray-500">On peut démarrer ensemble en 48h.</p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Link
               to="/inscription"
-              className="flex items-center justify-center gap-2 rounded-full bg-[#fd521a] px-8 py-4 text-base font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl"
+              className="flex items-center justify-center gap-2 rounded-full bg-[#fd521a] px-8 py-4 text-base font-bold text-white shadow-[0_8px_20px_-4px_rgba(253,82,26,0.3)] transition-all hover:-translate-y-0.5 hover:bg-[#e0410e] hover:shadow-[0_12px_28px_-4px_rgba(253,82,26,0.4)]"
             >
-              C'est parti
+              C&apos;est parti
               <ArrowRight className="h-5 w-5" />
             </Link>
             <Link
               to="/reunion"
-              className="flex items-center justify-center gap-2 rounded-full bg-[#111] px-8 py-4 text-base font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-[#fd521a]"
+              className="flex items-center justify-center gap-2 rounded-full bg-[#111] px-8 py-4 text-base font-bold text-white shadow-[0_8px_20px_-4px_rgba(0,0,0,0.2)] transition-all hover:-translate-y-0.5 hover:bg-[#fd521a]"
             >
-              J'ai des questions
+              J&apos;ai des questions
               <MessageCircle className="h-5 w-5" />
             </Link>
           </div>
@@ -178,7 +172,7 @@ function ResultatsPage() {
       {/* Footer */}
       <footer className="py-6 text-center text-xs text-gray-400">
         <Link to="/" className="hover:text-[#fd521a]">
-          ← Retour à l'accueil
+          ← Retour à l&apos;accueil
         </Link>
       </footer>
     </div>
