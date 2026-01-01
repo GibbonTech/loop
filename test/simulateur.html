@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulateur de Revenus | Driivo</title>
+    <meta name="description"
+        content="Estimez votre salaire net en tant que chauffeur VTC salarié. Calculez vos revenus avec Driivo.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            DEFAULT: '#fd521a',
+                            glow: '#ff7043',
+                            dark: '#d63f0e',
+                            accent: '#ff8a65'
+                        },
+                        dark: {
+                            900: '#1a1a1a',
+                            800: '#2a2a2a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['General Sans', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <link href="https://api.fontshare.com/v2/css?f[]=general-sans@200,300,400,500,600,700&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'General Sans', sans-serif;
+            background-color: #f2f2f0;
+            color: #1c1917;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .liquid-glass {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(24px) saturate(140%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px -4px rgba(168, 162, 158, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+        }
+
+        .liquid-card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.7), rgba(250, 250, 249, 0.5));
+            backdrop-filter: blur(32px) saturate(120%);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 20px 40px -12px rgba(168, 162, 158, 0.15), inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
+        }
+
+        .btn-primary {
+            background: #fd521a;
+            color: white;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            box-shadow: 0 8px 20px -4px rgba(253, 82, 26, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #e0410e;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px -4px rgba(253, 82, 26, 0.4);
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 32px;
+            width: 32px;
+            border-radius: 50%;
+            background: #fd521a;
+            border: 4px solid #ffffff;
+            cursor: pointer;
+            margin-top: -14px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            background: #e5e5e5;
+            border-radius: 999px;
+        }
+
+        .input-field {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            transition: all 0.2s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #fd521a;
+            box-shadow: 0 0 0 3px rgba(253, 82, 26, 0.1);
+        }
+    </style>
+</head>
+
+<body class="selection:bg-brand selection:text-white min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="fixed top-6 left-0 w-full z-50 flex justify-center px-4">
+        <div class="liquid-glass px-3 pl-6 py-2 rounded-full flex items-center gap-8 max-w-3xl">
+            <a href="index.html" class="font-bold text-lg tracking-tighter flex items-center gap-2 text-black">
+                <div class="w-2.5 h-2.5 rounded-full bg-brand shadow-[0_0_10px_rgba(253,82,26,0.5)]"></div>
+                DRIIVO
+            </a>
+            <div class="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600">
+                <a href="index.html" class="hover:text-black transition-colors">Accueil</a>
+                <a href="candidature.html" class="hover:text-black transition-colors">Rejoindre</a>
+            </div>
+            <a href="candidature.html"
+                class="bg-[#111] text-white px-5 py-2 rounded-full text-xs font-bold hover:bg-brand transition-colors shadow-lg tracking-wide">
+                REJOINDRE
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-32 pb-20 px-4 md:px-8 max-w-[800px] mx-auto">
+
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4 tracking-tight">
+                Combien vous reste-t-il<br>en <span class="text-brand">net</span> chaque mois ?
+            </h1>
+            <p class="text-gray-500 max-w-md mx-auto">
+                Glissez le curseur. On calcule tout : salaire, cotisations, protection sociale.
+            </p>
+        </div>
+
+        <!-- Simulator Card -->
+        <div class="liquid-card p-8 md:p-12 rounded-[2.5rem] mb-8">
+
+            <!-- Slider Section -->
+            <div class="mb-10">
+                <label class="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-3 block">
+                    Votre chiffre d'affaires mensuel (CA HT)
+                </label>
+                <div class="flex items-baseline gap-2 mb-6">
+                    <span id="ca-display"
+                        class="text-6xl md:text-7xl font-bold tracking-tighter text-[#111]">5000</span>
+                    <span class="text-3xl text-gray-300">€</span>
+                </div>
+                <input type="range" min="2000" max="12000" step="500" value="5000" id="ca-slider" class="w-full">
+                <div class="flex justify-between text-xs text-gray-400 mt-2">
+                    <span>2 000 €</span>
+                    <span>12 000 €</span>
+                </div>
+            </div>
+
+            <!-- Results Preview (Blurred) -->
+            <div id="results-preview" class="relative">
+                <div class="blur-sm select-none pointer-events-none">
+                    <div class="bg-white/60 rounded-2xl p-6 border border-white mb-6">
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <div class="text-[10px] uppercase tracking-widest font-bold text-brand mb-1">Votre
+                                    salaire net</div>
+                                <div class="text-4xl font-bold tracking-tight">3 800 €</div>
+                            </div>
+                            <div>
+                                <div class="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-1">
+                                    Cotisations payées</div>
+                                <div class="text-2xl font-bold text-gray-500">1 200 €</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                        <div class="bg-green-50 p-4 rounded-xl">
+                            <i data-lucide="shield-check" class="w-6 h-6 mx-auto text-green-600 mb-2"></i>
+                            <div class="text-xs font-bold text-green-700">Chômage</div>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-xl">
+                            <i data-lucide="heart" class="w-6 h-6 mx-auto text-blue-600 mb-2"></i>
+                            <div class="text-xs font-bold text-blue-700">Mutuelle</div>
+                        </div>
+                        <div class="bg-purple-50 p-4 rounded-xl">
+                            <i data-lucide="piggy-bank" class="w-6 h-6 mx-auto text-purple-600 mb-2"></i>
+                            <div class="text-xs font-bold text-purple-700">Retraite</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Overlay -->
+                <div
+                    class="absolute inset-0 flex items-center justify-center bg-white/30 backdrop-blur-[2px] rounded-2xl">
+                    <div class="text-center">
+                        <i data-lucide="lock" class="w-8 h-8 mx-auto text-gray-400 mb-3"></i>
+                        <p class="text-sm font-bold text-gray-600 mb-1">Résultats personnalisés</p>
+                        <p class="text-xs text-gray-400">Entrez votre email pour voir vos résultats</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Email Gate Form -->
+        <div class="liquid-card p-8 rounded-[2rem]">
+            <form id="email-form" class="space-y-4">
+                <div>
+                    <label class="text-sm font-bold text-gray-700 mb-2 block">Votre prénom</label>
+                    <input type="text" name="prenom" required placeholder="Jean"
+                        class="input-field w-full px-4 py-3 rounded-xl text-sm">
+                </div>
+                <div>
+                    <label class="text-sm font-bold text-gray-700 mb-2 block">Votre email</label>
+                    <input type="email" name="email" required placeholder="jean@example.com"
+                        class="input-field w-full px-4 py-3 rounded-xl text-sm">
+                </div>
+                <div>
+                    <label class="text-sm font-bold text-gray-700 mb-2 block">Votre téléphone</label>
+                    <input type="tel" name="telephone" required placeholder="06 12 34 56 78"
+                        class="input-field w-full px-4 py-3 rounded-xl text-sm">
+                </div>
+                <button type="submit"
+                    class="btn-primary w-full py-4 rounded-xl font-bold text-base flex items-center justify-center gap-2">
+                    Voir mes résultats
+                    <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                </button>
+                <p class="text-[10px] text-gray-400 text-center">
+                    En continuant, vous acceptez notre politique de confidentialité. Nous ne spammons pas.
+                </p>
+            </form>
+        </div>
+
+        <!-- Trust Badges -->
+        <div class="flex flex-wrap items-center justify-center gap-6 mt-10 text-xs font-medium text-gray-500">
+            <div class="flex items-center gap-2">
+                <i data-lucide="clock" class="w-4 h-4 text-brand"></i> Réponse en 24h
+            </div>
+            <div class="flex items-center gap-2">
+                <i data-lucide="phone" class="w-4 h-4 text-brand"></i> On vous rappelle
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-6 text-center text-xs text-gray-400">
+        <a href="index.html" class="hover:text-brand">← Retour à l'accueil</a>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        const slider = document.getElementById('ca-slider');
+        const caDisplay = document.getElementById('ca-display');
+
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        }
+
+        slider.addEventListener('input', (e) => {
+            const ca = parseInt(e.target.value);
+            caDisplay.innerText = formatNumber(ca);
+        });
+
+        // Form submission - redirect to results with query params
+        document.getElementById('email-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const ca = slider.value;
+            const prenom = formData.get('prenom');
+            const email = formData.get('email');
+            const telephone = formData.get('telephone');
+
+            // Redirect to results page with data
+            window.location.href = `resultats.html?ca=${ca}&prenom=${encodeURIComponent(prenom)}&email=${encodeURIComponent(email)}&tel=${encodeURIComponent(telephone)}`;
+        });
+    </script>
+</body>
+
+</html>

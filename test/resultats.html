@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vos Résultats | Driivo</title>
+    <meta name="description"
+        content="Découvrez votre salaire net estimé en tant que chauffeur VTC salarié avec Driivo.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { DEFAULT: '#fd521a', glow: '#ff7043', dark: '#d63f0e', accent: '#ff8a65' },
+                        dark: { 900: '#1a1a1a', 800: '#2a2a2a' }
+                    },
+                    fontFamily: { sans: ['General Sans', 'sans-serif'] },
+                }
+            }
+        }
+    </script>
+    <link href="https://api.fontshare.com/v2/css?f[]=general-sans@200,300,400,500,600,700&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'General Sans', sans-serif;
+            background-color: #f2f2f0;
+            color: #1c1917;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .liquid-glass {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(24px) saturate(140%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px -4px rgba(168, 162, 158, 0.1);
+        }
+
+        .liquid-card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.7), rgba(250, 250, 249, 0.5));
+            backdrop-filter: blur(32px) saturate(120%);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 20px 40px -12px rgba(168, 162, 158, 0.15);
+        }
+
+        .btn-primary {
+            background: #fd521a;
+            color: white;
+            transition: all 0.3s;
+            box-shadow: 0 8px 20px -4px rgba(253, 82, 26, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #e0410e;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px -4px rgba(253, 82, 26, 0.4);
+        }
+
+        .btn-secondary {
+            background: #111;
+            color: white;
+            transition: all 0.3s;
+            box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: #fd521a;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body class="selection:bg-brand selection:text-white min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="fixed top-6 left-0 w-full z-50 flex justify-center px-4">
+        <div class="liquid-glass px-3 pl-6 py-2 rounded-full flex items-center gap-8 max-w-3xl">
+            <a href="index.html" class="font-bold text-lg tracking-tighter flex items-center gap-2 text-black">
+                <div class="w-2.5 h-2.5 rounded-full bg-brand shadow-[0_0_10px_rgba(253,82,26,0.5)]"></div>
+                DRIIVO
+            </a>
+            <a href="candidature.html"
+                class="bg-[#111] text-white px-5 py-2 rounded-full text-xs font-bold hover:bg-brand transition-colors shadow-lg tracking-wide">
+                REJOINDRE
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-32 pb-20 px-4 md:px-8 max-w-[900px] mx-auto">
+
+        <!-- Personalized Header -->
+        <div class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-bold mb-3 tracking-tight">
+                <span id="user-name">Jean</span>, voilà ce que ça donne
+            </h1>
+            <p class="text-gray-500">Pour un CA de <strong id="user-ca">5 000 €</strong>/mois</p>
+        </div>
+
+        <!-- Main Results Card -->
+        <div class="liquid-card p-8 md:p-12 rounded-[2.5rem] mb-8">
+
+            <!-- Big Number -->
+            <div class="text-center mb-10">
+                <div class="text-[10px] uppercase tracking-widest font-bold text-brand mb-2">Votre salaire net mensuel
+                </div>
+                <div class="text-6xl md:text-7xl font-bold tracking-tighter text-[#111]" id="net-salary">3 800 €</div>
+                <p class="text-sm text-gray-400 mt-2">Après cotisations sociales et frais Driivo</p>
+            </div>
+
+            <!-- Breakdown -->
+            <div class="bg-white/60 rounded-2xl p-6 border border-white mb-8">
+                <h3 class="font-bold text-sm mb-4">Détail de votre rémunération</h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">Chiffre d'affaires HT</span>
+                        <span class="font-bold" id="breakdown-ca">5 000 €</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">Frais Driivo (10%)</span>
+                        <span class="font-bold text-brand" id="breakdown-fees">- 500 €</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">Cotisations sociales</span>
+                        <span class="font-bold text-gray-500" id="breakdown-cotis">- 700 €</span>
+                    </div>
+                    <div class="w-full h-px bg-gray-200 my-2"></div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-bold text-gray-800">Salaire net</span>
+                        <span class="font-bold text-xl text-green-600" id="breakdown-net">3 800 €</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Benefits Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="bg-green-50 p-4 rounded-xl text-center">
+                    <i data-lucide="shield-check" class="w-6 h-6 mx-auto text-green-600 mb-2"></i>
+                    <div class="text-xs font-bold text-green-700">Chômage</div>
+                    <div class="text-[10px] text-green-600">Cotisé</div>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-xl text-center">
+                    <i data-lucide="heart" class="w-6 h-6 mx-auto text-blue-600 mb-2"></i>
+                    <div class="text-xs font-bold text-blue-700">Mutuelle</div>
+                    <div class="text-[10px] text-blue-600">Incluse</div>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-xl text-center">
+                    <i data-lucide="piggy-bank" class="w-6 h-6 mx-auto text-purple-600 mb-2"></i>
+                    <div class="text-xs font-bold text-purple-700">Retraite</div>
+                    <div class="text-[10px] text-purple-600">Cotisée</div>
+                </div>
+                <div class="bg-amber-50 p-4 rounded-xl text-center">
+                    <i data-lucide="file-text" class="w-6 h-6 mx-auto text-amber-600 mb-2"></i>
+                    <div class="text-xs font-bold text-amber-700">Fiche de paie</div>
+                    <div class="text-[10px] text-amber-600">Mensuelle</div>
+                </div>
+            </div>
+
+            <!-- Comparison -->
+            <div class="bg-gray-50 rounded-2xl p-6 border border-gray-100">
+                <h3 class="font-bold text-sm mb-4">Comparaison avec votre statut actuel</h3>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded-xl border border-gray-100">
+                        <div class="text-xs font-bold text-gray-400 mb-2">Auto-Entrepreneur</div>
+                        <div class="text-2xl font-bold text-gray-400 line-through" id="compare-ae">3 750 €</div>
+                        <div class="text-[10px] text-red-500 mt-1">❌ Pas de chômage ni retraite</div>
+                    </div>
+                    <div class="bg-brand/5 p-4 rounded-xl border border-brand/20">
+                        <div class="text-xs font-bold text-brand mb-2">Avec Driivo</div>
+                        <div class="text-2xl font-bold text-[#111]" id="compare-driivo">3 800 €</div>
+                        <div class="text-[10px] text-green-600 mt-1">✓ Protection sociale complète</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA Section -->
+        <div class="liquid-card p-8 rounded-[2rem] text-center">
+            <h2 class="text-2xl font-bold mb-3">Ça vous paraît bien ?</h2>
+            <p class="text-gray-500 mb-6">On peut démarrer ensemble en 48h.</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="candidature.html"
+                    class="btn-primary px-8 py-4 rounded-full font-bold text-base flex items-center justify-center gap-2">
+                    C'est parti
+                    <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                </a>
+                <a href="reunion.html"
+                    class="btn-secondary px-8 py-4 rounded-full font-bold text-base flex items-center justify-center gap-2">
+                    J'ai des questions
+                    <i data-lucide="message-circle" class="w-5 h-5"></i>
+                </a>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-6 text-center text-xs text-gray-400">
+        <a href="index.html" class="hover:text-brand">← Retour à l'accueil</a>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        }
+
+        // Parse URL params
+        const params = new URLSearchParams(window.location.search);
+        const ca = parseInt(params.get('ca')) || 5000;
+        const prenom = params.get('prenom') || 'Jean';
+
+        // Calculate values
+        const fees = Math.round(ca * 0.10);
+        const cotisations = Math.round(ca * 0.14);
+        const net = ca - fees - cotisations;
+        const aeNet = Math.round(ca * 0.75); // Auto-entrepreneur ~25% charges
+
+        // Update DOM
+        document.getElementById('user-name').textContent = prenom;
+        document.getElementById('user-ca').textContent = formatNumber(ca) + ' €';
+        document.getElementById('net-salary').textContent = formatNumber(net) + ' €';
+        document.getElementById('breakdown-ca').textContent = formatNumber(ca) + ' €';
+        document.getElementById('breakdown-fees').textContent = '- ' + formatNumber(fees) + ' €';
+        document.getElementById('breakdown-cotis').textContent = '- ' + formatNumber(cotisations) + ' €';
+        document.getElementById('breakdown-net').textContent = formatNumber(net) + ' €';
+        document.getElementById('compare-ae').textContent = formatNumber(aeNet) + ' €';
+        document.getElementById('compare-driivo').textContent = formatNumber(net) + ' €';
+    </script>
+</body>
+
+</html>

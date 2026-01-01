@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Réserver un appel | Driivo</title>
+    <meta name="description" content="Réservez un créneau pour en savoir plus sur Driivo et poser vos questions.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { DEFAULT: '#fd521a', glow: '#ff7043', dark: '#d63f0e', accent: '#ff8a65' },
+                        dark: { 900: '#1a1a1a', 800: '#2a2a2a' }
+                    },
+                    fontFamily: { sans: ['General Sans', 'sans-serif'] },
+                }
+            }
+        }
+    </script>
+    <link href="https://api.fontshare.com/v2/css?f[]=general-sans@200,300,400,500,600,700&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'General Sans', sans-serif;
+            background-color: #f2f2f0;
+            color: #1c1917;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .liquid-glass {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(24px) saturate(140%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .liquid-card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.8), rgba(250, 250, 249, 0.6));
+            backdrop-filter: blur(32px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 20px 40px -12px rgba(168, 162, 158, 0.15);
+        }
+
+        .btn-primary {
+            background: #fd521a;
+            color: white;
+            transition: all 0.3s;
+            box-shadow: 0 8px 20px -4px rgba(253, 82, 26, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #e0410e;
+            transform: translateY(-2px);
+        }
+
+        .time-slot {
+            transition: all 0.2s;
+        }
+
+        .time-slot:hover {
+            border-color: #fd521a;
+            background: rgba(253, 82, 26, 0.05);
+        }
+
+        .time-slot.selected {
+            border-color: #fd521a;
+            background: rgba(253, 82, 26, 0.1);
+        }
+
+        .day-btn {
+            transition: all 0.2s;
+        }
+
+        .day-btn:hover {
+            background: rgba(253, 82, 26, 0.05);
+        }
+
+        .day-btn.selected {
+            background: #fd521a;
+            color: white;
+        }
+    </style>
+</head>
+
+<body class="selection:bg-brand selection:text-white min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="fixed top-6 left-0 w-full z-50 flex justify-center px-4">
+        <div class="liquid-glass px-3 pl-6 py-2 rounded-full flex items-center gap-8">
+            <a href="index.html" class="font-bold text-lg tracking-tighter flex items-center gap-2 text-black">
+                <div class="w-2.5 h-2.5 rounded-full bg-brand shadow-[0_0_10px_rgba(253,82,26,0.5)]"></div>
+                DRIIVO
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-32 pb-20 px-4 md:px-8 max-w-[900px] mx-auto">
+
+        <div class="grid md:grid-cols-2 gap-8">
+
+            <!-- Left: Info -->
+            <div>
+                <h1 class="text-3xl font-bold mb-4 tracking-tight">Réservez votre appel</h1>
+                <p class="text-gray-500 mb-8">15 minutes pour découvrir Driivo et poser toutes vos questions à un
+                    conseiller.</p>
+
+                <!-- What to expect -->
+                <div class="space-y-4 mb-8">
+                    <div class="flex items-start gap-3">
+                        <div
+                            class="w-8 h-8 rounded-full bg-brand/10 text-brand flex items-center justify-center shrink-0">
+                            <i data-lucide="message-circle" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-sm">Réponses à vos questions</div>
+                            <div class="text-xs text-gray-500">Comment ça marche, combien ça coûte, etc.</div>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div
+                            class="w-8 h-8 rounded-full bg-brand/10 text-brand flex items-center justify-center shrink-0">
+                            <i data-lucide="calculator" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-sm">Simulation personnalisée</div>
+                            <div class="text-xs text-gray-500">On calcule ensemble votre salaire net.</div>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div
+                            class="w-8 h-8 rounded-full bg-brand/10 text-brand flex items-center justify-center shrink-0">
+                            <i data-lucide="rocket" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-sm">Prochaines étapes</div>
+                            <div class="text-xs text-gray-500">On vous explique comment démarrer en 48h.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advisor -->
+                <div class="liquid-card p-4 rounded-xl flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center font-bold text-sm">
+                        MF</div>
+                    <div>
+                        <div class="font-bold text-sm">Mehdi F.</div>
+                        <div class="text-xs text-gray-400">Conseiller Driivo</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Calendar -->
+            <div class="liquid-card p-6 rounded-[2rem]">
+
+                <!-- Calendar Header -->
+                <div class="flex items-center justify-between mb-6">
+                    <button onclick="changeWeek(-1)"
+                        class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                        <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                    </button>
+                    <span class="font-bold" id="week-label">Janvier 2025</span>
+                    <button onclick="changeWeek(1)"
+                        class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <!-- Days -->
+                <div class="grid grid-cols-5 gap-2 mb-6" id="days-container">
+                    <!-- Generated by JS -->
+                </div>
+
+                <!-- Time Slots -->
+                <div class="space-y-2" id="slots-container">
+                    <div class="text-xs font-bold text-gray-400 mb-3">Créneaux disponibles</div>
+                    <!-- Generated by JS -->
+                </div>
+
+                <!-- Confirm Button -->
+                <button id="confirm-btn" disabled
+                    class="btn-primary w-full py-4 rounded-xl font-bold text-base mt-6 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    onclick="confirmBooking()">
+                    Confirmer le créneau
+                    <i data-lucide="check" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-6 text-center text-xs text-gray-400">
+        <a href="index.html" class="hover:text-brand">← Retour à l'accueil</a>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        let selectedDay = null;
+        let selectedSlot = null;
+        let currentWeekOffset = 0;
+
+        const slots = ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00'];
+
+        function generateDays() {
+            const container = document.getElementById('days-container');
+            container.innerHTML = '';
+
+            const today = new Date();
+            today.setDate(today.getDate() + (currentWeekOffset * 7));
+
+            const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+
+            for (let i = 0; i < 5; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+
+                const dayOfWeek = date.getDay();
+                if (dayOfWeek === 0 || dayOfWeek === 6) continue; // Skip weekends
+
+                const btn = document.createElement('button');
+                btn.className = 'day-btn p-3 rounded-xl border border-gray-200 text-center';
+                btn.innerHTML = `
+                    <div class="text-[10px] text-gray-400">${dayNames[dayOfWeek]}</div>
+                    <div class="font-bold">${date.getDate()}</div>
+                `;
+                btn.onclick = () => selectDay(btn, date.toISOString());
+                container.appendChild(btn);
+            }
+
+            // Update month label
+            document.getElementById('week-label').textContent = today.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+        }
+
+        function selectDay(btn, dateStr) {
+            document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedDay = dateStr;
+            generateSlots();
+            updateConfirmButton();
+        }
+
+        function generateSlots() {
+            const container = document.getElementById('slots-container');
+            container.innerHTML = '<div class="text-xs font-bold text-gray-400 mb-3">Créneaux disponibles</div>';
+
+            if (!selectedDay) return;
+
+            const grid = document.createElement('div');
+            grid.className = 'grid grid-cols-3 gap-2';
+
+            slots.forEach(slot => {
+                const available = Math.random() > 0.3; // Mock availability
+                const btn = document.createElement('button');
+                btn.className = `time-slot px-3 py-2 rounded-lg border text-sm font-medium ${available ? 'border-gray-200' : 'border-gray-100 text-gray-300 cursor-not-allowed'}`;
+                btn.textContent = slot;
+                btn.disabled = !available;
+                if (available) {
+                    btn.onclick = () => selectSlot(btn, slot);
+                }
+                grid.appendChild(btn);
+            });
+
+            container.appendChild(grid);
+        }
+
+        function selectSlot(btn, slot) {
+            document.querySelectorAll('.time-slot').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedSlot = slot;
+            updateConfirmButton();
+        }
+
+        function updateConfirmButton() {
+            const btn = document.getElementById('confirm-btn');
+            btn.disabled = !(selectedDay && selectedSlot);
+        }
+
+        function changeWeek(direction) {
+            currentWeekOffset += direction;
+            if (currentWeekOffset < 0) currentWeekOffset = 0;
+            selectedDay = null;
+            selectedSlot = null;
+            generateDays();
+            document.getElementById('slots-container').innerHTML = '<div class="text-xs font-bold text-gray-400 mb-3">Sélectionnez un jour</div>';
+            updateConfirmButton();
+        }
+
+        function confirmBooking() {
+            // In real app, would save booking
+            alert('Créneau réservé ! Vous recevrez un email de confirmation.');
+            window.location.href = 'dashboard.html';
+        }
+
+        // Initialize
+        generateDays();
+    </script>
+</body>
+
+</html>

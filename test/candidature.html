@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidature | Driivo</title>
+    <meta name="description"
+        content="Rejoignez Driivo en 3 étapes simples. Devenez chauffeur VTC salarié avec protection sociale complète.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { DEFAULT: '#fd521a', glow: '#ff7043', dark: '#d63f0e', accent: '#ff8a65' },
+                        dark: { 900: '#1a1a1a', 800: '#2a2a2a' }
+                    },
+                    fontFamily: { sans: ['General Sans', 'sans-serif'] },
+                }
+            }
+        }
+    </script>
+    <link href="https://api.fontshare.com/v2/css?f[]=general-sans@200,300,400,500,600,700&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'General Sans', sans-serif;
+            background-color: #f2f2f0;
+            color: #1c1917;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .liquid-glass {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(24px) saturate(140%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .liquid-card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.8), rgba(250, 250, 249, 0.6));
+            backdrop-filter: blur(32px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 20px 40px -12px rgba(168, 162, 158, 0.15);
+        }
+
+        .btn-primary {
+            background: #fd521a;
+            color: white;
+            transition: all 0.3s;
+            box-shadow: 0 8px 20px -4px rgba(253, 82, 26, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #e0410e;
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .input-field {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            transition: all 0.2s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #fd521a;
+            box-shadow: 0 0 0 3px rgba(253, 82, 26, 0.1);
+        }
+
+        .step-indicator {
+            transition: all 0.3s;
+        }
+
+        .step-indicator.active {
+            background: #fd521a;
+            color: white;
+        }
+
+        .step-indicator.completed {
+            background: #22c55e;
+            color: white;
+        }
+
+        .form-step {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .form-step.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="selection:bg-brand selection:text-white min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="fixed top-6 left-0 w-full z-50 flex justify-center px-4">
+        <div class="liquid-glass px-3 pl-6 py-2 rounded-full flex items-center gap-8">
+            <a href="index.html" class="font-bold text-lg tracking-tighter flex items-center gap-2 text-black">
+                <div class="w-2.5 h-2.5 rounded-full bg-brand shadow-[0_0_10px_rgba(253,82,26,0.5)]"></div>
+                DRIIVO
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-32 pb-20 px-4 md:px-8 max-w-[600px] mx-auto">
+
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold mb-3 tracking-tight">
+                Rejoindre Driivo
+            </h1>
+            <p class="text-gray-500">3 étapes simples. Moins de 5 minutes.</p>
+        </div>
+
+        <!-- Progress Steps -->
+        <div class="flex items-center justify-center gap-2 mb-10">
+            <div class="step-indicator active w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm"
+                data-step="1">1</div>
+            <div class="w-12 h-1 bg-gray-200 rounded-full">
+                <div class="progress-bar h-full bg-brand rounded-full transition-all duration-300" style="width: 0%">
+                </div>
+            </div>
+            <div class="step-indicator w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center font-bold text-sm"
+                data-step="2">2</div>
+            <div class="w-12 h-1 bg-gray-200 rounded-full">
+                <div class="progress-bar-2 h-full bg-brand rounded-full transition-all duration-300" style="width: 0%">
+                </div>
+            </div>
+            <div class="step-indicator w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center font-bold text-sm"
+                data-step="3">3</div>
+        </div>
+
+        <!-- Form Card -->
+        <div class="liquid-card p-8 rounded-[2rem]">
+            <form id="candidature-form">
+
+                <!-- Step 1: Personal Info -->
+                <div class="form-step active" data-step="1">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-brand/10 text-brand flex items-center justify-center">
+                            <i data-lucide="user" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-bold">Vos informations</h2>
+                            <p class="text-xs text-gray-400">Dites-nous qui vous êtes</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-sm font-bold text-gray-700 mb-2 block">Prénom *</label>
+                                <input type="text" name="prenom" required placeholder="Jean"
+                                    class="input-field w-full px-4 py-3 rounded-xl text-sm">
+                            </div>
+                            <div>
+                                <label class="text-sm font-bold text-gray-700 mb-2 block">Nom *</label>
+                                <input type="text" name="nom" required placeholder="Dupont"
+                                    class="input-field w-full px-4 py-3 rounded-xl text-sm">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-sm font-bold text-gray-700 mb-2 block">Email *</label>
+                            <input type="email" name="email" required placeholder="jean@example.com"
+                                class="input-field w-full px-4 py-3 rounded-xl text-sm">
+                        </div>
+                        <div>
+                            <label class="text-sm font-bold text-gray-700 mb-2 block">Téléphone *</label>
+                            <input type="tel" name="telephone" required placeholder="06 12 34 56 78"
+                                class="input-field w-full px-4 py-3 rounded-xl text-sm">
+                        </div>
+                        <div>
+                            <label class="text-sm font-bold text-gray-700 mb-2 block">Ville *</label>
+                            <input type="text" name="ville" required placeholder="Paris"
+                                class="input-field w-full px-4 py-3 rounded-xl text-sm">
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="nextStep(2)"
+                        class="btn-primary w-full py-4 rounded-xl font-bold text-base mt-6 flex items-center justify-center gap-2">
+                        Continuer
+                        <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <!-- Step 2: Documents -->
+                <div class="form-step" data-step="2">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-brand/10 text-brand flex items-center justify-center">
+                            <i data-lucide="file-text" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-bold">Vos documents</h2>
+                            <p class="text-xs text-gray-400">Confirmez votre éligibilité</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-sm font-bold text-gray-700 mb-2 block">Avez-vous une carte VTC ?
+                                *</label>
+                            <div class="grid grid-cols-2 gap-4">
+                                <label
+                                    class="input-field px-4 py-3 rounded-xl text-sm cursor-pointer flex items-center gap-3 hover:border-brand">
+                                    <input type="radio" name="carte_vtc" value="oui" required class="accent-brand">
+                                    <span>Oui</span>
+                                </label>
+                                <label
+                                    class="input-field px-4 py-3 rounded-xl text-sm cursor-pointer flex items-center gap-3 hover:border-brand">
+                                    <input type="radio" name="carte_vtc" value="non" required class="accent-brand">
+                                    <span>Non (en cours)</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-sm font-bold text-gray-700 mb-2 block">Numéro de carte VTC</label>
+                            <input type="text" name="numero_carte" placeholder="VTC-XXXXXXXX"
+                                class="input-field w-full px-4 py-3 rounded-xl text-sm">
+                            <p class="text-[10px] text-gray-400 mt-1">Optionnel pour le moment</p>
+                        </div>
+                        <div>
+                            <label class="text-sm font-bold text-gray-700 mb-2 block">Depuis combien de temps
+                                roulez-vous ? *</label>
+                            <select name="experience" required class="input-field w-full px-4 py-3 rounded-xl text-sm">
+                                <option value="">Sélectionnez...</option>
+                                <option value="moins_1an">Moins d'1 an</option>
+                                <option value="1_3ans">1 à 3 ans</option>
+                                <option value="3_5ans">3 à 5 ans</option>
+                                <option value="plus_5ans">Plus de 5 ans</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 mt-6">
+                        <button type="button" onclick="prevStep(1)"
+                            class="flex-1 py-4 rounded-xl font-bold text-base border border-gray-200 bg-white hover:bg-gray-50 transition-colors">
+                            Retour
+                        </button>
+                        <button type="button" onclick="nextStep(3)"
+                            class="flex-1 btn-primary py-4 rounded-xl font-bold text-base flex items-center justify-center gap-2">
+                            Continuer
+                            <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Vehicle -->
+                <div class="form-step" data-step="3">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-brand/10 text-brand flex items-center justify-center">
+                            <i data-lucide="car" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-bold">Votre véhicule</h2>
+                            <p class="text-xs text-gray-400">Décrivez votre outil de travail</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-sm font-bold text-gray-700 mb-2 block">Avez-vous un véhicule ? *</label>
+                            <div class="grid grid-cols-2 gap-4">
+                                <label
+                                    class="input-field px-4 py-3 rounded-xl text-sm cursor-pointer flex items-center gap-3 hover:border-brand">
+                                    <input type="radio" name="vehicule" value="oui" required class="accent-brand">
+                                    <span>Oui</span>
+                                </label>
+                                <label
+                                    class="input-field px-4 py-3 rounded-xl text-sm cursor-pointer flex items-center gap-3 hover:border-brand">
+                                    <input type="radio" name="vehicule" value="besoin" required class="accent-brand">
+                                    <span>J'en ai besoin</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-sm font-bold text-gray-700 mb-2 block">Marque et modèle</label>
+                            <input type="text" name="vehicule_modele" placeholder="Ex: Tesla Model 3"
+                                class="input-field w-full px-4 py-3 rounded-xl text-sm">
+                        </div>
+                        <div>
+                            <label class="text-sm font-bold text-gray-700 mb-2 block">Sur quelles plateformes
+                                roulez-vous ? *</label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <label
+                                    class="input-field px-3 py-2 rounded-lg text-sm cursor-pointer flex items-center gap-2 hover:border-brand">
+                                    <input type="checkbox" name="plateformes" value="uber" class="accent-brand">
+                                    <span>Uber</span>
+                                </label>
+                                <label
+                                    class="input-field px-3 py-2 rounded-lg text-sm cursor-pointer flex items-center gap-2 hover:border-brand">
+                                    <input type="checkbox" name="plateformes" value="bolt" class="accent-brand">
+                                    <span>Bolt</span>
+                                </label>
+                                <label
+                                    class="input-field px-3 py-2 rounded-lg text-sm cursor-pointer flex items-center gap-2 hover:border-brand">
+                                    <input type="checkbox" name="plateformes" value="heetch" class="accent-brand">
+                                    <span>Heetch</span>
+                                </label>
+                                <label
+                                    class="input-field px-3 py-2 rounded-lg text-sm cursor-pointer flex items-center gap-2 hover:border-brand">
+                                    <input type="checkbox" name="plateformes" value="freenow" class="accent-brand">
+                                    <span>FreeNow</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-sm font-bold text-gray-700 mb-2 block">Chiffre d'affaires mensuel
+                                moyen</label>
+                            <select name="ca_mensuel" class="input-field w-full px-4 py-3 rounded-xl text-sm">
+                                <option value="">Sélectionnez...</option>
+                                <option value="moins_3000">Moins de 3 000 €</option>
+                                <option value="3000_5000">3 000 € - 5 000 €</option>
+                                <option value="5000_7000">5 000 € - 7 000 €</option>
+                                <option value="7000_10000">7 000 € - 10 000 €</option>
+                                <option value="plus_10000">Plus de 10 000 €</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 mt-6">
+                        <button type="button" onclick="prevStep(2)"
+                            class="flex-1 py-4 rounded-xl font-bold text-base border border-gray-200 bg-white hover:bg-gray-50 transition-colors">
+                            Retour
+                        </button>
+                        <button type="submit"
+                            class="flex-1 btn-primary py-4 rounded-xl font-bold text-base flex items-center justify-center gap-2">
+                            Envoyer ma candidature
+                            <i data-lucide="check" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+
+        <!-- Trust Element -->
+        <div class="text-center mt-8">
+            <div class="flex items-center justify-center gap-2 text-xs text-gray-400">
+                <i data-lucide="lock" class="w-4 h-4"></i>
+                <span>Vos données sont sécurisées et ne seront jamais partagées.</span>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        let currentStep = 1;
+
+        function nextStep(step) {
+            // Validate current step fields
+            const currentStepEl = document.querySelector(`.form-step[data-step="${currentStep}"]`);
+            const requiredFields = currentStepEl.querySelectorAll('[required]');
+            let valid = true;
+
+            requiredFields.forEach(field => {
+                if (!field.value && field.type !== 'radio') {
+                    field.style.borderColor = '#ef4444';
+                    valid = false;
+                } else if (field.type === 'radio') {
+                    const radioGroup = document.querySelectorAll(`[name="${field.name}"]`);
+                    const checked = Array.from(radioGroup).some(r => r.checked);
+                    if (!checked) valid = false;
+                } else {
+                    field.style.borderColor = '';
+                }
+            });
+
+            if (!valid) return;
+
+            // Update step indicators
+            document.querySelector(`.step-indicator[data-step="${currentStep}"]`).classList.remove('active');
+            document.querySelector(`.step-indicator[data-step="${currentStep}"]`).classList.add('completed');
+            document.querySelector(`.step-indicator[data-step="${currentStep}"]`).innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+
+            document.querySelector(`.step-indicator[data-step="${step}"]`).classList.add('active');
+
+            // Update progress bars
+            if (step === 2) document.querySelector('.progress-bar').style.width = '100%';
+            if (step === 3) document.querySelector('.progress-bar-2').style.width = '100%';
+
+            // Show next step
+            document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove('active');
+            document.querySelector(`.form-step[data-step="${step}"]`).classList.add('active');
+            currentStep = step;
+            lucide.createIcons();
+        }
+
+        function prevStep(step) {
+            document.querySelector(`.step-indicator[data-step="${currentStep}"]`).classList.remove('active');
+            document.querySelector(`.step-indicator[data-step="${step}"]`).classList.remove('completed');
+            document.querySelector(`.step-indicator[data-step="${step}"]`).classList.add('active');
+            document.querySelector(`.step-indicator[data-step="${step}"]`).textContent = step;
+
+            if (step === 1) document.querySelector('.progress-bar').style.width = '0%';
+            if (step === 2) document.querySelector('.progress-bar-2').style.width = '0%';
+
+            document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove('active');
+            document.querySelector(`.form-step[data-step="${step}"]`).classList.add('active');
+            currentStep = step;
+        }
+
+        document.getElementById('candidature-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            // In real app, would submit to backend
+            // For MVP, just redirect to thank you
+            window.location.href = 'merci.html';
+        });
+    </script>
+</body>
+
+</html>

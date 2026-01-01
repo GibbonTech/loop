@@ -1,0 +1,46 @@
+# Docker Compose for LOOP Platform
+# Usage: docker compose up -d
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: loop-db
+    environment:
+      POSTGRES_USER: loop
+      POSTGRES_PASSWORD: loop_dev_password
+      POSTGRES_DB: loop
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U loop -d loop"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # LOOP Web Application
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: loop-web
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://loop:loop_dev_password@postgres:5434/loop
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-dev-secret-change-in-production}
+      VITE_BASE_URL: http://localhost:3000
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - production
+
+volumes:
+  postgres_data:
+
+networks:
+  default:
+    name: loop-network
