@@ -44,7 +44,7 @@ RUN adduser --system --uid 1001 loop
 USER loop
 
 # Copy built application
-COPY --from=builder --chown=loop:nodejs /app/.output ./.output
+COPY --from=builder --chown=loop:nodejs /app/dist ./dist
 COPY --from=builder --chown=loop:nodejs /app/package.json ./package.json
 
 # Set environment variables
@@ -57,7 +57,7 @@ EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-  CMD node -e "fetch('http://localhost:3000/api/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"
+  CMD node -e "fetch('http://localhost:3000').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"
 
 # Start the application
-CMD ["node", ".output/server/index.mjs"]
+CMD ["node", "dist/server/server.js"]
