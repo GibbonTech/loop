@@ -4,9 +4,11 @@ import { join, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import server from './dist/server/server.js';
 
-const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const __dirname = process.cwd();
 const port = process.env.PORT || 3000;
 const host = process.env.HOST || '0.0.0.0';
+
+console.log('Static files directory:', join(__dirname, 'dist/client'));
 
 const mimeTypes = {
   '.html': 'text/html',
