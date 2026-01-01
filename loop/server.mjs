@@ -1,12 +1,45 @@
 import { createServer } from 'node:http';
+import { createReadStream, existsSync, statSync } from 'node:fs';
+import { join, extname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import server from './dist/server/server.js';
 
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const port = process.env.PORT || 3000;
 const host = process.env.HOST || '0.0.0.0';
+
+const mimeTypes = {
+  '.html': 'text/html',
+  '.js': 'application/javascript',
+  '.css': 'text/css',
+  '.json': 'application/json',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+  '.ttf': 'font/ttf',
+  '.eot': 'application/vnd.ms-fontobject',
+};
 
 const httpServer = createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host}`);
+    
+    // Try to serve static files from dist/client
+    if (req.method === 'GET') {
+      const staticPath = join(__dirname, 'dist/client', url.pathname);
+      if (existsSync(staticPath) && statSync(staticPath).isFile()) {
+        const ext = extname(staticPath);
+        const contentType = mimeTypes[ext] || 'application/octet-stream';
+        res.setHeader('Content-Type', contentType);
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        createReadStream(staticPath).pipe(res);
+        return;
+      }
+    }
     
     // Build the request
     const headers = new Headers();

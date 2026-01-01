@@ -43,7 +43,7 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 loop
 USER loop
 
-# Copy built application
+# Copy built application (both server and client assets)
 COPY --from=builder --chown=loop:nodejs /app/dist ./dist
 COPY --from=builder --chown=loop:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=loop:nodejs /app/package.json ./package.json
