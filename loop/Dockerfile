@@ -47,6 +47,7 @@ USER loop
 COPY --from=builder --chown=loop:nodejs /app/dist ./dist
 COPY --from=builder --chown=loop:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=loop:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=loop:nodejs /app/server.mjs ./server.mjs
 
 # Set environment variables
 ENV NODE_ENV=production
@@ -57,4 +58,4 @@ ENV PORT=3000
 EXPOSE 3000
 
 # Start the application
-CMD ["node", "dist/server/server.js"]
+CMD ["node", "server.mjs"]
