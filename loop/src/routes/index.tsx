@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn, useSession } from "~/lib/auth/auth-client";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
@@ -30,10 +30,20 @@ export const Route = createFileRoute("/")({
 });
 
 function IndexPage() {
-  const hostname = typeof window !== "undefined" ? window.location.hostname : "";
+  const [hostname, setHostname] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    setHostname(window.location.hostname);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
   const isAppDomain = hostname === "app.driivo.fr";
 
-  // Render login page on app.driivo.fr, landing page on driivo.fr
   if (isAppDomain) {
     return <LoginPage />;
   }
