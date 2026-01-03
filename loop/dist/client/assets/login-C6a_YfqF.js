@@ -1,0 +1,1 @@
+import{r as n,j as e}from"./main-CyW2GYO1.js";function t(){return n.useEffect(()=>{window.location.href="/login"},[]),e.jsx("div",{className:"flex min-h-screen items-center justify-center bg-[#f2f2f0]",children:e.jsx("p",{className:"text-gray-500",children:"Redirection vers la page de connexion..."})})}export{t as component};

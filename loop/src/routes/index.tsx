@@ -1,5 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { signIn, useSession } from "~/lib/auth/auth-client";
+import { toast } from "sonner";
+import { ArrowLeft } from "lucide-react";
 import {
   ArrowRight,
   Car,
@@ -17,7 +20,7 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
-  component: HomePage,
+  component: IndexPage,
   head: () => ({
     meta: [
       { title: "Driivo - Devenez Entrepreneur Salarié VTC" },
@@ -26,18 +29,132 @@ export const Route = createFileRoute("/")({
   }),
 });
 
-function HomePage() {
-  const [ca, setCa] = useState(5000);
+function IndexPage() {
+  const hostname = typeof window !== "undefined" ? window.location.hostname : "";
+  const isAppDomain = hostname === "app.driivo.fr";
 
-  // Domain-based routing: app.driivo.fr goes to login
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const hostname = window.location.hostname;
-      if (hostname === "app.driivo.fr") {
-        window.location.href = "/login";
+  // Render login page on app.driivo.fr, landing page on driivo.fr
+  if (isAppDomain) {
+    return <LoginPage />;
+  }
+
+  return <LandingPage />;
+}
+
+function LoginPage() {
+  const { data: session } = useSession();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const result = await signIn.email({
+        email,
+        password,
+      });
+
+      if (result.error) {
+        toast.error(result.error.message || "Identifiants incorrects");
+      } else {
+        toast.success("Connexion réussie");
+        const user = result.data?.user as { role?: string } | undefined;
+        if (user?.role === "ADMIN") {
+          window.location.href = "/admin";
+        } else {
+          window.location.href = "/espace";
+        }
       }
+    } catch {
+      toast.error("Erreur de connexion");
+    } finally {
+      setIsLoading(false);
     }
-  }, []);
+  };
+
+  if (session?.user) {
+    const userRole = (session.user as { role?: string }).role;
+    if (userRole === "ADMIN") {
+      window.location.href = "/admin";
+    } else {
+      window.location.href = "/espace";
+    }
+    return null;
+  }
+
+  return (
+    <div className="flex min-h-screen flex-col bg-[#f2f2f0]">
+      <header className="px-4 py-6">
+        <Link to="/" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-[#fd521a]">
+          <ArrowLeft className="h-4 w-4" />
+          Retour à l'accueil
+        </Link>
+      </header>
+      <main className="flex flex-1 items-center justify-center px-4">
+        <div className="w-full max-w-md">
+          <div className="mb-8 text-center">
+            <Link to="/" className="inline-block">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#fd521a]">
+                <div className="h-3 w-3 rounded-full bg-white"></div>
+              </div>
+            </Link>
+            <h1 className="mb-2 text-2xl font-bold text-[#1c1917]">Connexion</h1>
+            <p className="text-gray-600">Accédez à votre espace Driivo</p>
+          </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="email" className="mb-1 block text-sm font-medium text-[#1c1917]">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="votre@email.com"
+                className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-[#1c1917] placeholder:text-gray-400 focus:border-[#fd521a] focus:outline-none focus:ring-2 focus:ring-[#fd521a]/20"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="password" className="mb-1 block text-sm font-medium text-[#1c1917]">
+                Mot de passe
+              </label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-[#1c1917] placeholder:text-gray-400 focus:border-[#fd521a] focus:outline-none focus:ring-2 focus:ring-[#fd521a]/20"
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full rounded-lg bg-[#fd521a] px-4 py-3 font-bold text-white transition-colors hover:bg-[#e04819] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isLoading ? "Connexion..." : "Se connecter"}
+            </button>
+          </form>
+          <p className="mt-6 text-center text-sm text-gray-600">
+            Pas encore inscrit ?{" "}
+            <Link to="/inscription" className="font-medium text-[#fd521a] hover:underline">
+              Rejoindre Driivo
+            </Link>
+          </p>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+function LandingPage() {
+  const [ca, setCa] = useState(5000);
   
   // Calculate results
   const fees = Math.round(ca * 0.1);
