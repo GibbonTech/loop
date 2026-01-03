@@ -15,9 +15,9 @@ import { Route as ResultatsRouteImport } from './routes/resultats'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as InscriptionRouteImport } from './routes/inscription'
 import { Route as EspaceRouteImport } from './routes/espace'
+import { Route as ConfirmationRouteImport } from './routes/confirmation'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
-import { Route as InscriptionConfirmationRouteImport } from './routes/inscription.confirmation'
 import { Route as ApiMeetingsRouteImport } from './routes/api/meetings'
 import { Route as ApiLeadsRouteImport } from './routes/api/leads'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
@@ -56,6 +56,11 @@ const EspaceRoute = EspaceRouteImport.update({
   path: '/espace',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ConfirmationRoute = ConfirmationRouteImport.update({
+  id: '/confirmation',
+  path: '/confirmation',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -65,11 +70,6 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
   getParentRoute: () => rootRouteImport,
-} as any)
-const InscriptionConfirmationRoute = InscriptionConfirmationRouteImport.update({
-  id: '/confirmation',
-  path: '/confirmation',
-  getParentRoute: () => InscriptionRoute,
 } as any)
 const ApiMeetingsRoute = ApiMeetingsRouteImport.update({
   id: '/api/meetings',
@@ -109,8 +109,9 @@ const AdminApplicationsIdRoute = AdminApplicationsIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/confirmation': typeof ConfirmationRoute
   '/espace': typeof EspaceRoute
-  '/inscription': typeof InscriptionRouteWithChildren
+  '/inscription': typeof InscriptionRoute
   '/login': typeof LoginRoute
   '/resultats': typeof ResultatsRoute
   '/reunion': typeof ReunionRoute
@@ -120,15 +121,15 @@ export interface FileRoutesByFullPath {
   '/api/health': typeof ApiHealthRoute
   '/api/leads': typeof ApiLeadsRoute
   '/api/meetings': typeof ApiMeetingsRoute
-  '/inscription/confirmation': typeof InscriptionConfirmationRoute
   '/admin': typeof AdminIndexRoute
   '/admin/applications/$id': typeof AdminApplicationsIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/confirmation': typeof ConfirmationRoute
   '/espace': typeof EspaceRoute
-  '/inscription': typeof InscriptionRouteWithChildren
+  '/inscription': typeof InscriptionRoute
   '/login': typeof LoginRoute
   '/resultats': typeof ResultatsRoute
   '/reunion': typeof ReunionRoute
@@ -138,7 +139,6 @@ export interface FileRoutesByTo {
   '/api/health': typeof ApiHealthRoute
   '/api/leads': typeof ApiLeadsRoute
   '/api/meetings': typeof ApiMeetingsRoute
-  '/inscription/confirmation': typeof InscriptionConfirmationRoute
   '/admin': typeof AdminIndexRoute
   '/admin/applications/$id': typeof AdminApplicationsIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -146,8 +146,9 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/confirmation': typeof ConfirmationRoute
   '/espace': typeof EspaceRoute
-  '/inscription': typeof InscriptionRouteWithChildren
+  '/inscription': typeof InscriptionRoute
   '/login': typeof LoginRoute
   '/resultats': typeof ResultatsRoute
   '/reunion': typeof ReunionRoute
@@ -157,7 +158,6 @@ export interface FileRoutesById {
   '/api/health': typeof ApiHealthRoute
   '/api/leads': typeof ApiLeadsRoute
   '/api/meetings': typeof ApiMeetingsRoute
-  '/inscription/confirmation': typeof InscriptionConfirmationRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/applications/$id': typeof AdminApplicationsIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -166,6 +166,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/confirmation'
     | '/espace'
     | '/inscription'
     | '/login'
@@ -177,13 +178,13 @@ export interface FileRouteTypes {
     | '/api/health'
     | '/api/leads'
     | '/api/meetings'
-    | '/inscription/confirmation'
     | '/admin'
     | '/admin/applications/$id'
     | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/confirmation'
     | '/espace'
     | '/inscription'
     | '/login'
@@ -195,13 +196,13 @@ export interface FileRouteTypes {
     | '/api/health'
     | '/api/leads'
     | '/api/meetings'
-    | '/inscription/confirmation'
     | '/admin'
     | '/admin/applications/$id'
     | '/api/auth/$'
   id:
     | '__root__'
     | '/'
+    | '/confirmation'
     | '/espace'
     | '/inscription'
     | '/login'
@@ -213,7 +214,6 @@ export interface FileRouteTypes {
     | '/api/health'
     | '/api/leads'
     | '/api/meetings'
-    | '/inscription/confirmation'
     | '/admin/'
     | '/admin/applications/$id'
     | '/api/auth/$'
@@ -221,8 +221,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ConfirmationRoute: typeof ConfirmationRoute
   EspaceRoute: typeof EspaceRoute
-  InscriptionRoute: typeof InscriptionRouteWithChildren
+  InscriptionRoute: typeof InscriptionRoute
   LoginRoute: typeof LoginRoute
   ResultatsRoute: typeof ResultatsRoute
   ReunionRoute: typeof ReunionRoute
@@ -281,6 +282,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EspaceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/confirmation': {
+      id: '/confirmation'
+      path: '/confirmation'
+      fullPath: '/confirmation'
+      preLoaderRoute: typeof ConfirmationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -294,13 +302,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/inscription/confirmation': {
-      id: '/inscription/confirmation'
-      path: '/confirmation'
-      fullPath: '/inscription/confirmation'
-      preLoaderRoute: typeof InscriptionConfirmationRouteImport
-      parentRoute: typeof InscriptionRoute
     }
     '/api/meetings': {
       id: '/api/meetings'
@@ -354,22 +355,11 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface InscriptionRouteChildren {
-  InscriptionConfirmationRoute: typeof InscriptionConfirmationRoute
-}
-
-const InscriptionRouteChildren: InscriptionRouteChildren = {
-  InscriptionConfirmationRoute: InscriptionConfirmationRoute,
-}
-
-const InscriptionRouteWithChildren = InscriptionRoute._addFileChildren(
-  InscriptionRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ConfirmationRoute: ConfirmationRoute,
   EspaceRoute: EspaceRoute,
-  InscriptionRoute: InscriptionRouteWithChildren,
+  InscriptionRoute: InscriptionRoute,
   LoginRoute: LoginRoute,
   ResultatsRoute: ResultatsRoute,
   ReunionRoute: ReunionRoute,

@@ -78,7 +78,7 @@ function InscriptionPage() {
         body: JSON.stringify(apiData),
       });
       // Use window.location for clean navigation to avoid hydration issues
-      window.location.href = "/inscription/confirmation";
+      window.location.href = "/confirmation";
     } catch (error) {
       console.error("Error submitting application:", error);
     } finally {
