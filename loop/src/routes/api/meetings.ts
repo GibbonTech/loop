@@ -11,16 +11,21 @@ export const Route = createFileRoute("/api/meetings")({
         try {
           const body = await request.json();
 
+          // Handle both field naming conventions (form sends name/date/time, API also accepts firstName/scheduledDate/timeSlot)
+          const firstName = body.name || body.firstName || "";
+          const scheduledDate = body.date || body.scheduledDate;
+          const timeSlot = body.time || body.timeSlot;
+
           const newMeeting = await db
             .insert(meetingBooking)
             .values({
               id: nanoid(),
-              firstName: body.firstName,
+              firstName: firstName,
               lastName: body.lastName || null,
               email: body.email,
               phone: body.phone || null,
-              scheduledDate: new Date(body.scheduledDate),
-              timeSlot: body.timeSlot,
+              scheduledDate: new Date(scheduledDate),
+              timeSlot: timeSlot,
               duration: body.duration || 15,
               leadId: body.leadId || null,
             })

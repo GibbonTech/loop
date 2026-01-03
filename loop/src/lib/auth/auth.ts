@@ -82,5 +82,8 @@ export const auth = betterAuth({
     "http://localhost:3000",
     "http://localhost:3001",
     "http://mgccko8gcc8k0gos04wgkcow.37.27.62.87.sslip.io",
+    "https://driivo.fr",
+    "https://www.driivo.fr",
+    "https://app.driivo.fr",
   ],
 });

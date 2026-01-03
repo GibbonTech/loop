@@ -103,9 +103,9 @@ function ReunionPage() {
         }),
       });
       toast.success("Créneau réservé ! Vous recevrez un email de confirmation.");
-      // Redirect to confirmation after short delay
+      // Redirect to espace after short delay
       setTimeout(() => {
-        navigate({ to: "/inscription/confirmation" });
+        navigate({ to: "/espace" });
       }, 1500);
     } catch (error) {
       console.error("Error booking meeting:", error);

@@ -45,12 +45,20 @@ export function Navbar({ showNavLinks = true, variant = "default" }: NavbarProps
           </div>
         )}
 
-        <Link
-          to="/inscription"
-          className="rounded-full bg-[#111] px-5 py-2 text-xs font-bold tracking-wide text-white shadow-[0_8px_20px_-4px_rgba(0,0,0,0.2)] transition-all hover:-translate-y-0.5 hover:bg-[#fd521a] hover:shadow-[0_12px_28px_-4px_rgba(253,82,26,0.4)]"
-        >
-          REJOINDRE
-        </Link>
+        <div className="flex items-center gap-3">
+          <a
+            href="/login"
+            className="hidden text-xs font-medium text-gray-600 transition-colors hover:text-[#fd521a] md:block"
+          >
+            Connexion
+          </a>
+          <Link
+            to="/inscription"
+            className="rounded-full bg-[#111] px-5 py-2 text-xs font-bold tracking-wide text-white shadow-[0_8px_20px_-4px_rgba(0,0,0,0.2)] transition-all hover:-translate-y-0.5 hover:bg-[#fd521a] hover:shadow-[0_12px_28px_-4px_rgba(253,82,26,0.4)]"
+          >
+            REJOINDRE
+          </Link>
+        </div>
       </div>
     </nav>
   );

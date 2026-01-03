@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SimulateurRouteImport } from './routes/simulateur'
 import { Route as ReunionRouteImport } from './routes/reunion'
 import { Route as ResultatsRouteImport } from './routes/resultats'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as InscriptionRouteImport } from './routes/inscription'
 import { Route as EspaceRouteImport } from './routes/espace'
 import { Route as IndexRouteImport } from './routes/index'
@@ -38,6 +39,11 @@ const ReunionRoute = ReunionRouteImport.update({
 const ResultatsRoute = ResultatsRouteImport.update({
   id: '/resultats',
   path: '/resultats',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InscriptionRoute = InscriptionRouteImport.update({
@@ -105,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/espace': typeof EspaceRoute
   '/inscription': typeof InscriptionRouteWithChildren
+  '/login': typeof LoginRoute
   '/resultats': typeof ResultatsRoute
   '/reunion': typeof ReunionRoute
   '/simulateur': typeof SimulateurRoute
@@ -122,6 +129,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/espace': typeof EspaceRoute
   '/inscription': typeof InscriptionRouteWithChildren
+  '/login': typeof LoginRoute
   '/resultats': typeof ResultatsRoute
   '/reunion': typeof ReunionRoute
   '/simulateur': typeof SimulateurRoute
@@ -140,6 +148,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/espace': typeof EspaceRoute
   '/inscription': typeof InscriptionRouteWithChildren
+  '/login': typeof LoginRoute
   '/resultats': typeof ResultatsRoute
   '/reunion': typeof ReunionRoute
   '/simulateur': typeof SimulateurRoute
@@ -159,6 +168,7 @@ export interface FileRouteTypes {
     | '/'
     | '/espace'
     | '/inscription'
+    | '/login'
     | '/resultats'
     | '/reunion'
     | '/simulateur'
@@ -176,6 +186,7 @@ export interface FileRouteTypes {
     | '/'
     | '/espace'
     | '/inscription'
+    | '/login'
     | '/resultats'
     | '/reunion'
     | '/simulateur'
@@ -193,6 +204,7 @@ export interface FileRouteTypes {
     | '/'
     | '/espace'
     | '/inscription'
+    | '/login'
     | '/resultats'
     | '/reunion'
     | '/simulateur'
@@ -211,6 +223,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   EspaceRoute: typeof EspaceRoute
   InscriptionRoute: typeof InscriptionRouteWithChildren
+  LoginRoute: typeof LoginRoute
   ResultatsRoute: typeof ResultatsRoute
   ReunionRoute: typeof ReunionRoute
   SimulateurRoute: typeof SimulateurRoute
@@ -245,6 +258,13 @@ declare module '@tanstack/react-router' {
       path: '/resultats'
       fullPath: '/resultats'
       preLoaderRoute: typeof ResultatsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/inscription': {
@@ -350,6 +370,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   EspaceRoute: EspaceRoute,
   InscriptionRoute: InscriptionRouteWithChildren,
+  LoginRoute: LoginRoute,
   ResultatsRoute: ResultatsRoute,
   ReunionRoute: ReunionRoute,
   SimulateurRoute: SimulateurRoute,
