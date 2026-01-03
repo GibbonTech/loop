@@ -98,19 +98,19 @@ function LoginPage() {
   return (
     <div className="flex min-h-screen flex-col bg-[#f2f2f0]">
       <header className="px-4 py-6">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-[#fd521a]">
+        <a href="https://driivo.fr" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-[#fd521a]">
           <ArrowLeft className="h-4 w-4" />
           Retour à l'accueil
-        </Link>
+        </a>
       </header>
       <main className="flex flex-1 items-center justify-center px-4">
         <div className="w-full max-w-md">
           <div className="mb-8 text-center">
-            <Link to="/" className="inline-block">
+            <a href="https://driivo.fr" className="inline-block">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#fd521a]">
                 <div className="h-3 w-3 rounded-full bg-white"></div>
               </div>
-            </Link>
+            </a>
             <h1 className="mb-2 text-2xl font-bold text-[#1c1917]">Connexion</h1>
             <p className="text-gray-600">Accédez à votre espace Driivo</p>
           </div>
@@ -153,9 +153,9 @@ function LoginPage() {
           </form>
           <p className="mt-6 text-center text-sm text-gray-600">
             Pas encore inscrit ?{" "}
-            <Link to="/inscription" className="font-medium text-[#fd521a] hover:underline">
+            <a href="https://app.driivo.fr/inscription" className="font-medium text-[#fd521a] hover:underline">
               Rejoindre Driivo
-            </Link>
+            </a>
           </p>
         </div>
       </main>
@@ -210,12 +210,12 @@ function LandingPage() {
             </a>
           </div>
 
-          <Link
-            to="/inscription"
+          <a
+            href="https://app.driivo.fr/inscription"
             className="rounded-full bg-[#111] px-5 py-2 text-xs font-bold tracking-wide text-white shadow-[0_8px_20px_-4px_rgba(0,0,0,0.2)] transition-all hover:-translate-y-0.5 hover:bg-[#fd521a] hover:shadow-[0_12px_28px_-4px_rgba(253,82,26,0.4)]"
           >
             REJOINDRE
-          </Link>
+          </a>
         </div>
       </nav>
 
@@ -250,12 +250,12 @@ function LandingPage() {
               Simulez vos revenus
               <ArrowRight className="h-5 w-5" />
             </Link>
-            <Link
-              to="/inscription"
+            <a
+              href="https://app.driivo.fr/inscription"
               className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-200/50 bg-white/50 px-6 py-4 text-base font-bold shadow-[inset_0_0_0_1px_rgba(255,255,255,0.4)] backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-white/80 sm:w-auto"
             >
               Rejoindre maintenant
-            </Link>
+            </a>
           </div>
 
           {/* Trust Badges */}
@@ -345,12 +345,12 @@ function LandingPage() {
                 Simulation détaillée
                 <ArrowRight className="h-4 w-4" />
               </Link>
-              <Link
-                to="/inscription"
+              <a
+                href="https://app.driivo.fr/inscription"
                 className="flex items-center justify-center gap-2 rounded-full border border-gray-200 bg-white px-6 py-3 text-sm font-bold transition-all hover:-translate-y-0.5 hover:border-[#fd521a] hover:text-[#fd521a]"
               >
                 Rejoindre maintenant
-              </Link>
+              </a>
             </div>
           </div>
         </section>
@@ -744,13 +744,13 @@ function LandingPage() {
           
           {/* CTA for 5-step section */}
           <div className="mt-10 text-center">
-            <Link
-              to="/inscription"
+            <a
+              href="https://app.driivo.fr/inscription"
               className="inline-flex items-center gap-2 rounded-full bg-[#fd521a] px-8 py-4 text-base font-bold text-white shadow-[0_8px_20px_-4px_rgba(253,82,26,0.3)] transition-all hover:-translate-y-0.5 hover:bg-[#e0410e]"
             >
               Commencer ma candidature
               <ArrowRight className="h-5 w-5" />
-            </Link>
+            </a>
           </div>
         </section>
 
@@ -858,12 +858,12 @@ function LandingPage() {
                 48h pour passer de &quot;intéressé&quot; à &quot;premier salaire
                 versé&quot;.
               </p>
-              <Link
-                to="/inscription"
+              <a
+                href="https://app.driivo.fr/inscription"
                 className="inline-block rounded-full bg-[#fd521a] px-10 py-4 text-lg font-bold text-white shadow-xl transition-transform hover:scale-105"
               >
                 Je me lance
-              </Link>
+              </a>
             </div>
           </div>
         </section>

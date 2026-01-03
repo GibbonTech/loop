@@ -1,0 +1,1 @@
+import{r as t,j as e}from"./main-BpwBsLkR.js";function i(){return t.useEffect(()=>{window.location.href="https://app.driivo.fr"},[]),e.jsx("div",{className:"flex min-h-screen items-center justify-center bg-[#f2f2f0]",children:e.jsx("p",{className:"text-gray-500",children:"Redirection..."})})}export{i as component};
