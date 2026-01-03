@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Check, Calendar, LayoutDashboard, Gift } from "lucide-react";
 import { toast } from "sonner";
+import { PageLayout } from "~/components/layout";
 
 export const Route = createFileRoute("/inscription/confirmation")({
   component: ConfirmationPage,
@@ -47,7 +48,7 @@ function ConfirmationPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f2f2f0] text-[#1c1917] selection:bg-[#fd521a] selection:text-white">
+    <PageLayout showNavbar={false}>
       {/* Confetti Container */}
       <div
         id="confetti-container"
@@ -184,6 +185,6 @@ function ConfirmationPage() {
           </div>
         </div>
       </main>
-    </div>
+    </PageLayout>
   );
 }

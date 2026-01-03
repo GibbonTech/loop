@@ -1,6 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowRight, Clock, Phone, ShieldCheck, Heart, PiggyBank } from "lucide-react";
+import { PageLayout } from "~/components/layout";
+import { formatNumber, getSalaryBreakdown } from "~/lib/utils";
+import { simulateurFormSchema, validateForm } from "~/lib/validations";
 
 export const Route = createFileRoute("/simulateur")({
   component: SimulateurPage,
@@ -21,21 +24,22 @@ function SimulateurPage() {
     email: "",
     telephone: "",
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Calculate real results
-  const fees = Math.round(ca * 0.1);
-  const cotisations = Math.round(ca * 0.14);
-  const net = ca - fees - cotisations;
-
-  const formatNumber = (num: number) => {
-    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-  };
+  const { net, cotisations } = getSalaryBreakdown(ca);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate form
+    const validation = validateForm(simulateurFormSchema, formData);
+    if (!validation.success) {
+      setErrors(validation.errors);
+      return;
+    }
+    setErrors({});
     setIsSubmitting(true);
 
-    // Save lead to database
     try {
       await fetch("/api/leads", {
         method: "POST",
@@ -54,7 +58,6 @@ function SimulateurPage() {
       setIsSubmitting(false);
     }
 
-    // Navigate to results
     navigate({
       to: "/resultats",
       search: {
@@ -67,34 +70,7 @@ function SimulateurPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f2f2f0] text-[#1c1917] selection:bg-[#fd521a] selection:text-white">
-      {/* Navigation */}
-      <nav className="fixed left-0 top-6 z-50 flex w-full justify-center px-4">
-        <div className="flex max-w-3xl items-center gap-8 rounded-full border border-white/40 bg-white/60 px-3 py-2 pl-6 shadow-[0_8px_32px_-4px_rgba(168,162,158,0.1),inset_0_0_0_1px_rgba(255,255,255,0.5)] backdrop-blur-2xl">
-          <Link
-            to="/"
-            className="flex items-center gap-2 text-lg font-bold tracking-tighter text-black"
-          >
-            <div className="h-2.5 w-2.5 rounded-full bg-[#fd521a] shadow-[0_0_10px_rgba(253,82,26,0.5)]"></div>
-            DRIIVO
-          </Link>
-          <div className="hidden items-center gap-6 text-sm font-medium text-gray-600 md:flex">
-            <Link to="/" className="transition-colors hover:text-black">
-              Accueil
-            </Link>
-            <Link to="/inscription" className="transition-colors hover:text-black">
-              Rejoindre
-            </Link>
-          </div>
-          <Link
-            to="/inscription"
-            className="rounded-full bg-[#111] px-5 py-2 text-xs font-bold tracking-wide text-white shadow-lg transition-colors hover:bg-[#fd521a]"
-          >
-            REJOINDRE
-          </Link>
-        </div>
-      </nav>
-
+    <PageLayout navbarVariant="minimal">
       {/* Main Content */}
       <main className="mx-auto max-w-[800px] px-4 pb-20 pt-32 md:px-8">
         {/* Header */}
@@ -189,14 +165,14 @@ function SimulateurPage() {
               </label>
               <input
                 type="text"
-                required
                 placeholder="Jean"
                 value={formData.prenom}
                 onChange={(e) =>
                   setFormData({ ...formData, prenom: e.target.value })
                 }
-                className="w-full rounded-xl border border-black/8 bg-white/80 px-4 py-3 text-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10"
+                className={`w-full rounded-xl border bg-white/80 px-4 py-3 text-sm transition-all focus:outline-none focus:ring-[3px] ${errors.prenom ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : 'border-black/8 focus:border-[#fd521a] focus:ring-[#fd521a]/10'}`}
               />
+              {errors.prenom && <p className="mt-1 text-xs text-red-500">{errors.prenom}</p>}
             </div>
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-700">
@@ -204,14 +180,14 @@ function SimulateurPage() {
               </label>
               <input
                 type="email"
-                required
                 placeholder="jean@example.com"
                 value={formData.email}
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
-                className="w-full rounded-xl border border-black/8 bg-white/80 px-4 py-3 text-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10"
+                className={`w-full rounded-xl border bg-white/80 px-4 py-3 text-sm transition-all focus:outline-none focus:ring-[3px] ${errors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : 'border-black/8 focus:border-[#fd521a] focus:ring-[#fd521a]/10'}`}
               />
+              {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
             </div>
             <div>
               <label className="mb-2 block text-sm font-bold text-gray-700">
@@ -219,14 +195,14 @@ function SimulateurPage() {
               </label>
               <input
                 type="tel"
-                required
                 placeholder="06 12 34 56 78"
                 value={formData.telephone}
                 onChange={(e) =>
                   setFormData({ ...formData, telephone: e.target.value })
                 }
-                className="w-full rounded-xl border border-black/8 bg-white/80 px-4 py-3 text-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10"
+                className={`w-full rounded-xl border bg-white/80 px-4 py-3 text-sm transition-all focus:outline-none focus:ring-[3px] ${errors.telephone ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : 'border-black/8 focus:border-[#fd521a] focus:ring-[#fd521a]/10'}`}
               />
+              {errors.telephone && <p className="mt-1 text-xs text-red-500">{errors.telephone}</p>}
             </div>
             <button
               type="submit"
@@ -260,6 +236,6 @@ function SimulateurPage() {
           ← Retour à l&apos;accueil
         </Link>
       </footer>
-    </div>
+    </PageLayout>
   );
 }

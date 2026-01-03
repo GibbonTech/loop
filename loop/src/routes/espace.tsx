@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   FileText,
@@ -12,13 +13,109 @@ import {
   Upload,
   MessageCircle,
   Info,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 
 export const Route = createFileRoute("/espace")({
   component: EspacePage,
 });
 
+interface Application {
+  id: string;
+  status: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  createdAt: string;
+}
+
 function EspacePage() {
+  const [application, setApplication] = useState<Application | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchLatestApplication();
+  }, []);
+
+  const fetchLatestApplication = async () => {
+    try {
+      const response = await fetch("/api/applications");
+      const data = await response.json();
+      if (data.success && data.data?.length > 0) {
+        // Get the most recent application
+        setApplication(data.data[0]);
+      }
+    } catch (error) {
+      console.error("Error fetching application:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getStatusInfo = (status: string) => {
+    switch (status) {
+      case "APPROVED":
+        return {
+          label: "Candidature approuvée",
+          description: "Félicitations ! Votre candidature a été acceptée.",
+          icon: CheckCircle,
+          color: "green",
+          borderColor: "border-green-400",
+          bgColor: "bg-green-100",
+          textColor: "text-green-600",
+        };
+      case "REJECTED":
+        return {
+          label: "Candidature refusée",
+          description: "Nous sommes désolés, votre candidature n'a pas été retenue.",
+          icon: XCircle,
+          color: "red",
+          borderColor: "border-red-400",
+          bgColor: "bg-red-100",
+          textColor: "text-red-600",
+        };
+      case "UNDER_REVIEW":
+        return {
+          label: "Candidature en examen",
+          description: "Notre équipe examine votre dossier en détail.",
+          icon: Loader2,
+          color: "blue",
+          borderColor: "border-blue-400",
+          bgColor: "bg-blue-100",
+          textColor: "text-blue-600",
+        };
+      default:
+        return {
+          label: "Candidature en cours de vérification",
+          description: "Notre équipe examine votre dossier. Réponse sous 24h.",
+          icon: Clock,
+          color: "amber",
+          borderColor: "border-amber-400",
+          bgColor: "bg-amber-100",
+          textColor: "text-amber-600",
+        };
+    }
+  };
+
+  const statusInfo = application ? getStatusInfo(application.status) : getStatusInfo("SUBMITTED");
+  const StatusIcon = statusInfo.icon;
+  const userName = application?.firstName || "Candidat";
+  const userInitials = application 
+    ? `${application.firstName?.[0] || ""}${application.lastName?.[0] || ""}`.toUpperCase() 
+    : "??";
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-[#fd521a] border-t-transparent"></div>
+          <p className="mt-4 text-gray-500">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 selection:bg-[#fd521a] selection:text-white">
       <div className="flex min-h-screen">
@@ -76,11 +173,11 @@ function EspacePage() {
           <div className="absolute bottom-6 left-6 right-6">
             <div className="flex items-center gap-3 rounded-xl bg-gray-50 p-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#fd521a] text-sm font-bold text-white">
-                JD
+                {userInitials}
               </div>
               <div>
-                <div className="text-sm font-bold">Jean Dupont</div>
-                <div className="text-[10px] text-gray-400">En cours d'activation</div>
+                <div className="text-sm font-bold">{application?.firstName} {application?.lastName}</div>
+                <div className="text-[10px] text-gray-400">{statusInfo.label}</div>
               </div>
             </div>
           </div>
@@ -98,26 +195,26 @@ function EspacePage() {
               DRIIVO
             </Link>
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#fd521a] text-sm font-bold text-white">
-              JD
+              {userInitials}
             </div>
           </div>
 
           {/* Header */}
           <div className="mb-8">
-            <h1 className="mb-2 text-2xl font-bold">Bonjour Jean 👋</h1>
+            <h1 className="mb-2 text-2xl font-bold">Bonjour {userName} 👋</h1>
             <p className="text-gray-500">Voici où en est votre inscription.</p>
           </div>
 
           {/* Status Banner */}
-          <div className="mb-8 rounded-2xl border-l-4 border-amber-400 bg-white p-6 shadow-sm">
+          <div className={`mb-8 rounded-2xl border-l-4 ${statusInfo.borderColor} bg-white p-6 shadow-sm`}>
             <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-amber-600">
-                <Clock className="h-6 w-6" />
+              <div className={`flex h-12 w-12 items-center justify-center rounded-full ${statusInfo.bgColor} ${statusInfo.textColor}`}>
+                <StatusIcon className={`h-6 w-6 ${statusInfo.icon === Loader2 ? 'animate-spin' : ''}`} />
               </div>
               <div>
-                <div className="font-bold">Candidature en cours de vérification</div>
+                <div className="font-bold">{statusInfo.label}</div>
                 <div className="text-sm text-gray-500">
-                  Notre équipe examine votre dossier. Réponse sous 24h.
+                  {statusInfo.description}
                 </div>
               </div>
             </div>

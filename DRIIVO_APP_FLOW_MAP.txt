@@ -1,0 +1,248 @@
+================================================================================
+                    DRIIVO APP FLOW MAP & AUDIT REPORT
+                         Generated: January 3, 2026
+================================================================================
+
+================================================================================
+SECTION 1: DEPLOYMENT STATUS
+================================================================================
+
+COOLIFY DEPLOYMENT:
+- Project: Loop VTC
+- Status: RUNNING ✓
+- Container: gibbon-tech/loop:main-jkw0cw8k48wko8cow04wswwk
+- Database: loop-db (PostgreSQL) - RUNNING ✓
+- Live URL: http://mgccko8gcc8k0gos04wgkcow.37.27.62.87.sslip.io ✓
+- Build Pack: Dockerfile
+- Base Directory: /loop
+- Port Exposed: 3000
+- Post-deploy Command: npx drizzle-kit push --force
+
+DOMAIN ISSUE:
+- driivo.fr returns 503 ERROR
+- Reason: Domain NOT configured in Coolify
+- Only sslip.io subdomain is set
+- ACTION REQUIRED: Add driivo.fr domain in Coolify
+
+================================================================================
+SECTION 2: COMPLETE APP ROUTES
+================================================================================
+
+PUBLIC ROUTES (User-Facing):
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Route                    │ Purpose                    │ Status              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ /                        │ Landing page (Homepage)    │ ✓ IMPLEMENTED       │
+│ /simulateur              │ Revenue simulator          │ ✓ IMPLEMENTED       │
+│ /resultats               │ Simulator results page     │ ✓ IMPLEMENTED       │
+│ /inscription             │ 3-step registration form   │ ✓ IMPLEMENTED       │
+│ /inscription/confirmation│ Application confirmation   │ ✓ IMPLEMENTED       │
+│ /reunion                 │ Meeting booking calendar   │ ✓ IMPLEMENTED       │
+│ /espace                  │ User dashboard (mock)      │ ✓ IMPLEMENTED       │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+ADMIN ROUTES:
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Route                    │ Purpose                    │ Status              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ /admin                   │ Admin dashboard            │ ✓ IMPLEMENTED       │
+│ /admin/login             │ Admin authentication       │ ✓ IMPLEMENTED       │
+│ /admin/applications/$id  │ Application detail view    │ ⚠ LINK EXISTS       │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+API ROUTES:
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Route                    │ Methods      │ Purpose                           │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ /api/leads               │ GET, POST    │ Lead capture from simulator       │
+│ /api/applications        │ GET, POST    │ Registration applications         │
+│ /api/meetings            │ GET, POST    │ Meeting bookings                  │
+│ /api/health              │ GET          │ Health check                      │
+│ /api/auth/$              │ *            │ Better Auth authentication        │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+================================================================================
+SECTION 3: USER JOURNEY FLOWS
+================================================================================
+
+FLOW A: SIMULATOR FUNNEL (Lead Capture)
+─────────────────────────────────────────
+[Homepage /] 
+    │
+    ├──► "Simulez vos revenus" CTA
+    │
+    ▼
+[/simulateur]
+    │
+    ├──► User slides CA slider (2000€ - 12000€)
+    ├──► Real-time calculation: Net = CA - 10% fees - 14% cotisations
+    ├──► Form: prénom, email, téléphone (REQUIRED)
+    │
+    ├──► Submit → POST /api/leads
+    │
+    ▼
+[/resultats?ca=X&prenom=Y&email=Z&tel=W]
+    │
+    ├──► Personalized results display
+    ├──► Comparison with Auto-Entrepreneur
+    │
+    ├──► CTAs: "Réserver un appel" OR "Rejoindre Driivo"
+    │
+    ▼
+[/reunion] OR [/inscription]
+
+
+FLOW B: DIRECT REGISTRATION
+─────────────────────────────
+[Homepage /]
+    │
+    ├──► "Rejoindre maintenant" CTA
+    │
+    ▼
+[/inscription]
+    │
+    ├──► STEP 1: Personal Info (prénom, nom, email, téléphone, ville)
+    ├──► STEP 2: VTC License (carte VTC, numéro, expérience, véhicule)
+    ├──► STEP 3: Activity (plateformes, CA mensuel)
+    │
+    ├──► Submit → POST /api/applications
+    │
+    ▼
+[/inscription/confirmation]
+    │
+    ├──► Confetti animation
+    ├──► Next steps display
+    ├──► Referral link generation
+    │
+    ├──► CTAs: "Réserver un créneau" OR "Accéder à mon espace"
+    │
+    ▼
+[/reunion] OR [/espace]
+
+
+FLOW C: MEETING BOOKING
+────────────────────────
+[/reunion]
+    │
+    ├──► Calendar: Select date (week navigation)
+    ├──► Time slots: 09:00 - 18:00 (30-min intervals)
+    ├──► Form: name, email, phone
+    │
+    ├──► Submit → POST /api/meetings
+    │
+    ▼
+[Toast notification + redirect to /espace]
+
+
+FLOW D: ADMIN WORKFLOW
+───────────────────────
+[/admin/login]
+    │
+    ├──► Email/Password authentication (Better Auth)
+    │
+    ▼
+[/admin]
+    │
+    ├──► Stats: Total, En attente, Approuvées, Refusées
+    ├──► Filter buttons: All, Submitted, Approved, Rejected
+    ├──► Applications table with details
+    │
+    ├──► "Voir" action → /admin/applications/$id
+    │
+    ▼
+[Application Detail - NOT YET IMPLEMENTED]
+
+================================================================================
+SECTION 4: DATABASE SCHEMA MAPPING
+================================================================================
+
+TABLE: Lead
+───────────
+- id (text, PK)
+- firstName (text)
+- email (text)
+- phone (text)
+- monthlyRevenue (integer)
+- estimatedNet (integer)
+- source (enum: SIMULATEUR, DIRECT, REFERRAL, ADS)
+- status (enum: NEW, CONTACTED, CONVERTED, LOST)
+- utmSource, utmMedium, utmCampaign (text)
+- notes (text)
+- lastContactedAt (timestamp)
+- createdAt, updatedAt (timestamp)
+
+TABLE: Application
+──────────────────
+- id (text, PK)
+- status (enum: DRAFT, SUBMITTED, UNDER_REVIEW, APPROVED, REJECTED)
+- currentStep, totalSteps (integer)
+- activityType (text)
+- structureType, isAlone (text)
+- firstName, lastName, email, phone (text)
+- hasVtcLicense, yearsExperience, currentPlatforms (text)
+- hasVehicle, vehicleType, vehicleYear (text)
+- monthlyRevenue, expectedStartDate (text)
+- formData (jsonb)
+- submittedAt, reviewedAt (timestamp)
+- reviewedBy (FK to User)
+- notes (text)
+- createdAt, updatedAt (timestamp)
+
+TABLE: MeetingBooking
+─────────────────────
+- id (text, PK)
+- firstName, lastName (text)
+- email (text)
+- phone (text)
+- scheduledDate (timestamp)
+- timeSlot (text)
+- duration (integer, default 15)
+- status (text: SCHEDULED, COMPLETED, CANCELLED, NO_SHOW)
+- notes (text)
+- leadId (FK to Lead)
+- createdAt, updatedAt (timestamp)
+
+TABLE: User (Admin)
+───────────────────
+- id (text, PK)
+- name, email (text)
+- password (hashed)
+- role (enum: ADMIN, SUPER_ADMIN)
+- createdAt, updatedAt (timestamp)
+
+================================================================================
+SECTION 5: TECH STACK VERIFICATION
+================================================================================
+
+✓ Framework: TanStack Start (React + Server Functions)
+✓ Routing: TanStack Router (File-based)
+✓ UI: TailwindCSS + shadcn/ui components
+✓ Database: PostgreSQL (via Drizzle ORM)
+✓ Auth: Better Auth (signIn.email, useSession, signOut)
+✓ Notifications: Sonner (toast)
+✓ Icons: Lucide React
+✓ Build: Vite + Custom Dockerfile
+✓ Deployment: Coolify (Docker)
+
+================================================================================
+SECTION 6: CALCULATIONS VERIFICATION
+================================================================================
+
+Homepage & Simulator Calculation:
+- Fees: CA × 10% (Driivo commission)
+- Cotisations: CA × 14% (Social contributions)
+- Net: CA - Fees - Cotisations = CA × 76%
+
+Example (CA = 5000€):
+- Fees: 500€
+- Cotisations: 700€
+- Net: 3800€
+
+API Lead Calculation:
+- estimatedNet = Math.round(monthlyRevenue * 0.76)
+
+✓ CONSISTENT across all components
+
+================================================================================
+END OF FLOW MAP
+================================================================================

@@ -2,6 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
 import { MessageCircle, Calculator, Rocket, ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { toast } from "sonner";
+import { PageLayout } from "~/components/layout";
+import { reunionFormSchema, validateForm } from "~/lib/validations";
 
 export const Route = createFileRoute("/reunion")({
   component: ReunionPage,
@@ -72,8 +74,18 @@ function ReunionPage() {
   };
 
   const handleConfirm = async () => {
-    if (!selectedDay || !selectedSlot || !contactInfo.name || !contactInfo.email || !contactInfo.phone) {
-      toast.error("Veuillez remplir tous les champs");
+    const formData = {
+      name: contactInfo.name,
+      email: contactInfo.email,
+      phone: contactInfo.phone,
+      date: selectedDay || "",
+      time: selectedSlot || "",
+    };
+    
+    const validation = validateForm(reunionFormSchema, formData);
+    if (!validation.success) {
+      const firstError = Object.values(validation.errors)[0];
+      toast.error(firstError || "Veuillez remplir tous les champs");
       return;
     }
 
@@ -114,20 +126,7 @@ function ReunionPage() {
   const isFormValid = selectedDay && selectedSlot && contactInfo.name && contactInfo.email && contactInfo.phone;
 
   return (
-    <div className="min-h-screen bg-[#f2f2f0] text-[#1c1917] selection:bg-[#fd521a] selection:text-white">
-      {/* Navigation */}
-      <nav className="fixed left-0 top-6 z-50 flex w-full justify-center px-4">
-        <div className="flex items-center gap-8 rounded-full border border-white/40 bg-white/60 px-3 py-2 pl-6 shadow-[0_8px_32px_-4px_rgba(168,162,158,0.1),inset_0_0_0_1px_rgba(255,255,255,0.5)] backdrop-blur-2xl">
-          <Link
-            to="/"
-            className="flex items-center gap-2 text-lg font-bold tracking-tighter text-black"
-          >
-            <div className="h-2.5 w-2.5 rounded-full bg-[#fd521a] shadow-[0_0_10px_rgba(253,82,26,0.5)]"></div>
-            DRIIVO
-          </Link>
-        </div>
-      </nav>
-
+    <PageLayout showNavLinks={false}>
       {/* Main Content */}
       <main className="mx-auto max-w-[900px] px-4 pb-20 pt-32 md:px-8">
         <div className="grid gap-8 md:grid-cols-2">
@@ -309,6 +308,6 @@ function ReunionPage() {
           ← Retour à l&apos;accueil
         </Link>
       </footer>
-    </div>
+    </PageLayout>
   );
 }

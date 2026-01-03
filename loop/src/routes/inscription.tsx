@@ -1,6 +1,7 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { User, FileText, Car, ArrowRight, Check, Lock } from "lucide-react";
+import { PageLayout } from "~/components/layout";
 
 export const Route = createFileRoute("/inscription")({
   component: InscriptionPage,
@@ -57,10 +58,25 @@ function InscriptionPage() {
     setIsSubmitting(true);
 
     try {
+      // Map form fields to API expected fields
+      const apiData = {
+        firstName: formData.prenom,
+        lastName: formData.nom,
+        email: formData.email,
+        phone: formData.telephone,
+        activityType: "VTC",
+        hasVtcLicense: formData.carteVtc,
+        yearsExperience: formData.experience,
+        currentPlatforms: formData.plateformes,
+        hasVehicle: formData.vehicule ? "yes" : "no",
+        vehicleType: formData.vehiculeModele,
+        monthlyRevenue: formData.caMensuel,
+      };
+      
       await fetch("/api/applications", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(apiData),
       });
       navigate({ to: "/inscription/confirmation" });
     } catch (error) {
@@ -71,20 +87,7 @@ function InscriptionPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f2f2f0] text-[#1c1917] selection:bg-[#fd521a] selection:text-white">
-      {/* Navigation */}
-      <nav className="fixed left-0 top-6 z-50 flex w-full justify-center px-4">
-        <div className="flex items-center gap-8 rounded-full border border-white/40 bg-white/60 px-3 py-2 pl-6 shadow-[0_8px_32px_-4px_rgba(168,162,158,0.1),inset_0_0_0_1px_rgba(255,255,255,0.5)] backdrop-blur-2xl">
-          <Link
-            to="/"
-            className="flex items-center gap-2 text-lg font-bold tracking-tighter text-black"
-          >
-            <div className="h-2.5 w-2.5 rounded-full bg-[#fd521a] shadow-[0_0_10px_rgba(253,82,26,0.5)]"></div>
-            DRIIVO
-          </Link>
-        </div>
-      </nav>
-
+    <PageLayout showNavLinks={false}>
       {/* Main Content */}
       <main className="mx-auto max-w-[600px] px-4 pb-20 pt-32 md:px-8">
         {/* Header */}
@@ -487,6 +490,6 @@ function InscriptionPage() {
           </div>
         </div>
       </main>
-    </div>
+    </PageLayout>
   );
 }

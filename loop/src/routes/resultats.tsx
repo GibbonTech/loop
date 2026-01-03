@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, MessageCircle, ShieldCheck, Heart, PiggyBank, FileText } from "lucide-react";
+import { PageLayout } from "~/components/layout";
+import { formatNumber, getSalaryBreakdown } from "~/lib/utils";
 
 export const Route = createFileRoute("/resultats")({
   component: ResultatsPage,
@@ -21,38 +23,12 @@ export const Route = createFileRoute("/resultats")({
 
 function ResultatsPage() {
   const { ca, prenom } = Route.useSearch();
-
   const caNum = parseInt(ca) || 5000;
-  const fees = Math.round(caNum * 0.1);
-  const cotisations = Math.round(caNum * 0.14);
-  const net = caNum - fees - cotisations;
+  const { fees, cotisations, net } = getSalaryBreakdown(caNum);
   const aeNet = Math.round(caNum * 0.75);
 
-  const formatNumber = (num: number) => {
-    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-  };
-
   return (
-    <div className="min-h-screen bg-[#f2f2f0] text-[#1c1917] selection:bg-[#fd521a] selection:text-white">
-      {/* Navigation */}
-      <nav className="fixed left-0 top-6 z-50 flex w-full justify-center px-4">
-        <div className="flex max-w-3xl items-center gap-8 rounded-full border border-white/40 bg-white/60 px-3 py-2 pl-6 shadow-[0_8px_32px_-4px_rgba(168,162,158,0.1),inset_0_0_0_1px_rgba(255,255,255,0.5)] backdrop-blur-2xl">
-          <Link
-            to="/"
-            className="flex items-center gap-2 text-lg font-bold tracking-tighter text-black"
-          >
-            <div className="h-2.5 w-2.5 rounded-full bg-[#fd521a] shadow-[0_0_10px_rgba(253,82,26,0.5)]"></div>
-            DRIIVO
-          </Link>
-          <Link
-            to="/inscription"
-            className="rounded-full bg-[#111] px-5 py-2 text-xs font-bold tracking-wide text-white shadow-lg transition-colors hover:bg-[#fd521a]"
-          >
-            REJOINDRE
-          </Link>
-        </div>
-      </nav>
-
+    <PageLayout navbarVariant="minimal" showNavLinks={false}>
       {/* Main Content */}
       <main className="mx-auto max-w-[900px] px-4 pb-20 pt-32 md:px-8">
         {/* Personalized Header */}
@@ -181,6 +157,6 @@ function ResultatsPage() {
           ← Retour à l&apos;accueil
         </Link>
       </footer>
-    </div>
+    </PageLayout>
   );
 }

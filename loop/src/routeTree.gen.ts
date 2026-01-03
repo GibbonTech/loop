@@ -23,6 +23,7 @@ import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiApplicationsRouteImport } from './routes/api/applications'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
+import { Route as AdminApplicationsIdRouteImport } from './routes/admin/applications.$id'
 
 const SimulateurRoute = SimulateurRouteImport.update({
   id: '/simulateur',
@@ -94,6 +95,11 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminApplicationsIdRoute = AdminApplicationsIdRouteImport.update({
+  id: '/admin/applications/$id',
+  path: '/admin/applications/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -109,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/api/meetings': typeof ApiMeetingsRoute
   '/inscription/confirmation': typeof InscriptionConfirmationRoute
   '/admin': typeof AdminIndexRoute
+  '/admin/applications/$id': typeof AdminApplicationsIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
@@ -125,6 +132,7 @@ export interface FileRoutesByTo {
   '/api/meetings': typeof ApiMeetingsRoute
   '/inscription/confirmation': typeof InscriptionConfirmationRoute
   '/admin': typeof AdminIndexRoute
+  '/admin/applications/$id': typeof AdminApplicationsIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
@@ -142,6 +150,7 @@ export interface FileRoutesById {
   '/api/meetings': typeof ApiMeetingsRoute
   '/inscription/confirmation': typeof InscriptionConfirmationRoute
   '/admin/': typeof AdminIndexRoute
+  '/admin/applications/$id': typeof AdminApplicationsIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
@@ -160,6 +169,7 @@ export interface FileRouteTypes {
     | '/api/meetings'
     | '/inscription/confirmation'
     | '/admin'
+    | '/admin/applications/$id'
     | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -176,6 +186,7 @@ export interface FileRouteTypes {
     | '/api/meetings'
     | '/inscription/confirmation'
     | '/admin'
+    | '/admin/applications/$id'
     | '/api/auth/$'
   id:
     | '__root__'
@@ -192,6 +203,7 @@ export interface FileRouteTypes {
     | '/api/meetings'
     | '/inscription/confirmation'
     | '/admin/'
+    | '/admin/applications/$id'
     | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
@@ -208,6 +220,7 @@ export interface RootRouteChildren {
   ApiLeadsRoute: typeof ApiLeadsRoute
   ApiMeetingsRoute: typeof ApiMeetingsRoute
   AdminIndexRoute: typeof AdminIndexRoute
+  AdminApplicationsIdRoute: typeof AdminApplicationsIdRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
@@ -311,6 +324,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/applications/$id': {
+      id: '/admin/applications/$id'
+      path: '/admin/applications/$id'
+      fullPath: '/admin/applications/$id'
+      preLoaderRoute: typeof AdminApplicationsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -339,6 +359,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiLeadsRoute: ApiLeadsRoute,
   ApiMeetingsRoute: ApiMeetingsRoute,
   AdminIndexRoute: AdminIndexRoute,
+  AdminApplicationsIdRoute: AdminApplicationsIdRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
