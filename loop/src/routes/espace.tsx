@@ -16,6 +16,7 @@ import {
   CheckCircle,
   XCircle,
 } from "lucide-react";
+import { useSession } from "~/lib/auth/auth-client";
 
 export const Route = createFileRoute("/espace")({
   component: EspacePage,
@@ -31,12 +32,22 @@ interface Application {
 }
 
 function EspacePage() {
+  const { data: session, isPending } = useSession();
   const [application, setApplication] = useState<Application | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Auth protection: redirect if not logged in
   useEffect(() => {
-    fetchLatestApplication();
-  }, []);
+    if (!isPending && !session?.user) {
+      window.location.href = "/login";
+    }
+  }, [session, isPending]);
+
+  useEffect(() => {
+    if (session?.user) {
+      fetchLatestApplication();
+    }
+  }, [session]);
 
   const fetchLatestApplication = async () => {
     try {
@@ -105,7 +116,7 @@ function EspacePage() {
     ? `${application.firstName?.[0] || ""}${application.lastName?.[0] || ""}`.toUpperCase() 
     : "??";
 
-  if (loading) {
+  if (isPending || loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">

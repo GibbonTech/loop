@@ -1,6 +1,6 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Users, FileText, Clock, CheckCircle, XCircle, Eye, LogOut } from "lucide-react";
+import { Users, Clock, CheckCircle, XCircle, Eye, LogOut } from "lucide-react";
 import { signOut, useSession } from "~/lib/auth/auth-client";
 
 export const Route = createFileRoute("/admin/")({
@@ -26,9 +26,26 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("all");
 
+  // Auth protection: redirect if not logged in or not admin
   useEffect(() => {
-    fetchApplications();
-  }, []);
+    if (!isPending && !session?.user) {
+      window.location.href = "/login";
+      return;
+    }
+    if (!isPending && session?.user) {
+      const userRole = (session.user as { role?: string }).role;
+      if (userRole !== "ADMIN") {
+        window.location.href = "/espace";
+        return;
+      }
+    }
+  }, [session, isPending]);
+
+  useEffect(() => {
+    if (session?.user) {
+      fetchApplications();
+    }
+  }, [session]);
 
   const fetchApplications = async () => {
     try {
@@ -58,7 +75,7 @@ function AdminDashboard() {
 
   const handleLogout = async () => {
     await signOut();
-    window.location.href = "/admin/login";
+    window.location.href = "/login";
   };
 
   if (isPending || loading) {
