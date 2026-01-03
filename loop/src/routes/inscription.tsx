@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { User, FileText, Car, ArrowRight, Check, Lock } from "lucide-react";
 import { PageLayout } from "~/components/layout";
@@ -14,7 +14,6 @@ export const Route = createFileRoute("/inscription")({
 });
 
 function InscriptionPage() {
-  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -78,7 +77,8 @@ function InscriptionPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(apiData),
       });
-      navigate({ to: "/inscription/confirmation" });
+      // Use window.location for clean navigation to avoid hydration issues
+      window.location.href = "/inscription/confirmation";
     } catch (error) {
       console.error("Error submitting application:", error);
     } finally {
