@@ -1,6 +1,6 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { signIn } from "~/lib/auth/auth-client";
+import { signIn, useSession } from "~/lib/auth/auth-client";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
 
@@ -15,7 +15,7 @@ export const Route = createFileRoute("/login")({
 });
 
 function LoginPage() {
-  const navigate = useNavigate();
+  const { data: session } = useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -34,7 +34,13 @@ function LoginPage() {
         toast.error(result.error.message || "Identifiants incorrects");
       } else {
         toast.success("Connexion réussie");
-        navigate({ to: "/espace" });
+        // Check user role and redirect accordingly
+        const user = result.data?.user as { role?: string } | undefined;
+        if (user?.role === "ADMIN") {
+          window.location.href = "/admin";
+        } else {
+          window.location.href = "/espace";
+        }
       }
     } catch {
       toast.error("Erreur de connexion");
@@ -42,6 +48,17 @@ function LoginPage() {
       setIsLoading(false);
     }
   };
+
+  // If already logged in, redirect based on role
+  if (session?.user) {
+    const userRole = (session.user as { role?: string }).role;
+    if (userRole === "ADMIN") {
+      window.location.href = "/admin";
+    } else {
+      window.location.href = "/espace";
+    }
+    return null;
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-[#f2f2f0]">
@@ -113,11 +130,6 @@ function LoginPage() {
             </p>
           </div>
 
-          <div className="mt-4 text-center">
-            <Link to="/admin/login" className="text-xs text-gray-400 hover:text-gray-600">
-              Accès administrateur →
-            </Link>
-          </div>
         </div>
       </main>
     </div>
