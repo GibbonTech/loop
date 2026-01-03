@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ArrowRight,
   Car,
@@ -28,6 +28,16 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   const [ca, setCa] = useState(5000);
+
+  // Domain-based routing: app.driivo.fr goes to login
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const hostname = window.location.hostname;
+      if (hostname === "app.driivo.fr") {
+        window.location.href = "/login";
+      }
+    }
+  }, []);
   
   // Calculate results
   const fees = Math.round(ca * 0.1);
