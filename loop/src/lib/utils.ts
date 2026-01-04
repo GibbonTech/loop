@@ -66,7 +66,7 @@ export function getSalaryBreakdown(ca: number) {
   const fees = calculateFees(ca);
   const cotisations = calculateCotisations(ca);
   const net = ca - fees - cotisations;
-  
+
   return {
     ca,
     fees,
@@ -75,4 +75,30 @@ export function getSalaryBreakdown(ca: number) {
     feesRate: DRIIVO_FEE_RATE,
     cotisationsRate: COTISATIONS_RATE,
   };
+}
+
+// ============================================
+// Status Comparison Calculations
+// ============================================
+
+/** Auto-entrepreneur: ~23% URSSAF charges on CA */
+export const AUTO_ENTREPRENEUR_CHARGE_RATE = 0.23;
+
+/** SASU: High charges (employer + employee + IS) ~65% */
+export const SASU_CHARGE_RATE = 0.65;
+
+/**
+ * Calculate Auto-entrepreneur net income
+ * Net ≈ 77% of CA after URSSAF charges
+ */
+export function calculateAutoEntrepreneurNet(ca: number): number {
+  return Math.round(ca * (1 - AUTO_ENTREPRENEUR_CHARGE_RATE));
+}
+
+/**
+ * Calculate SASU net salary
+ * Very simplified: high charges result in ~35% net
+ */
+export function calculateSASUNet(ca: number): number {
+  return Math.round(ca * (1 - SASU_CHARGE_RATE));
 }
