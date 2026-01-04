@@ -14,7 +14,7 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "LOOP - La Première Coopérative VTC" },
+      { title: "Driivo - Entrepreneur Salarié VTC" },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
   }),

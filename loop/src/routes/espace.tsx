@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
@@ -17,8 +17,16 @@ import {
   XCircle,
 } from "lucide-react";
 import { useSession } from "~/lib/auth/auth-client";
+import { validateSession } from "~/lib/auth/auth-functions";
 
 export const Route = createFileRoute("/espace")({
+  beforeLoad: async () => {
+    const auth = await validateSession();
+    if (!auth.isAuthenticated) {
+      throw redirect({ to: "/login" });
+    }
+    return { user: auth.user };
+  },
   component: EspacePage,
 });
 
@@ -36,12 +44,7 @@ function EspacePage() {
   const [application, setApplication] = useState<Application | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Auth protection: redirect if not logged in
-  useEffect(() => {
-    if (!isPending && !session?.user) {
-      window.location.href = "/login";
-    }
-  }, [session, isPending]);
+  // beforeLoad now handles auth - no useEffect guard needed
 
   useEffect(() => {
     if (session?.user) {
@@ -112,8 +115,8 @@ function EspacePage() {
   const statusInfo = application ? getStatusInfo(application.status) : getStatusInfo("SUBMITTED");
   const StatusIcon = statusInfo.icon;
   const userName = application?.firstName || "Candidat";
-  const userInitials = application 
-    ? `${application.firstName?.[0] || ""}${application.lastName?.[0] || ""}`.toUpperCase() 
+  const userInitials = application
+    ? `${application.firstName?.[0] || ""}${application.lastName?.[0] || ""}`.toUpperCase()
     : "??";
 
   if (isPending || loading) {

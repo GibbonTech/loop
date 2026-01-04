@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { signIn, useSession } from "~/lib/auth/auth-client";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
@@ -18,9 +18,21 @@ import {
   Ban,
   Star,
 } from "lucide-react";
+import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
+
+// Server function to detect hostname from request headers
+const getHostname = createServerFn({ method: "GET" }).handler(async () => {
+  const request = getRequest();
+  const host = request.headers.get("host") || "";
+  return { isAppDomain: host === "app.driivo.fr" || host.startsWith("app.") };
+});
 
 export const Route = createFileRoute("/")({
   component: IndexPage,
+  loader: async () => {
+    return await getHostname();
+  },
   head: () => ({
     meta: [
       { title: "Driivo - Devenez Entrepreneur Salarié VTC" },
@@ -30,19 +42,7 @@ export const Route = createFileRoute("/")({
 });
 
 function IndexPage() {
-  const [hostname, setHostname] = useState("");
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    setHostname(window.location.hostname);
-  }, []);
-
-  if (!mounted) {
-    return null;
-  }
-
-  const isAppDomain = hostname === "app.driivo.fr";
+  const { isAppDomain } = Route.useLoaderData();
 
   if (isAppDomain) {
     return <LoginPage />;
@@ -165,12 +165,12 @@ function LoginPage() {
 
 function LandingPage() {
   const [ca, setCa] = useState(5000);
-  
+
   // Calculate results
   const fees = Math.round(ca * 0.1);
   const cotisations = Math.round(ca * 0.14);
   const net = ca - fees - cotisations;
-  
+
   const formatNumber = (num: number) => {
     return num.toString().replace(/\B(?=(?:\d{3})+(?!\d))/g, " ");
   };
@@ -301,7 +301,7 @@ function LandingPage() {
               <h2 className="mb-2 text-2xl font-bold">Combien vous reste-t-il en net ?</h2>
               <p className="text-sm text-gray-500">Glissez le curseur pour voir votre salaire</p>
             </div>
-            
+
             {/* Slider */}
             <div className="mb-6">
               <div className="mb-4 flex items-baseline justify-center gap-2">
@@ -741,7 +741,7 @@ function LandingPage() {
               <p className="text-xs text-gray-400">Roulez dès 48h</p>
             </div>
           </div>
-          
+
           {/* CTA for 5-step section */}
           <div className="mt-10 text-center">
             <a

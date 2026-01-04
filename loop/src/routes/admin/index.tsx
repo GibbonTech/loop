@@ -1,9 +1,20 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Users, Clock, CheckCircle, XCircle, Eye, LogOut } from "lucide-react";
 import { signOut, useSession } from "~/lib/auth/auth-client";
+import { validateSession } from "~/lib/auth/auth-functions";
 
 export const Route = createFileRoute("/admin/")({
+  beforeLoad: async () => {
+    const auth = await validateSession();
+    if (!auth.isAuthenticated) {
+      throw redirect({ to: "/login" });
+    }
+    if (!auth.isAdmin) {
+      throw redirect({ to: "/espace" });
+    }
+    return { user: auth.user };
+  },
   component: AdminDashboard,
 });
 
@@ -26,20 +37,7 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("all");
 
-  // Auth protection: redirect if not logged in or not admin
-  useEffect(() => {
-    if (!isPending && !session?.user) {
-      window.location.href = "/login";
-      return;
-    }
-    if (!isPending && session?.user) {
-      const userRole = (session.user as { role?: string }).role;
-      if (userRole !== "ADMIN") {
-        window.location.href = "/espace";
-        return;
-      }
-    }
-  }, [session, isPending]);
+  // beforeLoad now handles auth - no useEffect guard needed
 
   useEffect(() => {
     if (session?.user) {
@@ -173,11 +171,10 @@ function AdminDashboard() {
             <button
               key={f.id}
               onClick={() => setFilter(f.id)}
-              className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                filter === f.id
-                  ? "bg-[#fd521a] text-white"
-                  : "bg-white text-gray-600 hover:bg-gray-100"
-              }`}
+              className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${filter === f.id
+                ? "bg-[#fd521a] text-white"
+                : "bg-white text-gray-600 hover:bg-gray-100"
+                }`}
             >
               {f.label}
             </button>
@@ -241,13 +238,12 @@ function AdminDashboard() {
                     </td>
                     <td className="whitespace-nowrap px-6 py-4">
                       <span
-                        className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                          app.status === "APPROVED"
-                            ? "bg-green-100 text-green-800"
-                            : app.status === "REJECTED"
-                              ? "bg-red-100 text-red-800"
-                              : "bg-amber-100 text-amber-800"
-                        }`}
+                        className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${app.status === "APPROVED"
+                          ? "bg-green-100 text-green-800"
+                          : app.status === "REJECTED"
+                            ? "bg-red-100 text-red-800"
+                            : "bg-amber-100 text-amber-800"
+                          }`}
                       >
                         {app.status === "APPROVED"
                           ? "Approuvée"
