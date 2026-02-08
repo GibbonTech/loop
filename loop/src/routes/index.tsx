@@ -18,15 +18,7 @@ import {
   Ban,
   Star,
 } from "lucide-react";
-import { createServerFn } from "@tanstack/react-start";
-import { getRequest } from "@tanstack/react-start/server";
-
-// Server function to detect hostname from request headers
-const getHostname = createServerFn({ method: "GET" }).handler(async () => {
-  const request = getRequest();
-  const host = request.headers.get("host") || "";
-  return { isAppDomain: host === "app.driivo.fr" || host.startsWith("app.") };
-});
+import { getHostname } from "~/lib/auth/hostname";
 
 export const Route = createFileRoute("/")({
   component: IndexPage,

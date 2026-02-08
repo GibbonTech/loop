@@ -32,11 +32,24 @@ function RootComponent() {
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="fr">
+    <html lang="fr" suppressHydrationWarning>
       <head>
         <HeadContent />
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `body{background:#f2f2f0;opacity:0;transition:opacity .1s}body.ready{opacity:1}`,
+          }}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `document.addEventListener('DOMContentLoaded',function(){document.body.classList.add('ready')})`,
+          }}
+        />
+        <noscript>
+          <style dangerouslySetInnerHTML={{ __html: `body{opacity:1!important}` }} />
+        </noscript>
       </head>
-      <body>
+      <body suppressHydrationWarning>
         {children}
         <Scripts />
       </body>
