@@ -68,10 +68,14 @@ const formatExperience = (v: string | undefined | null): string => {
   if (!v) return "";
   const map: Record<string, string> = {
     "none": "Aucune",
+    "moins_1an": "Moins d\u2019un an",
     "less_1": "Moins d\u2019un an",
     "1_3": "1 \u00e0 3 ans",
+    "1_3ans": "1 \u00e0 3 ans",
     "3_5": "3 \u00e0 5 ans",
+    "3_5ans": "3 \u00e0 5 ans",
     "more_5": "Plus de 5 ans",
+    "plus_5ans": "Plus de 5 ans",
   };
   return map[v] || v;
 };
