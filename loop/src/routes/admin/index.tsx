@@ -46,6 +46,19 @@ interface Application {
   submittedAt: string;
 }
 
+const formatRevenue = (v: string | undefined | null): string => {
+  if (!v) return "—";
+  const map: Record<string, string> = {
+    "moins_3000": "< 3k \u20ac",
+    "3000_5000": "3\u20135k \u20ac",
+    "5000_7000": "5\u20137k \u20ac",
+    "7000_10000": "7\u201310k \u20ac",
+    "plus_10000": "> 10k \u20ac",
+    "5000-7000\u20ac": "5\u20137k \u20ac",
+  };
+  return map[v] || v;
+};
+
 function AdminDashboard() {
   const { data: session, isPending } = useSession();
   const [applications, setApplications] = useState<Application[]>([]);
@@ -264,7 +277,7 @@ function AdminDashboard() {
                         {app.phone || "—"}
                       </TableCell>
                       <TableCell className="hidden text-muted-foreground sm:table-cell">
-                        {app.monthlyRevenue || "—"}
+                        {formatRevenue(app.monthlyRevenue)}
                       </TableCell>
                       <TableCell className="text-muted-foreground">
                         {new Date(app.createdAt).toLocaleDateString("fr-FR", {

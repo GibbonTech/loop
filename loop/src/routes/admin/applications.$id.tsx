@@ -1,6 +1,6 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, CheckCircle2, XCircle, Eye, Mail } from "lucide-react";
+import { ArrowLeft, CheckCircle2, XCircle, Eye, Mail, CircleCheck, CircleDashed } from "lucide-react";
 import { useSession } from "~/lib/auth/auth-client";
 import { validateSession } from "~/lib/auth/auth-functions";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
@@ -29,21 +29,64 @@ export const Route = createFileRoute("/admin/applications/$id")({
 interface Application {
   id: string;
   status: string;
+  currentStep: number;
+  totalSteps: number;
   firstName: string;
   lastName: string;
   email: string;
   phone: string;
   activityType: string;
+  structureType: string;
+  isAlone: string;
   hasVtcLicense: string;
   yearsExperience: string;
   currentPlatforms: string;
   hasVehicle: string;
   vehicleType: string;
+  vehicleYear: string;
   monthlyRevenue: string;
+  expectedStartDate: string;
   createdAt: string;
   submittedAt: string;
   formData: Record<string, unknown>;
 }
+
+const formatRevenue = (v: string | undefined | null): string => {
+  if (!v) return "";
+  const map: Record<string, string> = {
+    "moins_3000": "Moins de 3 000 \u20ac",
+    "3000_5000": "3 000 \u2013 5 000 \u20ac",
+    "5000_7000": "5 000 \u2013 7 000 \u20ac",
+    "7000_10000": "7 000 \u2013 10 000 \u20ac",
+    "plus_10000": "Plus de 10 000 \u20ac",
+    "5000-7000\u20ac": "5 000 \u2013 7 000 \u20ac",
+  };
+  return map[v] || v;
+};
+
+const formatExperience = (v: string | undefined | null): string => {
+  if (!v) return "";
+  const map: Record<string, string> = {
+    "none": "Aucune",
+    "less_1": "Moins d\u2019un an",
+    "1_3": "1 \u00e0 3 ans",
+    "3_5": "3 \u00e0 5 ans",
+    "more_5": "Plus de 5 ans",
+  };
+  return map[v] || v;
+};
+
+const formatYesNo = (v: string | undefined | null): string => {
+  if (!v) return "";
+  if (v === "yes" || v === "oui") return "Oui";
+  if (v === "no" || v === "non") return "Non";
+  return v;
+};
+
+const formatPlatforms = (v: string | undefined | null): string => {
+  if (!v) return "";
+  return v.split(",").map(p => p.trim()).filter(Boolean).join(", ");
+};
 
 function ApplicationDetailPage() {
   const { id } = Route.useParams();
@@ -123,6 +166,21 @@ function ApplicationDetailPage() {
     }
   };
 
+  // Readiness score: count key fields that are filled
+  const readinessFields = [
+    { label: "Prénom", filled: !!application.firstName },
+    { label: "Nom", filled: !!application.lastName },
+    { label: "Email", filled: !!application.email },
+    { label: "Téléphone", filled: !!application.phone },
+    { label: "Carte VTC", filled: !!application.hasVtcLicense },
+    { label: "Expérience", filled: !!application.yearsExperience },
+    { label: "CA visé", filled: !!application.monthlyRevenue },
+    { label: "Véhicule", filled: !!application.hasVehicle },
+  ];
+  const readinessScore = Math.round(
+    (readinessFields.filter((f) => f.filled).length / readinessFields.length) * 100
+  );
+
   const personalFields = [
     { label: "Email", value: application.email },
     { label: "Téléphone", value: application.phone },
@@ -130,15 +188,19 @@ function ApplicationDetailPage() {
 
   const activityFields = [
     { label: "Type d'activité", value: application.activityType || "VTC" },
-    { label: "Carte VTC", value: application.hasVtcLicense },
-    { label: "Expérience", value: application.yearsExperience },
-    { label: "CA mensuel visé", value: application.monthlyRevenue },
-    { label: "Plateformes actuelles", value: application.currentPlatforms },
+    { label: "Structure", value: application.structureType },
+    { label: "Travaille seul", value: formatYesNo(application.isAlone) },
+    { label: "Carte VTC", value: formatYesNo(application.hasVtcLicense) },
+    { label: "Expérience", value: formatExperience(application.yearsExperience) },
+    { label: "CA mensuel visé", value: formatRevenue(application.monthlyRevenue) },
+    { label: "Plateformes actuelles", value: formatPlatforms(application.currentPlatforms) },
+    { label: "Date de début souhaitée", value: application.expectedStartDate },
   ].filter((f) => f.value);
 
   const vehicleFields = [
-    { label: "Possède un véhicule", value: application.hasVehicle === "yes" ? "Oui" : application.hasVehicle === "no" ? "Non" : "" },
+    { label: "Possède un véhicule", value: formatYesNo(application.hasVehicle) },
     { label: "Type de véhicule", value: application.vehicleType },
+    { label: "Année du véhicule", value: application.vehicleYear },
   ].filter((f) => f.value);
 
   const renderFieldsTable = (fields: { label: string; value: string }[]) => (
@@ -251,6 +313,47 @@ function ApplicationDetailPage() {
                   Contacter
                 </a>
               </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Readiness score */}
+        <Card className="mb-6">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-sm">Complétude du dossier</CardTitle>
+                <CardDescription className="mt-1">
+                  {readinessFields.filter(f => f.filled).length} / {readinessFields.length} champs renseignés
+                </CardDescription>
+              </div>
+              <span className={`text-2xl font-bold tracking-tight ${
+                readinessScore >= 80 ? "text-emerald-600" : readinessScore >= 50 ? "text-amber-600" : "text-red-500"
+              }`}>
+                {readinessScore}%
+              </span>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="mb-3 h-2 w-full overflow-hidden rounded-full bg-secondary">
+              <div
+                className={`h-full rounded-full transition-all ${
+                  readinessScore >= 80 ? "bg-emerald-500" : readinessScore >= 50 ? "bg-amber-500" : "bg-red-400"
+                }`}
+                style={{ width: `${readinessScore}%` }}
+              />
+            </div>
+            <div className="grid grid-cols-4 gap-2">
+              {readinessFields.map((f) => (
+                <div key={f.label} className="flex items-center gap-1.5 text-xs">
+                  {f.filled ? (
+                    <CircleCheck className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                  ) : (
+                    <CircleDashed className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" />
+                  )}
+                  <span className={f.filled ? "text-foreground" : "text-muted-foreground"}>{f.label}</span>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
