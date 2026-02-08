@@ -9,13 +9,13 @@ export function Navbar({ showNavLinks = true, variant = "default" }: NavbarProps
   return (
     <nav className="fixed left-0 top-6 z-50 flex w-full justify-center px-4">
       <div className="flex max-w-3xl items-center gap-8 rounded-full border border-white/40 bg-white/60 px-3 py-2 pl-6 shadow-[0_8px_32px_-4px_rgba(168,162,158,0.1),inset_0_0_0_1px_rgba(255,255,255,0.5)] backdrop-blur-2xl">
-        <Link
-          to="/"
+        <a
+          href="https://driivo.fr"
           className="flex items-center gap-2 text-lg font-bold tracking-tighter text-black"
         >
           <div className="h-2.5 w-2.5 rounded-full bg-[#fd521a] shadow-[0_0_10px_rgba(253,82,26,0.5)]"></div>
           DRIIVO
-        </Link>
+        </a>
 
         {showNavLinks && variant === "default" && (
           <div className="hidden items-center gap-6 text-sm font-medium text-gray-600 md:flex">
@@ -36,9 +36,9 @@ export function Navbar({ showNavLinks = true, variant = "default" }: NavbarProps
 
         {showNavLinks && variant === "minimal" && (
           <div className="hidden items-center gap-6 text-sm font-medium text-gray-600 md:flex">
-            <Link to="/" className="transition-colors hover:text-black">
+            <a href="https://driivo.fr" className="transition-colors hover:text-black">
               Accueil
-            </Link>
+            </a>
             <a href="https://app.driivo.fr/inscription" className="transition-colors hover:text-black">
               Rejoindre
             </a>

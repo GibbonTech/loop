@@ -23,7 +23,7 @@ export const Route = createFileRoute("/espace")({
   beforeLoad: async () => {
     const auth = await validateSession();
     if (!auth.isAuthenticated) {
-      throw redirect({ to: "/login" });
+      throw redirect({ to: "/" });
     }
     return { user: auth.user };
   },

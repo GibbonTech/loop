@@ -1,9 +1,17 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Mail, Phone, Car, Calendar, CheckCircle, XCircle, Clock } from "lucide-react";
 import { useSession } from "~/lib/auth/auth-client";
+import { validateSession } from "~/lib/auth/auth-functions";
 
 export const Route = createFileRoute("/admin/applications/$id")({
+  beforeLoad: async () => {
+    const auth = await validateSession();
+    if (!auth.isAuthenticated || !auth.isAdmin) {
+      throw redirect({ to: "/" });
+    }
+    return { user: auth.user };
+  },
   component: ApplicationDetailPage,
 });
 

@@ -43,7 +43,7 @@ function ConfirmationPage() {
   }, []);
 
   const copyReferralLink = () => {
-    navigator.clipboard.writeText("https://driivo.fr/r/JD2025");
+    navigator.clipboard.writeText("https://app.driivo.fr/inscription");
     toast.success("Lien copié !");
   };
 
@@ -141,13 +141,13 @@ function ConfirmationPage() {
                 <Calendar className="h-5 w-5" />
                 Réserver un créneau d&apos;appel
               </Link>
-              <Link
-                to="/espace"
+              <a
+                href="https://driivo.fr"
                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#111] py-4 text-base font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-[#fd521a]"
               >
                 <LayoutDashboard className="h-5 w-5" />
-                Accéder à mon espace
-              </Link>
+                Retour à l&apos;accueil
+              </a>
             </div>
           </div>
 
@@ -164,7 +164,7 @@ function ConfirmationPage() {
             <div className="flex gap-2">
               <input
                 type="text"
-                value="https://driivo.fr/r/JD2025"
+                value="https://app.driivo.fr/inscription"
                 readOnly
                 className="flex-1 rounded-lg border border-gray-200 bg-gray-100 px-4 py-2 text-xs"
               />
@@ -179,9 +179,9 @@ function ConfirmationPage() {
 
           {/* Back to home */}
           <div className="mt-6 text-center">
-            <Link to="/" className="text-xs text-gray-400 hover:text-[#fd521a]">
+            <a href="https://driivo.fr" className="text-xs text-gray-400 hover:text-[#fd521a]">
               ← Retour à l&apos;accueil
-            </Link>
+            </a>
           </div>
         </div>
       </main>

@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { json } from "@tanstack/react-start";
 import { db } from "~/lib/db";
 import { lead } from "~/lib/db/schema";
 import { nanoid } from "nanoid";
 import { desc } from "drizzle-orm";
+import { auth } from "~/lib/auth/auth";
 
 export const Route = createFileRoute("/api/leads")({
   server: {
@@ -43,8 +45,18 @@ export const Route = createFileRoute("/api/leads")({
           );
         }
       },
-      GET: async () => {
+      GET: async ({ request }) => {
         try {
+          // Auth check - require admin session to read leads
+          const session = await auth.api.getSession({ headers: request.headers });
+          if (!session?.user) {
+            return json({ success: false, error: "Unauthorized" }, { status: 401 });
+          }
+          const userRole = (session.user as { role?: string }).role;
+          if (userRole !== "ADMIN") {
+            return json({ success: false, error: "Admin access required" }, { status: 403 });
+          }
+
           const leads = await db
             .select()
             .from(lead)

@@ -8,7 +8,7 @@ export const Route = createFileRoute("/admin/")({
   beforeLoad: async () => {
     const auth = await validateSession();
     if (!auth.isAuthenticated) {
-      throw redirect({ to: "/login" });
+      throw redirect({ to: "/" });
     }
     if (!auth.isAdmin) {
       throw redirect({ to: "/espace" });
@@ -73,7 +73,7 @@ function AdminDashboard() {
 
   const handleLogout = async () => {
     await signOut();
-    window.location.href = "/login";
+    window.location.href = "/";
   };
 
   if (isPending || loading) {

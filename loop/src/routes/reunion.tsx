@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
 import { MessageCircle, Calculator, Rocket, ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { toast } from "sonner";
@@ -304,9 +304,9 @@ function ReunionPage() {
 
       {/* Footer */}
       <footer className="py-6 text-center text-xs text-gray-400">
-        <Link to="/" className="hover:text-[#fd521a]">
+        <a href="https://driivo.fr" className="hover:text-[#fd521a]">
           ← Retour à l&apos;accueil
-        </Link>
+        </a>
       </footer>
     </PageLayout>
   );

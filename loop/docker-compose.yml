@@ -29,7 +29,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      DATABASE_URL: postgresql://loop:loop_dev_password@postgres:5434/loop
+      DATABASE_URL: postgresql://loop:loop_dev_password@postgres:5432/loop
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-dev-secret-change-in-production}
       VITE_BASE_URL: http://localhost:3000
     depends_on:

@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowRight, Clock, Phone, ShieldCheck, Heart, PiggyBank, Check, X, Sparkles } from "lucide-react";
 import { PageLayout } from "~/components/layout";
@@ -400,9 +400,9 @@ function SimulateurPage() {
 
       {/* Footer */}
       <footer className="py-6 text-center text-xs text-gray-400">
-        <Link to="/" className="hover:text-[#fd521a]">
+        <a href="https://driivo.fr" className="hover:text-[#fd521a]">
           ← Retour à l&apos;accueil
-        </Link>
+        </a>
       </footer>
     </PageLayout>
   );
