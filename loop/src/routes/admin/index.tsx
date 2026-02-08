@@ -90,120 +90,120 @@ function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Top navigation — minimal */}
-      <header className="border-b border-[#eaeaea]">
-        <div className="mx-auto flex h-14 max-w-[1200px] items-center justify-between px-6">
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
-              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#111]">
-                <div className="h-1 w-1 rounded-full bg-white"></div>
+    <div className="min-h-screen bg-[#fafafa]">
+      {/* Header */}
+      <header className="border-b border-[#eaeaea] bg-white">
+        <div className="mx-auto flex h-14 max-w-[1120px] items-center justify-between px-6">
+          <div className="flex items-center gap-5">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#111]">
+                <div className="h-1.5 w-1.5 rounded-full bg-white"></div>
               </div>
-              <span className="text-[14px] font-semibold tracking-[-0.01em] text-[#111]">
+              <span className="text-[15px] font-semibold tracking-[-0.02em] text-[#111]">
                 Driivo
               </span>
             </div>
-            <div className="h-4 w-px bg-[#eaeaea]"></div>
-            <span className="text-[13px] text-[#888]">Administration</span>
+            <div className="h-4 w-px bg-[#e5e5e5]"></div>
+            <span className="text-[13px] font-medium text-[#666]">Administration</span>
           </div>
 
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-4">
             <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#aaa]" />
+              <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#999]" />
               <input
                 type="text"
-                placeholder="Rechercher..."
+                placeholder="Rechercher un candidat..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-8 w-52 rounded-lg border border-[#eaeaea] bg-white pl-8 pr-3 text-[13px] text-[#111] placeholder:text-[#aaa] transition-colors focus:border-[#888] focus:outline-none"
+                className="h-9 w-56 rounded-lg border border-[#e5e5e5] bg-[#fafafa] pl-9 pr-3 text-[13px] text-[#111] placeholder:text-[#999] transition-all focus:border-[#999] focus:bg-white focus:outline-none"
               />
             </div>
-            <div className="h-4 w-px bg-[#eaeaea]"></div>
-            <div className="flex items-center gap-3">
-              <span className="text-[13px] text-[#888]">{session?.user?.email}</span>
-              <button
-                onClick={handleLogout}
-                className="rounded-lg p-1.5 text-[#aaa] transition-colors hover:text-[#111]"
-              >
-                <LogOut className="h-4 w-4" />
-              </button>
-            </div>
+            <div className="h-5 w-px bg-[#e5e5e5]"></div>
+            <span className="text-[13px] text-[#666]">{session?.user?.email}</span>
+            <button
+              onClick={handleLogout}
+              className="rounded-md p-1.5 text-[#999] transition-colors hover:bg-[#f5f5f5] hover:text-[#111]"
+              title="Déconnexion"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
           </div>
         </div>
       </header>
 
-      <div className="mx-auto max-w-[1200px] px-6">
-        {/* Numbers — raw, no cards */}
-        <div className="flex items-end gap-16 border-b border-[#eaeaea] py-10">
-          <div>
-            <div className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#888]">
-              Total
-            </div>
-            <div className="mt-1 text-[40px] font-light leading-none tracking-[-0.03em] text-[#111]">
-              {stats.total}
-            </div>
-          </div>
-          <div>
-            <div className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#888]">
-              En attente
-            </div>
-            <div className="mt-1 text-[40px] font-light leading-none tracking-[-0.03em] text-[#111]">
-              {stats.submitted}
-            </div>
-          </div>
-          <div>
-            <div className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#888]">
-              Approuvées
-            </div>
-            <div className="mt-1 text-[40px] font-light leading-none tracking-[-0.03em] text-[#111]">
-              {stats.approved}
-            </div>
-          </div>
-          <div>
-            <div className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#888]">
-              Refusées
-            </div>
-            <div className="mt-1 text-[40px] font-light leading-none tracking-[-0.03em] text-[#111]">
-              {stats.rejected}
-            </div>
-          </div>
-        </div>
-
-        {/* Filter row */}
-        <div className="flex items-center gap-6 border-b border-[#eaeaea] py-4">
+      <div className="mx-auto max-w-[1120px] px-6 py-8">
+        {/* Stats row */}
+        <div className="mb-8 grid grid-cols-4 gap-4">
           {[
-            { id: "all", label: "Toutes", count: stats.total },
-            { id: "SUBMITTED", label: "En attente", count: stats.submitted },
-            { id: "APPROVED", label: "Approuvées", count: stats.approved },
-            { id: "REJECTED", label: "Refusées", count: stats.rejected },
-          ].map((f) => (
-            <button
-              key={f.id}
-              onClick={() => setFilter(f.id)}
-              className={`relative pb-4 -mb-4 text-[13px] transition-colors ${
-                filter === f.id
-                  ? "font-medium text-[#111]"
-                  : "text-[#888] hover:text-[#555]"
-              }`}
+            { label: "Total candidatures", value: stats.total, accent: "border-[#e5e5e5]" },
+            { label: "En attente de traitement", value: stats.submitted, accent: "border-amber-300" },
+            { label: "Candidatures approuvées", value: stats.approved, accent: "border-emerald-400" },
+            { label: "Candidatures refusées", value: stats.rejected, accent: "border-red-300" },
+          ].map((s) => (
+            <div
+              key={s.label}
+              className={`rounded-xl border-l-[3px] ${s.accent} bg-white px-5 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]`}
             >
-              {f.label}
-              {f.count > 0 && (
-                <span className={`ml-1.5 ${filter === f.id ? "text-[#111]" : "text-[#ccc]"}`}>
-                  {f.count}
-                </span>
-              )}
-              {filter === f.id && (
-                <span className="absolute bottom-0 left-0 right-0 h-px bg-[#111]"></span>
-              )}
-            </button>
+              <div className="text-[12px] font-medium text-[#888]">{s.label}</div>
+              <div className="mt-1.5 text-[28px] font-semibold leading-none tracking-[-0.02em] text-[#111]">
+                {s.value}
+              </div>
+            </div>
           ))}
         </div>
 
-        {/* Table — full width, no wrapper card */}
-        <div>
+        {/* Table */}
+        <div className="overflow-hidden rounded-xl border border-[#e5e5e5] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+          {/* Filters + title */}
+          <div className="flex items-center justify-between border-b border-[#f0f0f0] px-5 py-3.5">
+            <h2 className="text-[14px] font-semibold text-[#111]">Candidatures</h2>
+            <div className="flex items-center gap-1 rounded-lg bg-[#f5f5f5] p-0.5">
+              {[
+                { id: "all", label: "Toutes" },
+                { id: "SUBMITTED", label: "En attente" },
+                { id: "APPROVED", label: "Approuvées" },
+                { id: "REJECTED", label: "Refusées" },
+              ].map((f) => (
+                <button
+                  key={f.id}
+                  onClick={() => setFilter(f.id)}
+                  className={`rounded-md px-3 py-1.5 text-[12px] font-medium transition-all ${
+                    filter === f.id
+                      ? "bg-white text-[#111] shadow-sm"
+                      : "text-[#888] hover:text-[#555]"
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Column headers */}
+          <div className="flex items-center gap-5 border-b border-[#f0f0f0] bg-[#fafafa] px-5 py-2.5">
+            <div className="w-9 shrink-0"></div>
+            <div className="min-w-0 flex-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-[#999]">
+              Candidat
+            </div>
+            <div className="hidden w-36 text-[11px] font-semibold uppercase tracking-[0.06em] text-[#999] sm:block">
+              Téléphone
+            </div>
+            <div className="hidden w-32 text-right text-[11px] font-semibold uppercase tracking-[0.06em] text-[#999] sm:block">
+              CA visé
+            </div>
+            <div className="w-24 text-right text-[11px] font-semibold uppercase tracking-[0.06em] text-[#999]">
+              Date
+            </div>
+            <div className="w-28 text-right text-[11px] font-semibold uppercase tracking-[0.06em] text-[#999]">
+              Statut
+            </div>
+            <div className="w-4 shrink-0"></div>
+          </div>
+
+          {/* Rows */}
           {filteredApplications.length === 0 ? (
-            <div className="py-24 text-center">
-              <p className="text-[14px] text-[#888]">Aucune candidature</p>
+            <div className="py-20 text-center">
+              <p className="text-[13px] text-[#999]">Aucune candidature trouvée</p>
             </div>
           ) : (
             filteredApplications.map((app, i) => (
@@ -211,59 +211,61 @@ function AdminDashboard() {
                 key={app.id}
                 to="/admin/applications/$id"
                 params={{ id: app.id }}
-                className={`group flex items-center gap-5 py-4 transition-colors hover:bg-[#fafafa] -mx-6 px-6 ${
+                className={`group flex items-center gap-5 px-5 py-3.5 transition-colors hover:bg-[#fafafa] ${
                   i !== filteredApplications.length - 1
-                    ? "border-b border-[#f5f5f5]"
+                    ? "border-b border-[#f0f0f0]"
                     : ""
                 }`}
               >
-                {/* Avatar */}
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#f5f5f5] text-[11px] font-medium text-[#666]">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#f0f0f0] text-[11px] font-semibold text-[#555]">
                   {(app.firstName?.[0] || "").toUpperCase()}
                   {(app.lastName?.[0] || "").toUpperCase()}
                 </div>
 
-                {/* Name + activity */}
                 <div className="min-w-0 flex-1">
-                  <div className="text-[14px] font-medium text-[#111]">
-                    {app.firstName} {app.lastName}
+                  <div className="text-[13px] font-semibold text-[#111]">
+                    {app.firstName && app.lastName
+                      ? `${app.firstName} ${app.lastName}`
+                      : app.email || "Sans nom"}
                   </div>
-                  <div className="mt-0.5 text-[12px] text-[#888]">
-                    {app.email}
+                  <div className="mt-0.5 truncate text-[12px] text-[#888]">
+                    {app.email || "—"}
                   </div>
                 </div>
 
-                {/* Revenue */}
-                <div className="hidden w-32 text-right text-[13px] text-[#888] sm:block">
+                <div className="hidden w-36 truncate text-[13px] text-[#666] sm:block">
+                  {app.phone || "—"}
+                </div>
+
+                <div className="hidden w-32 text-right text-[13px] text-[#666] sm:block">
                   {app.monthlyRevenue || "—"}
                 </div>
 
-                {/* Date */}
-                <div className="w-28 text-right text-[13px] text-[#888]">
+                <div className="w-24 text-right text-[12px] text-[#888]">
                   {new Date(app.createdAt).toLocaleDateString("fr-FR", {
                     day: "numeric",
                     month: "short",
+                    year: "numeric",
                   })}
                 </div>
 
-                {/* Status */}
                 <div className="w-28 text-right">
                   <span
-                    className={`inline-flex items-center gap-1.5 text-[12px] font-medium ${
+                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
                       app.status === "APPROVED"
-                        ? "text-emerald-600"
+                        ? "bg-emerald-50 text-emerald-700"
                         : app.status === "REJECTED"
-                          ? "text-red-500"
-                          : "text-[#888]"
+                          ? "bg-red-50 text-red-600"
+                          : "bg-amber-50 text-amber-700"
                     }`}
                   >
                     <Circle
-                      className={`h-[5px] w-[5px] fill-current ${
+                      className={`h-1.5 w-1.5 fill-current ${
                         app.status === "APPROVED"
                           ? "text-emerald-500"
                           : app.status === "REJECTED"
                             ? "text-red-400"
-                            : "text-[#ccc]"
+                            : "text-amber-500"
                       }`}
                     />
                     {app.status === "APPROVED"
@@ -274,8 +276,7 @@ function AdminDashboard() {
                   </span>
                 </div>
 
-                {/* Arrow */}
-                <ArrowRight className="h-4 w-4 shrink-0 text-[#ddd] transition-all group-hover:translate-x-0.5 group-hover:text-[#888]" />
+                <ArrowRight className="h-3.5 w-3.5 shrink-0 text-[#ddd] transition-all group-hover:translate-x-0.5 group-hover:text-[#999]" />
               </Link>
             ))
           )}

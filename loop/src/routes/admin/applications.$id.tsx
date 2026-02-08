@@ -103,147 +103,168 @@ function ApplicationDetailPage() {
     UNDER_REVIEW: "En examen",
   };
 
-  const statusColor: Record<string, string> = {
-    SUBMITTED: "text-[#888]",
-    APPROVED: "text-emerald-600",
-    REJECTED: "text-red-500",
-    UNDER_REVIEW: "text-blue-600",
-  };
-
-  const dotColor: Record<string, string> = {
-    SUBMITTED: "text-[#ccc]",
-    APPROVED: "text-emerald-500",
-    REJECTED: "text-red-400",
-    UNDER_REVIEW: "text-blue-500",
-  };
-
-  const fields = [
+  const personalFields = [
     { label: "Email", value: application.email },
     { label: "Téléphone", value: application.phone },
+  ].filter((f) => f.value);
+
+  const activityFields = [
     { label: "Type d'activité", value: application.activityType || "VTC" },
     { label: "Carte VTC", value: application.hasVtcLicense },
     { label: "Expérience", value: application.yearsExperience },
     { label: "CA mensuel visé", value: application.monthlyRevenue },
-    { label: "Plateformes", value: application.currentPlatforms },
-    { label: "Véhicule", value: application.hasVehicle === "yes" ? "Oui" : application.hasVehicle === "no" ? "Non" : null },
+    { label: "Plateformes actuelles", value: application.currentPlatforms },
+  ].filter((f) => f.value);
+
+  const vehicleFields = [
+    { label: "Possède un véhicule", value: application.hasVehicle === "yes" ? "Oui" : application.hasVehicle === "no" ? "Non" : "" },
     { label: "Type de véhicule", value: application.vehicleType },
   ].filter((f) => f.value);
 
+  const statusBadge: Record<string, { bg: string; text: string; dot: string }> = {
+    SUBMITTED: { bg: "bg-amber-50", text: "text-amber-700", dot: "text-amber-500" },
+    APPROVED: { bg: "bg-emerald-50", text: "text-emerald-700", dot: "text-emerald-500" },
+    REJECTED: { bg: "bg-red-50", text: "text-red-600", dot: "text-red-400" },
+    UNDER_REVIEW: { bg: "bg-blue-50", text: "text-blue-700", dot: "text-blue-500" },
+  };
+
+  const badge = statusBadge[application.status] || statusBadge.SUBMITTED;
+
+  const renderSection = (title: string, sectionFields: typeof personalFields) => {
+    if (sectionFields.length === 0) return null;
+    return (
+      <div className="overflow-hidden rounded-xl border border-[#e5e5e5] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+        <div className="border-b border-[#f0f0f0] bg-[#fafafa] px-5 py-3">
+          <h3 className="text-[12px] font-semibold uppercase tracking-[0.06em] text-[#999]">
+            {title}
+          </h3>
+        </div>
+        {sectionFields.map((field, i) => (
+          <div
+            key={field.label}
+            className={`flex items-center justify-between px-5 py-3.5 ${
+              i !== sectionFields.length - 1 ? "border-b border-[#f0f0f0]" : ""
+            }`}
+          >
+            <span className="text-[13px] text-[#888]">{field.label}</span>
+            <span className="text-[13px] font-medium text-[#111]">{field.value}</span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#fafafa]">
       {/* Header */}
-      <header className="border-b border-[#eaeaea]">
-        <div className="mx-auto flex h-14 max-w-[1200px] items-center justify-between px-6">
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
-              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#111]">
-                <div className="h-1 w-1 rounded-full bg-white"></div>
+      <header className="border-b border-[#eaeaea] bg-white">
+        <div className="mx-auto flex h-14 max-w-[1120px] items-center justify-between px-6">
+          <div className="flex items-center gap-5">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#111]">
+                <div className="h-1.5 w-1.5 rounded-full bg-white"></div>
               </div>
-              <span className="text-[14px] font-semibold tracking-[-0.01em] text-[#111]">
+              <span className="text-[15px] font-semibold tracking-[-0.02em] text-[#111]">
                 Driivo
               </span>
             </div>
-            <div className="h-4 w-px bg-[#eaeaea]"></div>
+            <div className="h-4 w-px bg-[#e5e5e5]"></div>
             <Link
               to="/admin"
-              className="flex items-center gap-1.5 text-[13px] text-[#888] transition-colors hover:text-[#111]"
+              className="flex items-center gap-1.5 text-[13px] font-medium text-[#666] transition-colors hover:text-[#111]"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
-              Candidatures
+              Retour aux candidatures
             </Link>
           </div>
         </div>
       </header>
 
-      <div className="mx-auto max-w-[1200px] px-6">
-        {/* Name + status + date */}
-        <div className="border-b border-[#eaeaea] py-10">
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-[32px] font-light leading-none tracking-[-0.03em] text-[#111]">
-                {application.firstName} {application.lastName}
-              </h1>
-              <div className="mt-3 flex items-center gap-4 text-[13px] text-[#888]">
-                <span>{application.email}</span>
-                {application.phone && (
-                  <>
-                    <span className="text-[#ddd]">·</span>
-                    <span>{application.phone}</span>
-                  </>
-                )}
-                <span className="text-[#ddd]">·</span>
-                <span>
+      <div className="mx-auto max-w-[1120px] px-6 py-8">
+        {/* Profile card */}
+        <div className="mb-6 overflow-hidden rounded-xl border border-[#e5e5e5] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+          <div className="flex items-start justify-between px-6 py-6">
+            <div className="flex items-center gap-4">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#111] text-[16px] font-bold text-white">
+                {(application.firstName?.[0] || "").toUpperCase()}
+                {(application.lastName?.[0] || "").toUpperCase()}
+              </div>
+              <div>
+                <h1 className="text-[20px] font-semibold tracking-[-0.02em] text-[#111]">
+                  {application.firstName} {application.lastName}
+                </h1>
+                <div className="mt-1 flex items-center gap-3 text-[13px] text-[#888]">
+                  <span>{application.email}</span>
+                  {application.phone && (
+                    <>
+                      <span className="text-[#ddd]">·</span>
+                      <span>{application.phone}</span>
+                    </>
+                  )}
+                </div>
+                <div className="mt-1 text-[12px] text-[#aaa]">
+                  Candidature déposée le{" "}
                   {new Date(application.createdAt).toLocaleDateString("fr-FR", {
                     day: "numeric",
                     month: "long",
                     year: "numeric",
                   })}
-                </span>
+                </div>
               </div>
             </div>
 
             <span
-              className={`inline-flex items-center gap-1.5 text-[13px] font-medium ${statusColor[application.status] || "text-[#888]"}`}
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-semibold ${badge.bg} ${badge.text}`}
             >
-              <Circle
-                className={`h-[5px] w-[5px] fill-current ${dotColor[application.status] || "text-[#ccc]"}`}
-              />
+              <Circle className={`h-1.5 w-1.5 fill-current ${badge.dot}`} />
               {statusLabel[application.status] || application.status}
             </span>
           </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-2 border-t border-[#f0f0f0] px-6 py-3">
+            {application.status !== "APPROVED" && (
+              <button
+                onClick={() => updateStatus("APPROVED")}
+                disabled={updating}
+                className="rounded-lg bg-emerald-600 px-4 py-2 text-[12px] font-semibold text-white transition-colors hover:bg-emerald-700 disabled:opacity-40"
+              >
+                Approuver
+              </button>
+            )}
+            {application.status !== "REJECTED" && (
+              <button
+                onClick={() => updateStatus("REJECTED")}
+                disabled={updating}
+                className="rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-[12px] font-semibold text-red-600 transition-colors hover:bg-red-100 disabled:opacity-40"
+              >
+                Refuser
+              </button>
+            )}
+            {application.status !== "UNDER_REVIEW" && (
+              <button
+                onClick={() => updateStatus("UNDER_REVIEW")}
+                disabled={updating}
+                className="rounded-lg border border-[#e5e5e5] bg-white px-4 py-2 text-[12px] font-semibold text-[#555] transition-colors hover:bg-[#fafafa] disabled:opacity-40"
+              >
+                En examen
+              </button>
+            )}
+            <div className="flex-1"></div>
+            <a
+              href={`mailto:${application.email}`}
+              className="rounded-lg border border-[#e5e5e5] bg-white px-4 py-2 text-[12px] font-semibold text-[#555] transition-colors hover:bg-[#fafafa]"
+            >
+              Contacter par email
+            </a>
+          </div>
         </div>
 
-        {/* Actions — just text buttons, no bar */}
-        <div className="flex items-center gap-4 border-b border-[#eaeaea] py-4">
-          {application.status !== "APPROVED" && (
-            <button
-              onClick={() => updateStatus("APPROVED")}
-              disabled={updating}
-              className="text-[13px] font-medium text-emerald-600 transition-colors hover:text-emerald-700 disabled:opacity-40"
-            >
-              Approuver
-            </button>
-          )}
-          {application.status !== "REJECTED" && (
-            <button
-              onClick={() => updateStatus("REJECTED")}
-              disabled={updating}
-              className="text-[13px] font-medium text-red-500 transition-colors hover:text-red-600 disabled:opacity-40"
-            >
-              Refuser
-            </button>
-          )}
-          {application.status !== "UNDER_REVIEW" && (
-            <button
-              onClick={() => updateStatus("UNDER_REVIEW")}
-              disabled={updating}
-              className="text-[13px] font-medium text-blue-600 transition-colors hover:text-blue-700 disabled:opacity-40"
-            >
-              En examen
-            </button>
-          )}
-          <div className="flex-1"></div>
-          <a
-            href={`mailto:${application.email}`}
-            className="text-[13px] text-[#888] transition-colors hover:text-[#111]"
-          >
-            Contacter
-          </a>
-        </div>
-
-        {/* Data — clean rows, no cards */}
-        <div>
-          {fields.map((field, i) => (
-            <div
-              key={field.label}
-              className={`flex items-center justify-between py-4 ${
-                i !== fields.length - 1 ? "border-b border-[#f5f5f5]" : ""
-              }`}
-            >
-              <span className="text-[13px] text-[#888]">{field.label}</span>
-              <span className="text-[14px] text-[#111]">{field.value}</span>
-            </div>
-          ))}
+        {/* Data sections */}
+        <div className="space-y-4">
+          {renderSection("Informations personnelles", personalFields)}
+          {renderSection("Activité VTC", activityFields)}
+          {renderSection("Véhicule", vehicleFields)}
         </div>
       </div>
     </div>
