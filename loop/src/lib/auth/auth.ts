@@ -2,7 +2,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { betterAuth } from "better-auth";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { admin } from "better-auth/plugins";
-import { compare, hash } from "bcrypt";
+import { compare, hash } from "bcryptjs";
 
 import { env } from "~/env/server";
 import { db } from "~/lib/db";
@@ -72,9 +72,9 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     password: {
-      hash: async (password) => await hash(password, 10),
+      hash: async (password) => hash(password, 10),
       verify: async ({ hash: hashedPassword, password }) =>
-        await compare(password, hashedPassword),
+        compare(password, hashedPassword),
     },
   },
 

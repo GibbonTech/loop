@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { db } from "../lib/db";
 import { user, account } from "../lib/db/schema";
-import { hash } from "bcrypt";
+import { hash } from "bcryptjs";
 import { nanoid } from "nanoid";
 import { eq } from "drizzle-orm";
 
