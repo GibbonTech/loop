@@ -2,14 +2,16 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { signIn, useSession } from "~/lib/auth/auth-client";
 import { toast } from "sonner";
-import { ArrowLeft } from "lucide-react";
 import {
   ArrowRight,
   Car,
   ArrowLeftRight,
   CreditCard,
+  Unlock,
+  ShieldCheck,
   Check,
   ChevronDown,
+  CheckCircle,
   ShieldOff,
   FileX2,
   Ban,
@@ -85,69 +87,89 @@ function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#f2f2f0]">
-      <header className="px-4 py-6">
-        <a href="https://driivo.fr" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-[#fd521a]">
-          <ArrowLeft className="h-4 w-4" />
-          Retour à l'accueil
-        </a>
-      </header>
-      <main className="flex flex-1 items-center justify-center px-4">
-        <div className="w-full max-w-md">
-          <div className="mb-8 text-center">
-            <a href="https://driivo.fr" className="inline-block">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#fd521a]">
-                <div className="h-3 w-3 rounded-full bg-white"></div>
-              </div>
-            </a>
-            <h1 className="mb-2 text-2xl font-bold text-[#1c1917]">Connexion</h1>
-            <p className="text-gray-600">Accédez à votre espace Driivo</p>
-          </div>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="email" className="mb-1 block text-sm font-medium text-[#1c1917]">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="votre@email.com"
-                className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-[#1c1917] placeholder:text-gray-400 focus:border-[#fd521a] focus:outline-none focus:ring-2 focus:ring-[#fd521a]/20"
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="mb-1 block text-sm font-medium text-[#1c1917]">
-                Mot de passe
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-[#1c1917] placeholder:text-gray-400 focus:border-[#fd521a] focus:outline-none focus:ring-2 focus:ring-[#fd521a]/20"
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full rounded-lg bg-[#fd521a] px-4 py-3 font-bold text-white transition-colors hover:bg-[#e04819] disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {isLoading ? "Connexion..." : "Se connecter"}
-            </button>
-          </form>
-          <p className="mt-6 text-center text-sm text-gray-600">
-            Pas encore inscrit ?{" "}
-            <a href="https://app.driivo.fr/inscription" className="font-medium text-[#fd521a] hover:underline">
-              Rejoindre Driivo
-            </a>
+    <div className="flex min-h-screen bg-white">
+      {/* Left panel - branding */}
+      <div className="hidden w-[480px] flex-col justify-between bg-[#111] p-10 text-white lg:flex">
+        <div>
+          <a href="https://driivo.fr" className="flex items-center gap-2 text-lg font-semibold tracking-tight">
+            <div className="h-2 w-2 rounded-full bg-[#fd521a]"></div>
+            Driivo
+          </a>
+        </div>
+        <div>
+          <p className="mb-3 text-2xl font-semibold leading-tight">
+            La plateforme des<br />chauffeurs VTC salariés.
+          </p>
+          <p className="text-sm text-white/50">
+            Gérez votre dossier, suivez votre candidature et accédez à vos documents en toute sécurité.
           </p>
         </div>
-      </main>
+        <p className="text-xs text-white/30">© 2026 Coopérative Driivo</p>
+      </div>
+
+      {/* Right panel - form */}
+      <div className="flex flex-1 flex-col">
+        <header className="flex items-center justify-between px-6 py-4 lg:justify-end">
+          <a href="https://driivo.fr" className="flex items-center gap-2 text-sm font-semibold tracking-tight lg:hidden">
+            <div className="h-2 w-2 rounded-full bg-[#fd521a]"></div>
+            Driivo
+          </a>
+          <a href="https://driivo.fr" className="text-sm text-gray-500 hover:text-gray-900">
+            Retour au site
+          </a>
+        </header>
+        <main className="flex flex-1 items-center justify-center px-6">
+          <div className="w-full max-w-sm">
+            <div className="mb-8">
+              <h1 className="mb-1 text-xl font-semibold text-gray-900">Connexion</h1>
+              <p className="text-sm text-gray-500">Accédez à votre espace Driivo</p>
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-gray-700">
+                  Email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="votre@email.com"
+                  className="h-10 w-full rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-gray-700">
+                  Mot de passe
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="h-10 w-full rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="h-10 w-full rounded-md bg-gray-900 text-sm font-medium text-white transition-colors hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isLoading ? "Connexion..." : "Se connecter"}
+              </button>
+            </form>
+            <p className="mt-6 text-center text-sm text-gray-500">
+              Pas encore inscrit ?{" "}
+              <a href="https://app.driivo.fr/inscription" className="font-medium text-gray-900 hover:underline">
+                Rejoindre Driivo
+              </a>
+            </p>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
@@ -174,7 +196,7 @@ function LandingPage() {
     >
       {/* Navigation */}
       <nav className="fixed left-0 top-6 z-50 flex w-full justify-center px-4">
-        <div className="flex max-w-3xl items-center gap-8 rounded-full border border-gray-200/60 bg-white/80 px-3 py-2 pl-6 shadow-sm backdrop-blur-xl">
+        <div className="flex max-w-3xl items-center gap-8 rounded-full border border-white/40 bg-white/60 px-3 py-2 pl-6 shadow-[0_8px_32px_-4px_rgba(168,162,158,0.1),inset_0_0_0_1px_rgba(255,255,255,0.5)] backdrop-blur-2xl">
           <a
             href="#"
             className="flex items-center gap-2 text-lg font-bold tracking-tighter text-black"
@@ -220,8 +242,8 @@ function LandingPage() {
       <main className="relative z-10 mx-auto max-w-[1040px] px-4 pt-32 md:px-8 md:pt-40">
         {/* HERO SECTION */}
         <section className="mb-16 flex min-h-[70vh] flex-col items-center justify-center text-center">
-          <div className="mb-6 inline-block rounded-full bg-[#fd521a]/10 px-4 py-1.5 text-xs font-semibold text-[#fd521a]">
-            Nouveau statut VTC
+          <div className="mb-6 rounded-full border border-white/50 bg-white/60 px-5 py-2 text-[11px] font-bold uppercase tracking-[0.15em] text-[#fd521a] shadow-sm backdrop-blur-md">
+            Nouveau Statut VTC
           </div>
 
           <h1 className="mb-6 text-6xl font-[650] leading-[0.9] tracking-[-0.06em] text-[#111] md:text-7xl lg:text-[5.5rem]">
@@ -249,38 +271,42 @@ function LandingPage() {
             </Link>
             <a
               href="https://app.driivo.fr/inscription"
-              className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-6 py-4 text-base font-bold transition-all hover:-translate-y-0.5 hover:border-[#fd521a] hover:text-[#fd521a] sm:w-auto"
+              className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-200/50 bg-white/50 px-6 py-4 text-base font-bold shadow-[inset_0_0_0_1px_rgba(255,255,255,0.4)] backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-white/80 sm:w-auto"
             >
               Rejoindre maintenant
             </a>
           </div>
 
           {/* Trust Badges */}
-          <div className="mb-16 flex flex-wrap items-center justify-center gap-3 text-sm text-gray-500">
-            <span>Démarrage 48h</span>
-            <span className="text-gray-300">·</span>
-            <span>Sans engagement</span>
-            <span className="text-gray-300">·</span>
-            <span>100% légal</span>
+          <div className="mb-16 flex flex-wrap items-center justify-center gap-6 text-xs font-bold uppercase tracking-widest text-gray-400">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="h-4 w-4 text-green-500" /> Démarrage 48h
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle className="h-4 w-4 text-green-500" /> Sans engagement
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle className="h-4 w-4 text-green-500" /> 100% légal
+            </div>
           </div>
 
           {/* Statistics */}
           <div className="grid grid-cols-3 gap-8 border-t border-gray-200/50 pt-10 md:gap-16">
             <div className="flex flex-col items-center gap-2">
               <span className="text-3xl font-bold text-[#111] md:text-4xl">500+</span>
-              <span className="text-xs text-gray-500">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
                 Chauffeurs actifs
               </span>
             </div>
             <div className="flex flex-col items-center gap-2">
               <span className="text-3xl font-bold text-[#fd521a] md:text-4xl">+500€</span>
-              <span className="text-xs text-gray-500">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
                 Gain moyen / mois
               </span>
             </div>
             <div className="flex flex-col items-center gap-2">
               <span className="text-3xl font-bold text-[#111] md:text-4xl">10%</span>
-              <span className="text-xs text-gray-500">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
                 Frais seulement
               </span>
             </div>
@@ -289,7 +315,7 @@ function LandingPage() {
 
         {/* MINI CALCULATOR - Inline Value Preview */}
         <section id="simulateur" className="mb-10 py-8">
-          <div className="mx-auto max-w-2xl rounded-2xl border border-gray-200 bg-white p-8 md:p-10">
+          <div className="mx-auto max-w-2xl rounded-[2.5rem] border border-white/50 bg-gradient-to-br from-white/80 to-[#fafaf9]/60 p-8 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15)] backdrop-blur-3xl md:p-10">
             <div className="mb-6 text-center">
               <h2 className="mb-2 text-2xl font-bold">Combien vous reste-t-il en net ?</h2>
               <p className="text-sm text-gray-500">Glissez le curseur pour voir votre salaire</p>
@@ -351,7 +377,7 @@ function LandingPage() {
         {/* THE PROBLEM SECTION */}
         <section id="probleme" className="mb-10 py-16">
           <div className="mb-12 text-center">
-            <div className="mb-3 text-xs text-gray-500">
+            <div className="mb-3 text-[10px] font-bold uppercase tracking-widest text-gray-400">
               Le constat
             </div>
             <h2 className="mb-4 text-3xl font-bold md:text-4xl">
@@ -365,7 +391,7 @@ function LandingPage() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-3">
-            <div className="rounded-2xl border border-gray-200 bg-white p-8">
+            <div className="rounded-[2rem] border border-black/5 bg-gradient-to-b from-[#f7f7f5] to-[#f2f2f0] p-8">
               <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-red-500">
                 <ShieldOff className="h-6 w-6" />
               </div>
@@ -376,7 +402,7 @@ function LandingPage() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-gray-200 bg-white p-8">
+            <div className="rounded-[2rem] border border-black/5 bg-gradient-to-b from-[#f7f7f5] to-[#f2f2f0] p-8">
               <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-500">
                 <FileX2 className="h-6 w-6" />
               </div>
@@ -387,7 +413,7 @@ function LandingPage() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-gray-200 bg-white p-8">
+            <div className="rounded-[2rem] border border-black/5 bg-gradient-to-b from-[#f7f7f5] to-[#f2f2f0] p-8">
               <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100 text-gray-500">
                 <Ban className="h-6 w-6" />
               </div>
@@ -409,7 +435,7 @@ function LandingPage() {
         {/* THE SOLUTION SECTION */}
         <section id="solution" className="mb-10 py-16">
           <div className="mb-16 text-center">
-            <div className="mb-3 text-sm font-medium text-[#fd521a]">
+            <div className="mb-3 text-[10px] font-bold uppercase tracking-widest text-[#fd521a]">
               La solution
             </div>
             <h2 className="mb-4 text-3xl font-bold md:text-4xl">
@@ -424,8 +450,8 @@ function LandingPage() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-3">
-            <div className="relative rounded-2xl border border-gray-200 bg-white p-8">
-              <div className="absolute right-6 top-6 -z-10 text-6xl font-bold text-gray-200/50">
+            <div className="group relative rounded-[2rem] border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-8 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15),inset_0_1px_0_0_rgba(255,255,255,0.8)] backdrop-blur-3xl transition-all duration-300 hover:-translate-y-1 hover:bg-white/85">
+              <div className="absolute right-6 top-6 -z-10 text-6xl font-bold text-gray-100 transition-colors group-hover:text-[#fd521a]/5">
                 1
               </div>
               <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#fd521a]/10 text-[#fd521a]">
@@ -438,8 +464,8 @@ function LandingPage() {
               </p>
             </div>
 
-            <div className="relative rounded-2xl border border-gray-200 bg-white p-8">
-              <div className="absolute right-6 top-6 -z-10 text-6xl font-bold text-gray-200/50">
+            <div className="group relative rounded-[2rem] border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-8 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15),inset_0_1px_0_0_rgba(255,255,255,0.8)] backdrop-blur-3xl transition-all duration-300 hover:-translate-y-1 hover:bg-white/85">
+              <div className="absolute right-6 top-6 -z-10 text-6xl font-bold text-gray-100 transition-colors group-hover:text-[#fd521a]/5">
                 2
               </div>
               <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#fd521a]/10 text-[#fd521a]">
@@ -452,8 +478,8 @@ function LandingPage() {
               </p>
             </div>
 
-            <div className="relative rounded-2xl border border-gray-200 bg-white p-8">
-              <div className="absolute right-6 top-6 -z-10 text-6xl font-bold text-gray-200/50">
+            <div className="group relative rounded-[2rem] border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-8 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15),inset_0_1px_0_0_rgba(255,255,255,0.8)] backdrop-blur-3xl transition-all duration-300 hover:-translate-y-1 hover:bg-white/85">
+              <div className="absolute right-6 top-6 -z-10 text-6xl font-bold text-gray-100 transition-colors group-hover:text-[#fd521a]/5">
                 3
               </div>
               <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#fd521a]/10 text-[#fd521a]">
@@ -468,12 +494,13 @@ function LandingPage() {
           </div>
         </section>
 
+        {/* VALUE PROPOSITION BENTO */}
         <section className="py-16">
           <div className="grid gap-6 md:grid-cols-12">
-            <div className="flex min-h-[300px] flex-col justify-between rounded-2xl border border-gray-200 bg-white p-10 md:col-span-7">
+            <div className="flex min-h-[300px] flex-col justify-between rounded-[2.5rem] border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-10 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15),inset_0_1px_0_0_rgba(255,255,255,0.8)] backdrop-blur-3xl md:col-span-7">
               <div>
-                <div className="mb-6 text-sm font-medium text-[#fd521a]">
-                  Liberté Totale
+                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gray-100 bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                  <Unlock className="h-3 w-3" /> Liberté Totale
                 </div>
                 <h3 className="mb-4 text-3xl font-bold">
                   Pas de patron.
@@ -487,21 +514,21 @@ function LandingPage() {
                 </p>
               </div>
               <div className="mt-8 flex flex-wrap gap-4">
-                <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-2 text-xs font-bold text-gray-600">
+                <div className="rounded-xl border border-white/60 bg-white/50 px-4 py-2 text-xs font-bold text-gray-600">
                   Vos Horaires
                 </div>
-                <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-2 text-xs font-bold text-gray-600">
+                <div className="rounded-xl border border-white/60 bg-white/50 px-4 py-2 text-xs font-bold text-gray-600">
                   Vos Zones
                 </div>
-                <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-2 text-xs font-bold text-gray-600">
+                <div className="rounded-xl border border-white/60 bg-white/50 px-4 py-2 text-xs font-bold text-gray-600">
                   Vos Applis
                 </div>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-gray-200 bg-white p-10 md:col-span-5">
-              <div className="mb-6 text-sm font-medium text-[#fd521a]">
-                Sécurité Totale
+            <div className="rounded-[2.5rem] border border-white/50 bg-white/40 p-10 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15)] backdrop-blur-3xl md:col-span-5">
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gray-100 bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                <ShieldCheck className="h-3 w-3" /> Sécurité Totale
               </div>
               <h3 className="mb-4 text-2xl font-bold">
                 Le filet de sécurité
@@ -537,11 +564,12 @@ function LandingPage() {
             </div>
 
             {/* THE DEAL CARD */}
-            <div className="relative mt-4 overflow-hidden rounded-2xl border border-gray-200 bg-white p-8 md:col-span-12 md:p-12">
+            <div className="relative mt-4 overflow-hidden rounded-[2.5rem] border border-[#fd521a]/10 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-8 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15)] backdrop-blur-3xl md:col-span-12 md:p-12">
+              <div className="absolute -mr-20 -mt-20 right-0 top-0 h-64 w-64 rounded-full bg-[#fd521a]/5 blur-3xl"></div>
 
               <div className="relative z-10 flex flex-col items-end justify-between gap-8 md:flex-row md:items-center">
                 <div className="max-w-md">
-                  <div className="mb-4 inline-block rounded-full bg-[#fd521a]/5 px-3 py-1 text-sm font-medium text-[#fd521a]">
+                  <div className="mb-4 inline-block rounded-full bg-[#fd521a]/5 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#fd521a]">
                     Le Pacte Driivo
                   </div>
                   <h3 className="mb-2 text-3xl font-bold">90% pour vous.</h3>
@@ -551,7 +579,7 @@ function LandingPage() {
                   </p>
                 </div>
 
-                <div className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-6 md:w-1/2">
+                <div className="w-full rounded-3xl border border-white/60 bg-white/50 p-6 md:w-1/2">
                   <div className="mb-6">
                     <div className="mb-2 flex justify-between text-sm font-bold">
                       <span>Votre Part</span>
@@ -582,7 +610,7 @@ function LandingPage() {
         {/* TESTIMONIALS */}
         <section className="py-16">
           <div className="mb-12 text-center">
-            <div className="mb-3 text-xs text-gray-500">
+            <div className="mb-3 text-[10px] font-bold uppercase tracking-widest text-gray-400">
               Ils nous font confiance
             </div>
             <h2 className="mb-4 text-3xl font-bold">
@@ -591,7 +619,7 @@ function LandingPage() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-3">
-            <div className="rounded-2xl border border-gray-200 bg-white p-8">
+            <div className="rounded-3xl border border-white/60 bg-white/85 p-8 shadow-[0_4px_16px_rgba(0,0,0,0.04)]">
               <div className="mb-4 flex items-center gap-1 text-[#fd521a]">
                 <Star className="h-4 w-4 fill-current" />
                 <Star className="h-4 w-4 fill-current" />
@@ -617,7 +645,7 @@ function LandingPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-gray-200 bg-white p-8">
+            <div className="rounded-3xl border border-white/60 bg-white/85 p-8 shadow-[0_4px_16px_rgba(0,0,0,0.04)]">
               <div className="mb-4 flex items-center gap-1 text-[#fd521a]">
                 <Star className="h-4 w-4 fill-current" />
                 <Star className="h-4 w-4 fill-current" />
@@ -643,7 +671,7 @@ function LandingPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-gray-200 bg-white p-8">
+            <div className="rounded-3xl border border-white/60 bg-white/85 p-8 shadow-[0_4px_16px_rgba(0,0,0,0.04)]">
               <div className="mb-4 flex items-center gap-1 text-[#fd521a]">
                 <Star className="h-4 w-4 fill-current" />
                 <Star className="h-4 w-4 fill-current" />
@@ -671,7 +699,7 @@ function LandingPage() {
           </div>
 
           <div className="mt-16 text-center">
-            <p className="mb-6 text-xs text-gray-500">
+            <p className="mb-6 text-[10px] font-bold uppercase tracking-widest text-gray-400">
               Compatible avec toutes vos applis préférées
             </p>
             <div className="flex flex-wrap items-center justify-center gap-8 opacity-50">
@@ -687,7 +715,7 @@ function LandingPage() {
         {/* 5 STEPS TO JOIN */}
         <section className="py-16">
           <div className="mb-12 text-center">
-            <div className="mb-3 text-xs text-gray-500">
+            <div className="mb-3 text-[10px] font-bold uppercase tracking-widest text-gray-400">
               Inscription
             </div>
             <h2 className="mb-4 text-3xl font-bold">
@@ -748,7 +776,7 @@ function LandingPage() {
         {/* FAQ */}
         <section id="faq" className="mx-auto max-w-2xl py-20">
           <div className="mb-12 text-center">
-            <div className="mb-3 text-xs text-gray-500">
+            <div className="mb-3 text-[10px] font-bold uppercase tracking-widest text-gray-400">
               FAQ
             </div>
             <h2 className="mb-4 text-3xl font-bold">
@@ -756,7 +784,7 @@ function LandingPage() {
             </h2>
           </div>
           <div className="space-y-3">
-            <details className="group cursor-pointer rounded-xl border border-gray-200 bg-white px-6 py-5">
+            <details className="group cursor-pointer rounded-2xl border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-5 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15)] backdrop-blur-3xl">
               <summary className="flex list-none select-none items-center justify-between text-sm font-bold">
                 C&apos;est quoi exactement l&apos;Entrepreneur Salarié ?
                 <ChevronDown className="h-4 w-4 text-gray-400 transition-transform group-open:rotate-180" />
@@ -770,7 +798,7 @@ function LandingPage() {
               </p>
             </details>
 
-            <details className="group cursor-pointer rounded-xl border border-gray-200 bg-white px-6 py-5">
+            <details className="group cursor-pointer rounded-2xl border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-5 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15)] backdrop-blur-3xl">
               <summary className="flex list-none select-none items-center justify-between text-sm font-bold">
                 Est-ce que c&apos;est un vrai CDI ?
                 <ChevronDown className="h-4 w-4 text-gray-400 transition-transform group-open:rotate-180" />
@@ -784,7 +812,7 @@ function LandingPage() {
               </p>
             </details>
 
-            <details className="group cursor-pointer rounded-xl border border-gray-200 bg-white px-6 py-5">
+            <details className="group cursor-pointer rounded-2xl border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-5 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15)] backdrop-blur-3xl">
               <summary className="flex list-none select-none items-center justify-between text-sm font-bold">
                 Je garde mes horaires et mes applis ?
                 <ChevronDown className="h-4 w-4 text-gray-400 transition-transform group-open:rotate-180" />
@@ -796,7 +824,7 @@ function LandingPage() {
               </p>
             </details>
 
-            <details className="group cursor-pointer rounded-xl border border-gray-200 bg-white px-6 py-5">
+            <details className="group cursor-pointer rounded-2xl border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-5 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15)] backdrop-blur-3xl">
               <summary className="flex list-none select-none items-center justify-between text-sm font-bold">
                 Combien ça coûte ?
                 <ChevronDown className="h-4 w-4 text-gray-400 transition-transform group-open:rotate-180" />
@@ -809,7 +837,7 @@ function LandingPage() {
               </p>
             </details>
 
-            <details className="group cursor-pointer rounded-xl border border-gray-200 bg-white px-6 py-5">
+            <details className="group cursor-pointer rounded-2xl border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-5 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15)] backdrop-blur-3xl">
               <summary className="flex list-none select-none items-center justify-between text-sm font-bold">
                 Il y a un engagement de durée ?
                 <ChevronDown className="h-4 w-4 text-gray-400 transition-transform group-open:rotate-180" />
@@ -821,7 +849,7 @@ function LandingPage() {
               </p>
             </details>
 
-            <details className="group cursor-pointer rounded-xl border border-gray-200 bg-white px-6 py-5">
+            <details className="group cursor-pointer rounded-2xl border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-5 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15)] backdrop-blur-3xl">
               <summary className="flex list-none select-none items-center justify-between text-sm font-bold">
                 Quelles sont les conditions pour rejoindre ?
                 <ChevronDown className="h-4 w-4 text-gray-400 transition-transform group-open:rotate-180" />
@@ -837,19 +865,25 @@ function LandingPage() {
 
         {/* FINAL CTA */}
         <section className="py-20">
-          <div className="rounded-2xl bg-[#111] p-12 text-center">
-              <h2 className="mb-4 text-3xl font-bold text-white md:text-4xl">
+          <div className="relative overflow-hidden rounded-[3rem] border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-12 text-center shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15)] backdrop-blur-3xl">
+            <div className="absolute -ml-32 -mt-32 left-0 top-0 h-64 w-64 rounded-full bg-[#fd521a]/10 blur-3xl"></div>
+            <div className="absolute -mb-32 -mr-32 bottom-0 right-0 h-64 w-64 rounded-full bg-[#fd521a]/10 blur-3xl"></div>
+
+            <div className="relative z-10">
+              <h2 className="mb-4 text-3xl font-bold md:text-4xl">
                 On commence quand ?
               </h2>
-              <p className="mx-auto mb-8 max-w-md text-gray-400">
-                48h pour passer d&apos;intéressé à premier salaire versé.
+              <p className="mx-auto mb-8 max-w-md text-gray-500">
+                48h pour passer de &quot;intéressé&quot; à &quot;premier salaire
+                versé&quot;.
               </p>
               <a
                 href="https://app.driivo.fr/inscription"
-                className="inline-block rounded-full bg-[#fd521a] px-10 py-4 text-lg font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-[#e0410e]"
+                className="inline-block rounded-full bg-[#fd521a] px-10 py-4 text-lg font-bold text-white shadow-xl transition-transform hover:scale-105"
               >
                 Je me lance
               </a>
+            </div>
           </div>
         </section>
 

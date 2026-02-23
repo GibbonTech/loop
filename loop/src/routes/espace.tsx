@@ -188,115 +188,117 @@ function EspacePage() {
 
   if (isPending || loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-[#fd521a] border-t-transparent"></div>
-          <p className="mt-4 text-gray-500">Chargement...</p>
-        </div>
+      <div className="flex min-h-screen items-center justify-center bg-white">
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-gray-900"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 selection:bg-[#fd521a] selection:text-white">
+    <div className="min-h-screen bg-white">
       <div className="flex min-h-screen">
         {/* Sidebar */}
-        <aside className="hidden w-64 border-r border-gray-100 bg-white p-6 md:block">
+        <aside className="hidden w-56 flex-col border-r border-gray-200 bg-gray-50 md:flex">
           {/* Logo */}
-          <Link
-            to="/"
-            className="mb-10 flex items-center gap-2 text-lg font-bold tracking-tighter text-black"
-          >
-            <div className="h-2.5 w-2.5 rounded-full bg-[#fd521a] shadow-[0_0_10px_rgba(253,82,26,0.5)]"></div>
-            DRIIVO
-          </Link>
+          <div className="p-5">
+            <Link
+              to="/"
+              className="flex items-center gap-2 text-sm font-semibold tracking-tight text-gray-900"
+            >
+              <div className="h-2 w-2 rounded-full bg-[#fd521a]"></div>
+              Driivo
+            </Link>
+          </div>
 
           {/* Nav */}
-          <nav className="space-y-2">
+          <nav className="flex-1 space-y-0.5 px-3">
             <button
               onClick={() => setActiveTab("dashboard")}
-              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors ${
-                activeTab === "dashboard" ? "bg-[#fd521a]/10 text-[#fd521a]" : "text-gray-500 hover:bg-[#fd521a]/10 hover:text-[#fd521a]"
+              className={`flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors ${
+                activeTab === "dashboard" ? "bg-white font-medium text-gray-900 shadow-sm" : "text-gray-600 hover:bg-white hover:text-gray-900"
               }`}
             >
-              <LayoutDashboard className="h-5 w-5" />
+              <LayoutDashboard className="h-4 w-4" />
               Tableau de bord
             </button>
             <button
               onClick={() => setActiveTab("documents")}
-              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors ${
-                activeTab === "documents" ? "bg-[#fd521a]/10 text-[#fd521a]" : "text-gray-500 hover:bg-[#fd521a]/10 hover:text-[#fd521a]"
+              className={`flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors ${
+                activeTab === "documents" ? "bg-white font-medium text-gray-900 shadow-sm" : "text-gray-600 hover:bg-white hover:text-gray-900"
               }`}
             >
-              <FileText className="h-5 w-5" />
-              Documents {files.length > 0 && <span className="ml-auto rounded-full bg-[#fd521a] px-2 py-0.5 text-xs text-white">{files.length}</span>}
+              <FileText className="h-4 w-4" />
+              Documents
+              {files.length > 0 && <span className="ml-auto text-xs text-gray-400">{files.length}</span>}
             </button>
             <Link
               to="/reunion"
-              className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-500 transition-colors hover:bg-[#fd521a]/10 hover:text-[#fd521a]"
+              className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm text-gray-600 transition-colors hover:bg-white hover:text-gray-900"
             >
-              <Calendar className="h-5 w-5" />
+              <Calendar className="h-4 w-4" />
               Réserver un appel
             </Link>
-            <button
-              onClick={handleLogout}
-              className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-500 transition-colors hover:bg-red-50 hover:text-red-500"
-            >
-              <LogOut className="h-5 w-5" />
-              Déconnexion
-            </button>
           </nav>
 
-          {/* User */}
-          <div className="absolute bottom-6 left-6 right-6">
-            <div className="flex items-center gap-3 rounded-xl bg-gray-50 p-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#fd521a] text-sm font-bold text-white">
+          {/* User + Logout */}
+          <div className="border-t border-gray-200 p-3">
+            <div className="mb-2 flex items-center gap-2.5 rounded-md px-3 py-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-900 text-xs font-medium text-white">
                 {userInitials}
               </div>
-              <div>
-                <div className="text-sm font-bold">{application?.firstName} {application?.lastName}</div>
-                <div className="text-[10px] text-gray-400">{statusInfo.label}</div>
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-sm font-medium text-gray-900">{application?.firstName} {application?.lastName}</div>
+                <div className="truncate text-xs text-gray-500">{application?.email}</div>
               </div>
             </div>
+            <button
+              onClick={handleLogout}
+              className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-gray-500 transition-colors hover:bg-white hover:text-gray-900"
+            >
+              <LogOut className="h-4 w-4" />
+              Déconnexion
+            </button>
           </div>
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-6 md:p-10">
-          {/* Mobile Header */}
-          <div className="mb-6 flex items-center justify-between md:hidden">
-            <Link
-              to="/"
-              className="flex items-center gap-2 text-lg font-bold tracking-tighter text-black"
-            >
-              <div className="h-2.5 w-2.5 rounded-full bg-[#fd521a] shadow-[0_0_10px_rgba(253,82,26,0.5)]"></div>
-              DRIIVO
-            </Link>
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#fd521a] text-sm font-bold text-white">
-              {userInitials}
+        <main className="flex-1 overflow-auto">
+          {/* Top bar */}
+          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-3 md:px-8">
+            <div className="flex items-center gap-3 md:hidden">
+              <Link to="/" className="flex items-center gap-2 text-sm font-semibold tracking-tight text-gray-900">
+                <div className="h-2 w-2 rounded-full bg-[#fd521a]"></div>
+                Driivo
+              </Link>
+            </div>
+            <div className="hidden md:block">
+              <h1 className="text-sm font-medium text-gray-900">Tableau de bord</h1>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-gray-500">{application?.email}</span>
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-900 text-xs font-medium text-white md:hidden">
+                {userInitials}
+              </div>
             </div>
           </div>
 
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="mb-2 text-2xl font-bold">Bonjour {userName} 👋</h1>
-            <p className="text-gray-500">Voici où en est votre inscription.</p>
-          </div>
+          <div className="px-6 py-6 md:px-8 md:py-8">
+            {/* Header */}
+            <div className="mb-6">
+              <h2 className="mb-1 text-lg font-semibold text-gray-900">Bonjour {userName}</h2>
+              <p className="text-sm text-gray-500">Suivez l'avancement de votre dossier.</p>
+            </div>
 
-          {/* Status Banner */}
-          <div className={`mb-8 rounded-2xl border-l-4 ${statusInfo.borderColor} bg-white p-6 shadow-sm`}>
-            <div className="flex items-center gap-4">
-              <div className={`flex h-12 w-12 items-center justify-center rounded-full ${statusInfo.bgColor} ${statusInfo.textColor}`}>
-                <StatusIcon className={`h-6 w-6 ${statusInfo.icon === Loader2 ? 'animate-spin' : ''}`} />
+            {/* Status Banner */}
+            <div className={`mb-6 flex items-center gap-4 rounded-lg border p-4 ${statusInfo.borderColor} ${statusInfo.bgColor}`}>
+              <div className={`flex h-9 w-9 items-center justify-center rounded-full bg-white ${statusInfo.textColor}`}>
+                <StatusIcon className={`h-4 w-4 ${statusInfo.icon === Loader2 ? 'animate-spin' : ''}`} />
               </div>
               <div>
-                <div className="font-bold">{statusInfo.label}</div>
-                <div className="text-sm text-gray-500">
-                  {statusInfo.description}
-                </div>
+                <div className="text-sm font-medium text-gray-900">{statusInfo.label}</div>
+                <div className="text-xs text-gray-500">{statusInfo.description}</div>
               </div>
             </div>
-          </div>
 
           {activeTab === "dashboard" && (
             <>
@@ -312,33 +314,30 @@ function EspacePage() {
                 ];
                 const completedCount = steps.filter(s => s.done).length;
                 return (
-                  <div className="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                    <div className="mb-6 flex items-center justify-between">
-                      <h2 className="font-bold">Votre progression</h2>
-                      <span className="text-sm font-bold text-[#fd521a]">{completedCount}/{steps.length} complétées</span>
+                  <div className="mb-6 rounded-lg border border-gray-200 bg-white">
+                    <div className="flex items-center justify-between border-b border-gray-100 px-5 py-3">
+                      <h3 className="text-sm font-medium text-gray-900">Progression</h3>
+                      <span className="text-xs text-gray-500">{completedCount}/{steps.length}</span>
                     </div>
-                    <div className="space-y-3">
+                    <div className="divide-y divide-gray-100">
                       {steps.map((step, i) => (
-                        <div key={i} className={`flex items-center gap-4 rounded-xl border p-4 ${
-                          step.done ? "border-green-100 bg-green-50" : step.inProgress ? "border-amber-100 bg-amber-50" : "border-gray-100 bg-gray-50"
-                        }`}>
-                          <div className={`flex h-8 w-8 items-center justify-center rounded-full text-white ${
-                            step.done ? "bg-green-500" : step.inProgress ? "bg-amber-400" : "bg-gray-200 !text-gray-400"
+                        <div key={i} className="flex items-center gap-3 px-5 py-3">
+                          <div className={`flex h-6 w-6 items-center justify-center rounded-full text-xs ${
+                            step.done ? "bg-emerald-100 text-emerald-600" : step.inProgress ? "bg-amber-100 text-amber-600" : "bg-gray-100 text-gray-400"
                           }`}>
-                            {step.done ? <Check className="h-4 w-4" /> : step.inProgress ? <Loader2 className="h-4 w-4 animate-spin" /> : <span className="text-sm font-bold">{i + 1}</span>}
+                            {step.done ? <Check className="h-3.5 w-3.5" /> : step.inProgress ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <span className="text-xs font-medium">{i + 1}</span>}
                           </div>
-                          <div className="flex-1">
-                            <div className={`text-sm font-bold ${!step.done && !step.inProgress ? "text-gray-400" : ""}`}>{step.label}</div>
+                          <div className="flex-1 min-w-0">
+                            <div className={`text-sm ${step.done || step.inProgress ? "text-gray-900" : "text-gray-400"}`}>{step.label}</div>
                             {step.done && step.date && (
-                              <div className="text-xs text-gray-500">Complétée le {new Date(step.date).toLocaleDateString("fr-FR")}</div>
+                              <div className="text-xs text-gray-400">{new Date(step.date).toLocaleDateString("fr-FR")}</div>
                             )}
-                            {step.inProgress && <div className="text-xs text-gray-500">En cours...</div>}
                           </div>
                           {step.actionLink && !step.done && (
-                            <Link to={step.actionLink} className="text-xs font-bold text-[#fd521a] hover:underline">{step.actionLabel}</Link>
+                            <Link to={step.actionLink} className="text-xs font-medium text-gray-900 hover:underline">{step.actionLabel}</Link>
                           )}
                           {step.action && !step.done && (
-                            <button onClick={step.action} className="text-xs font-bold text-[#fd521a] hover:underline">{step.actionLabel}</button>
+                            <button onClick={step.action} className="text-xs font-medium text-gray-900 hover:underline">{step.actionLabel}</button>
                           )}
                         </div>
                       ))}
@@ -348,40 +347,40 @@ function EspacePage() {
               })()}
 
               {/* Quick Actions */}
-              <div className="mb-8 grid gap-4 md:grid-cols-3">
+              <div className="mb-6 grid gap-3 sm:grid-cols-3">
                 <Link
                   to="/reunion"
-                  className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-lg"
+                  className="rounded-lg border border-gray-200 bg-white px-4 py-3 transition-colors hover:bg-gray-50"
                 >
-                  <Calendar className="mb-3 h-6 w-6 text-[#fd521a]" />
-                  <div className="text-sm font-bold">Réserver un appel</div>
-                  <div className="text-xs text-gray-400">Poser vos questions</div>
+                  <Calendar className="mb-2 h-4 w-4 text-gray-400" />
+                  <div className="text-sm font-medium text-gray-900">Réserver un appel</div>
+                  <div className="text-xs text-gray-500">Poser vos questions</div>
                 </Link>
                 <button
                   onClick={() => setActiveTab("documents")}
-                  className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-lg text-left"
+                  className="rounded-lg border border-gray-200 bg-white px-4 py-3 text-left transition-colors hover:bg-gray-50"
                 >
-                  <Upload className="mb-3 h-6 w-6 text-[#fd521a]" />
-                  <div className="text-sm font-bold">Ajouter un document</div>
-                  <div className="text-xs text-gray-400">Carte VTC, permis...</div>
+                  <Upload className="mb-2 h-4 w-4 text-gray-400" />
+                  <div className="text-sm font-medium text-gray-900">Ajouter un document</div>
+                  <div className="text-xs text-gray-500">Carte VTC, permis...</div>
                 </button>
                 <a
                   href="mailto:contact@driivo.fr"
-                  className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-lg"
+                  className="rounded-lg border border-gray-200 bg-white px-4 py-3 transition-colors hover:bg-gray-50"
                 >
-                  <MessageCircle className="mb-3 h-6 w-6 text-[#fd521a]" />
-                  <div className="text-sm font-bold">Contacter le support</div>
-                  <div className="text-xs text-gray-400">contact@driivo.fr</div>
+                  <MessageCircle className="mb-2 h-4 w-4 text-gray-400" />
+                  <div className="text-sm font-medium text-gray-900">Contacter le support</div>
+                  <div className="text-xs text-gray-500">contact@driivo.fr</div>
                 </a>
               </div>
 
               {/* Info Card */}
-              <div className="rounded-2xl border border-[#fd521a]/10 bg-[#fd521a]/5 p-6">
-                <div className="flex items-start gap-4">
-                  <Info className="h-6 w-6 shrink-0 text-[#fd521a]" />
+              <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                <div className="flex items-start gap-3">
+                  <Info className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
                   <div>
-                    <div className="mb-1 text-sm font-bold">Prochaine étape</div>
-                    <p className="text-sm text-gray-600">
+                    <div className="mb-0.5 text-sm font-medium text-gray-900">Prochaine étape</div>
+                    <p className="text-xs text-gray-500">
                       {application?.status === "APPROVED"
                         ? "Félicitations ! Votre candidature est approuvée. Nous vous contacterons sous peu pour la signature du contrat."
                         : application?.status === "REJECTED"
@@ -397,10 +396,10 @@ function EspacePage() {
           {/* Documents Tab */}
           {activeTab === "documents" && (
             <>
-              <div className="mb-6 flex items-center justify-between">
-                <h2 className="text-lg font-bold">Mes documents</h2>
-                <label className={`flex cursor-pointer items-center gap-2 rounded-lg bg-[#fd521a] px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 ${uploading ? "opacity-50 pointer-events-none" : ""}`}>
-                  <Upload className="h-4 w-4" />
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-sm font-medium text-gray-900">Documents</h3>
+                <label className={`flex cursor-pointer items-center gap-1.5 rounded-md bg-gray-900 px-3 py-1.5 text-xs font-medium text-white transition-opacity hover:bg-gray-800 ${uploading ? "opacity-50 pointer-events-none" : ""}`}>
+                  <Upload className="h-3.5 w-3.5" />
                   {uploading ? "Envoi..." : "Téléverser"}
                   <input
                     ref={fileInputRef}
@@ -414,25 +413,25 @@ function EspacePage() {
               </div>
 
               {files.length === 0 ? (
-                <div className="rounded-2xl border-2 border-dashed border-gray-200 bg-white p-12 text-center">
-                  <Upload className="mx-auto mb-4 h-10 w-10 text-gray-300" />
-                  <p className="mb-1 text-sm font-bold text-gray-400">Aucun document</p>
+                <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-10 text-center">
+                  <Upload className="mx-auto mb-3 h-8 w-8 text-gray-300" />
+                  <p className="mb-0.5 text-sm font-medium text-gray-500">Aucun document</p>
                   <p className="text-xs text-gray-400">Téléversez vos documents : carte VTC, permis de conduire, etc.</p>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="rounded-lg border border-gray-200 bg-white divide-y divide-gray-100">
                   {files.map((file) => (
-                    <div key={file.id} className="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                    <div key={file.id} className="flex items-center justify-between px-4 py-3">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#fd521a]/10">
-                          <FileText className="h-5 w-5 text-[#fd521a]" />
+                        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-gray-100">
+                          <FileText className="h-4 w-4 text-gray-500" />
                         </div>
                         <div className="min-w-0">
-                          <p className="text-sm font-medium truncate">{file.originalName}</p>
+                          <p className="text-sm font-medium text-gray-900 truncate">{file.originalName}</p>
                           <p className="text-xs text-gray-400">{formatFileSize(file.size)} · {file.createdAt ? new Date(file.createdAt).toLocaleDateString("fr-FR") : "Aujourd'hui"}</p>
                         </div>
                       </div>
-                      <button onClick={() => downloadFile(file.key)} className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-[#fd521a]">
+                      <button onClick={() => downloadFile(file.key)} className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700">
                         <Download className="h-4 w-4" />
                       </button>
                     </div>
@@ -441,6 +440,7 @@ function EspacePage() {
               )}
             </>
           )}
+          </div>
         </main>
       </div>
     </div>

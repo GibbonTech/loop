@@ -42,10 +42,10 @@ function ResultatsPage() {
         </div>
 
         {/* Main Results Card */}
-        <div className="mb-8 rounded-2xl border border-gray-200 bg-white p-8 md:p-12">
+        <div className="mb-8 rounded-[2.5rem] border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-8 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15),inset_0_1px_0_0_rgba(255,255,255,0.8)] backdrop-blur-3xl md:p-12">
           {/* Big Number */}
           <div className="mb-10 text-center">
-            <div className="mb-2 text-sm font-medium text-[#fd521a]">
+            <div className="mb-2 text-[10px] font-bold uppercase tracking-widest text-[#fd521a]">
               Votre salaire net mensuel
             </div>
             <div className="text-6xl font-bold tracking-tighter text-[#111] md:text-7xl">
@@ -85,22 +85,22 @@ function ResultatsPage() {
             <div className="rounded-xl bg-green-50 p-4 text-center">
               <ShieldCheck className="mx-auto mb-2 h-6 w-6 text-green-600" />
               <div className="text-xs font-bold text-green-700">Chômage</div>
-              <div className="text-xs text-green-600">Cotisé</div>
+              <div className="text-[10px] text-green-600">Cotisé</div>
             </div>
             <div className="rounded-xl bg-blue-50 p-4 text-center">
               <Heart className="mx-auto mb-2 h-6 w-6 text-blue-600" />
               <div className="text-xs font-bold text-blue-700">Mutuelle</div>
-              <div className="text-xs text-blue-600">Incluse</div>
+              <div className="text-[10px] text-blue-600">Incluse</div>
             </div>
             <div className="rounded-xl bg-purple-50 p-4 text-center">
               <PiggyBank className="mx-auto mb-2 h-6 w-6 text-purple-600" />
               <div className="text-xs font-bold text-purple-700">Retraite</div>
-              <div className="text-xs text-purple-600">Cotisée</div>
+              <div className="text-[10px] text-purple-600">Cotisée</div>
             </div>
             <div className="rounded-xl bg-amber-50 p-4 text-center">
               <FileText className="mx-auto mb-2 h-6 w-6 text-amber-600" />
               <div className="text-xs font-bold text-amber-700">Fiche de paie</div>
-              <div className="text-xs text-amber-600">Mensuelle</div>
+              <div className="text-[10px] text-amber-600">Mensuelle</div>
             </div>
           </div>
 
@@ -113,14 +113,14 @@ function ResultatsPage() {
                 <div className="text-2xl font-bold text-gray-400 line-through">
                   {formatNumber(aeNet)} €
                 </div>
-                <div className="mt-1 text-xs text-red-500">
+                <div className="mt-1 text-[10px] text-red-500">
                   ❌ Pas de chômage ni retraite
                 </div>
               </div>
               <div className="rounded-xl border border-[#fd521a]/20 bg-[#fd521a]/5 p-4">
                 <div className="mb-2 text-xs font-bold text-[#fd521a]">Avec Driivo</div>
                 <div className="text-2xl font-bold text-[#111]">{formatNumber(net)} €</div>
-                <div className="mt-1 text-xs text-gray-400">
+                <div className="mt-1 text-[10px] text-green-600">
                   ✓ Protection sociale complète
                 </div>
               </div>
@@ -129,7 +129,7 @@ function ResultatsPage() {
         </div>
 
         {/* CTA Section */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center">
+        <div className="rounded-[2rem] border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-8 text-center shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15),inset_0_1px_0_0_rgba(255,255,255,0.8)] backdrop-blur-3xl">
           <h2 className="mb-3 text-2xl font-bold">Ça vous paraît bien ?</h2>
           <p className="mb-6 text-gray-500">On peut démarrer ensemble en 48h.</p>
           <div className="flex flex-col justify-center gap-4">

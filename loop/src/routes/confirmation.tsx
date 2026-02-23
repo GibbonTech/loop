@@ -69,7 +69,7 @@ function ConfirmationPage() {
       <main className="flex min-h-screen items-center justify-center px-4 py-20">
         <div className="w-full max-w-[500px]">
           {/* Success Card */}
-          <div className="mb-8 rounded-2xl border border-gray-200 bg-white p-10 text-center">
+          <div className="mb-8 rounded-[2.5rem] border border-white/50 bg-gradient-to-br from-white/80 to-[#fafaf9]/60 p-10 text-center shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15)] backdrop-blur-3xl">
             {/* Check Icon */}
             <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-100 text-green-600">
               <Check className="h-10 w-10" />
@@ -152,7 +152,7 @@ function ConfirmationPage() {
           </div>
 
           {/* Referral Card */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 text-center">
+          <div className="rounded-2xl border border-white/50 bg-gradient-to-br from-white/80 to-[#fafaf9]/60 p-6 text-center shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15)] backdrop-blur-3xl">
             <div className="mb-3 flex items-center justify-center gap-2">
               <Gift className="h-5 w-5 text-[#fd521a]" />
               <span className="text-sm font-bold">Parrainez un ami</span>

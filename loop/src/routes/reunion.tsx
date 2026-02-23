@@ -178,7 +178,7 @@ function ReunionPage() {
             </div>
 
             {/* Advisor */}
-            <div className="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-4">
+            <div className="flex items-center gap-4 rounded-xl border border-white/50 bg-gradient-to-br from-white/80 to-[#fafaf9]/60 p-4 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15)] backdrop-blur-3xl">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-200 text-sm font-bold">
                 MF
               </div>
@@ -190,7 +190,7 @@ function ReunionPage() {
           </div>
 
           {/* Right: Calendar & Form */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-6">
+          <div className="rounded-[2rem] border border-white/50 bg-gradient-to-br from-white/80 to-[#fafaf9]/60 p-6 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15)] backdrop-blur-3xl">
             {/* Calendar Header */}
             <div className="mb-6 flex items-center justify-between">
               <button
@@ -224,7 +224,7 @@ function ReunionPage() {
                       : "border-gray-200 hover:border-[#fd521a]/50 hover:bg-[#fd521a]/5"
                   }`}
                 >
-                  <div className="text-xs opacity-70">{day.dayName}</div>
+                  <div className="text-[10px] opacity-70">{day.dayName}</div>
                   <div className="font-bold">{day.dayNum}</div>
                 </button>
               ))}
