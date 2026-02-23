@@ -1,11 +1,11 @@
 import { createMemoryHistory } from "@tanstack/history";
 import { mergeHeaders } from "@tanstack/router-core/ssr/client";
-import { defaultSerovalPlugins, makeSerovalPlugin, rootRouteId, isNotFound, createSerializationAdapter, isRedirect, isResolvedRedirect, executeRewriteInput } from "@tanstack/router-core";
-import { getOrigin, attachRouterServerSsrUtils } from "@tanstack/router-core/ssr/server";
+import { parseRedirect, isRedirect, defaultSerovalPlugins, makeSerovalPlugin, rootRouteId, createRawStreamRPCPlugin, isNotFound, createSerializationAdapter, isResolvedRedirect, executeRewriteInput } from "@tanstack/router-core";
 import { AsyncLocalStorage } from "node:async_hooks";
+import { getNormalizedURL, getOrigin, attachRouterServerSsrUtils } from "@tanstack/router-core/ssr/server";
 import { H3Event, toResponse, setCookie as setCookie$1 } from "h3-v2";
 import invariant from "tiny-invariant";
-import { fromJSON, toCrossJSONStream, toCrossJSONAsync } from "seroval";
+import { toCrossJSONStream, fromJSON, toCrossJSONAsync } from "seroval";
 import { jsx } from "react/jsx-runtime";
 import { defineHandlerCallback, renderRouterToStream } from "@tanstack/react-router/ssr/server";
 import { RouterProvider } from "@tanstack/react-router";
@@ -21,10 +21,27 @@ const defaultStreamHandler = defineHandlerCallback(
   })
 );
 const TSS_FORMDATA_CONTEXT = "__TSS_CONTEXT";
-const TSS_SERVER_FUNCTION = Symbol.for("TSS_SERVER_FUNCTION");
+const TSS_SERVER_FUNCTION = /* @__PURE__ */ Symbol.for("TSS_SERVER_FUNCTION");
+const TSS_SERVER_FUNCTION_FACTORY = /* @__PURE__ */ Symbol.for(
+  "TSS_SERVER_FUNCTION_FACTORY"
+);
 const X_TSS_SERIALIZED = "x-tss-serialized";
 const X_TSS_RAW_RESPONSE = "x-tss-raw";
-const GLOBAL_STORAGE_KEY = Symbol.for("tanstack-start:start-storage-context");
+const TSS_CONTENT_TYPE_FRAMED = "application/x-tss-framed";
+const FrameType = {
+  /** Seroval JSON chunk (NDJSON line) */
+  JSON: 0,
+  /** Raw stream data chunk */
+  CHUNK: 1,
+  /** Raw stream end (EOF) */
+  END: 2,
+  /** Raw stream error */
+  ERROR: 3
+};
+const FRAME_HEADER_SIZE = 9;
+const TSS_FRAMED_PROTOCOL_VERSION = 1;
+const TSS_CONTENT_TYPE_FRAMED_VERSIONED = `${TSS_CONTENT_TYPE_FRAMED}; v=${TSS_FRAMED_PROTOCOL_VERSION}`;
+const GLOBAL_STORAGE_KEY = /* @__PURE__ */ Symbol.for("tanstack-start:start-storage-context");
 const globalObj$1 = globalThis;
 if (!globalObj$1[GLOBAL_STORAGE_KEY]) {
   globalObj$1[GLOBAL_STORAGE_KEY] = new AsyncLocalStorage();
@@ -43,13 +60,239 @@ function getStartContext(opts) {
   return context;
 }
 const getStartOptions = () => getStartContext().startOptions;
-function flattenMiddlewares(middlewares) {
+const getStartContextServerOnly = getStartContext;
+function isSafeKey(key) {
+  return key !== "__proto__" && key !== "constructor" && key !== "prototype";
+}
+function safeObjectMerge(target, source) {
+  const result = /* @__PURE__ */ Object.create(null);
+  if (target) {
+    for (const key of Object.keys(target)) {
+      if (isSafeKey(key)) result[key] = target[key];
+    }
+  }
+  if (source && typeof source === "object") {
+    for (const key of Object.keys(source)) {
+      if (isSafeKey(key)) result[key] = source[key];
+    }
+  }
+  return result;
+}
+function createNullProtoObject(source) {
+  if (!source) return /* @__PURE__ */ Object.create(null);
+  const obj = /* @__PURE__ */ Object.create(null);
+  for (const key of Object.keys(source)) {
+    if (isSafeKey(key)) obj[key] = source[key];
+  }
+  return obj;
+}
+const createServerFn = (options, __opts) => {
+  const resolvedOptions = __opts || options || {};
+  if (typeof resolvedOptions.method === "undefined") {
+    resolvedOptions.method = "GET";
+  }
+  const res = {
+    options: resolvedOptions,
+    middleware: (middleware) => {
+      const newMiddleware = [...resolvedOptions.middleware || []];
+      middleware.map((m) => {
+        if (TSS_SERVER_FUNCTION_FACTORY in m) {
+          if (m.options.middleware) {
+            newMiddleware.push(...m.options.middleware);
+          }
+        } else {
+          newMiddleware.push(m);
+        }
+      });
+      const newOptions = {
+        ...resolvedOptions,
+        middleware: newMiddleware
+      };
+      const res2 = createServerFn(void 0, newOptions);
+      res2[TSS_SERVER_FUNCTION_FACTORY] = true;
+      return res2;
+    },
+    inputValidator: (inputValidator) => {
+      const newOptions = { ...resolvedOptions, inputValidator };
+      return createServerFn(void 0, newOptions);
+    },
+    handler: (...args) => {
+      const [extractedFn, serverFn] = args;
+      const newOptions = { ...resolvedOptions, extractedFn, serverFn };
+      const resolvedMiddleware = [
+        ...newOptions.middleware || [],
+        serverFnBaseToMiddleware(newOptions)
+      ];
+      return Object.assign(
+        async (opts) => {
+          const result = await executeMiddleware$1(resolvedMiddleware, "client", {
+            ...extractedFn,
+            ...newOptions,
+            data: opts == null ? void 0 : opts.data,
+            headers: opts == null ? void 0 : opts.headers,
+            signal: opts == null ? void 0 : opts.signal,
+            fetch: opts == null ? void 0 : opts.fetch,
+            context: createNullProtoObject()
+          });
+          const redirect = parseRedirect(result.error);
+          if (redirect) {
+            throw redirect;
+          }
+          if (result.error) throw result.error;
+          return result.result;
+        },
+        {
+          // This copies over the URL, function ID
+          ...extractedFn,
+          // The extracted function on the server-side calls
+          // this function
+          __executeServer: async (opts) => {
+            const startContext = getStartContextServerOnly();
+            const serverContextAfterGlobalMiddlewares = startContext.contextAfterGlobalMiddlewares;
+            const ctx = {
+              ...extractedFn,
+              ...opts,
+              // Ensure we use the full serverFnMeta from the provider file's extractedFn
+              // (which has id, name, filename) rather than the partial one from SSR/client
+              // callers (which only has id)
+              serverFnMeta: extractedFn.serverFnMeta,
+              // Use safeObjectMerge for opts.context which comes from client
+              context: safeObjectMerge(
+                serverContextAfterGlobalMiddlewares,
+                opts.context
+              ),
+              request: startContext.request
+            };
+            const result = await executeMiddleware$1(
+              resolvedMiddleware,
+              "server",
+              ctx
+            ).then((d) => ({
+              // Only send the result and sendContext back to the client
+              result: d.result,
+              error: d.error,
+              context: d.sendContext
+            }));
+            return result;
+          }
+        }
+      );
+    }
+  };
+  const fun = (options2) => {
+    const newOptions = {
+      ...resolvedOptions,
+      ...options2
+    };
+    return createServerFn(void 0, newOptions);
+  };
+  return Object.assign(fun, res);
+};
+async function executeMiddleware$1(middlewares, env, opts) {
+  var _a;
+  const globalMiddlewares = ((_a = getStartOptions()) == null ? void 0 : _a.functionMiddleware) || [];
+  let flattenedMiddlewares = flattenMiddlewares([
+    ...globalMiddlewares,
+    ...middlewares
+  ]);
+  if (env === "server") {
+    const startContext = getStartContextServerOnly({ throwIfNotFound: false });
+    if (startContext == null ? void 0 : startContext.executedRequestMiddlewares) {
+      flattenedMiddlewares = flattenedMiddlewares.filter(
+        (m) => !startContext.executedRequestMiddlewares.has(m)
+      );
+    }
+  }
+  const callNextMiddleware = async (ctx) => {
+    const nextMiddleware = flattenedMiddlewares.shift();
+    if (!nextMiddleware) {
+      return ctx;
+    }
+    try {
+      if ("inputValidator" in nextMiddleware.options && nextMiddleware.options.inputValidator && env === "server") {
+        ctx.data = await execValidator(
+          nextMiddleware.options.inputValidator,
+          ctx.data
+        );
+      }
+      let middlewareFn = void 0;
+      if (env === "client") {
+        if ("client" in nextMiddleware.options) {
+          middlewareFn = nextMiddleware.options.client;
+        }
+      } else if ("server" in nextMiddleware.options) {
+        middlewareFn = nextMiddleware.options.server;
+      }
+      if (middlewareFn) {
+        const userNext = async (userCtx = {}) => {
+          const nextCtx = {
+            ...ctx,
+            ...userCtx,
+            context: safeObjectMerge(ctx.context, userCtx.context),
+            sendContext: safeObjectMerge(ctx.sendContext, userCtx.sendContext),
+            headers: mergeHeaders(ctx.headers, userCtx.headers),
+            _callSiteFetch: ctx._callSiteFetch,
+            fetch: ctx._callSiteFetch ?? userCtx.fetch ?? ctx.fetch,
+            result: userCtx.result !== void 0 ? userCtx.result : userCtx instanceof Response ? userCtx : ctx.result,
+            error: userCtx.error ?? ctx.error
+          };
+          const result2 = await callNextMiddleware(nextCtx);
+          if (result2.error) {
+            throw result2.error;
+          }
+          return result2;
+        };
+        const result = await middlewareFn({
+          ...ctx,
+          next: userNext
+        });
+        if (isRedirect(result)) {
+          return {
+            ...ctx,
+            error: result
+          };
+        }
+        if (result instanceof Response) {
+          return {
+            ...ctx,
+            result
+          };
+        }
+        if (!result) {
+          throw new Error(
+            "User middleware returned undefined. You must call next() or return a result in your middlewares."
+          );
+        }
+        return result;
+      }
+      return callNextMiddleware(ctx);
+    } catch (error) {
+      return {
+        ...ctx,
+        error
+      };
+    }
+  };
+  return callNextMiddleware({
+    ...opts,
+    headers: opts.headers || {},
+    sendContext: opts.sendContext || {},
+    context: opts.context || createNullProtoObject(),
+    _callSiteFetch: opts.fetch
+  });
+}
+function flattenMiddlewares(middlewares, maxDepth = 100) {
   const seen = /* @__PURE__ */ new Set();
   const flattened = [];
-  const recurse = (middleware) => {
+  const recurse = (middleware, depth) => {
+    if (depth > maxDepth) {
+      throw new Error(
+        `Middleware nesting depth exceeded maximum of ${maxDepth}. Check for circular references.`
+      );
+    }
     middleware.forEach((m) => {
       if (m.options.middleware) {
-        recurse(m.options.middleware);
+        recurse(m.options.middleware, depth + 1);
       }
       if (!seen.has(m)) {
         seen.add(m);
@@ -57,8 +300,51 @@ function flattenMiddlewares(middlewares) {
       }
     });
   };
-  recurse(middlewares);
+  recurse(middlewares, 0);
   return flattened;
+}
+async function execValidator(validator, input) {
+  if (validator == null) return {};
+  if ("~standard" in validator) {
+    const result = await validator["~standard"].validate(input);
+    if (result.issues)
+      throw new Error(JSON.stringify(result.issues, void 0, 2));
+    return result.value;
+  }
+  if ("parse" in validator) {
+    return validator.parse(input);
+  }
+  if (typeof validator === "function") {
+    return validator(input);
+  }
+  throw new Error("Invalid validator type!");
+}
+function serverFnBaseToMiddleware(options) {
+  return {
+    "~types": void 0,
+    options: {
+      inputValidator: options.inputValidator,
+      client: async ({ next, sendContext, fetch: fetch2, ...ctx }) => {
+        var _a;
+        const payload = {
+          ...ctx,
+          // switch the sendContext over to context
+          context: sendContext,
+          fetch: fetch2
+        };
+        const res = await ((_a = options.extractedFn) == null ? void 0 : _a.call(options, payload));
+        return next(res);
+      },
+      server: async ({ next, ...ctx }) => {
+        var _a;
+        const result = await ((_a = options.serverFn) == null ? void 0 : _a.call(options, ctx));
+        return next({
+          ...ctx,
+          result
+        });
+      }
+    }
+  };
 }
 function getDefaultSerovalPlugins() {
   const start = getStartOptions();
@@ -68,7 +354,7 @@ function getDefaultSerovalPlugins() {
     ...defaultSerovalPlugins
   ];
 }
-const GLOBAL_EVENT_STORAGE_KEY = Symbol.for("tanstack-start:event-storage");
+const GLOBAL_EVENT_STORAGE_KEY = /* @__PURE__ */ Symbol.for("tanstack-start:event-storage");
 const globalObj = globalThis;
 if (!globalObj[GLOBAL_EVENT_STORAGE_KEY]) {
   globalObj[GLOBAL_EVENT_STORAGE_KEY] = new AsyncLocalStorage();
@@ -135,6 +421,10 @@ function getH3Event() {
   }
   return event.h3Event;
 }
+function getRequest() {
+  const event = getH3Event();
+  return event.req;
+}
 function setCookie(name, value, options) {
   const event = getH3Event();
   setCookie$1(event, name, value, options);
@@ -143,20 +433,12 @@ function getResponse() {
   const event = getH3Event();
   return event.res;
 }
-async function getStartManifest() {
-  const { tsrStartManifest } = await import("./assets/_tanstack-start-manifest_v-MINuPD0Q.js");
+async function getStartManifest(matchedRoutes) {
+  const { tsrStartManifest } = await import("./assets/_tanstack-start-manifest_v-Dtfkjp2W.js");
   const startManifest = tsrStartManifest();
   const rootRoute = startManifest.routes[rootRouteId] = startManifest.routes[rootRouteId] || {};
   rootRoute.assets = rootRoute.assets || [];
-  let script = `import('${startManifest.clientEntry}')`;
-  rootRoute.assets.push({
-    tag: "script",
-    attrs: {
-      type: "module",
-      async: true
-    },
-    children: script
-  });
+  let injectedHeadScripts;
   const manifest2 = {
     routes: Object.fromEntries(
       Object.entries(startManifest.routes).flatMap(([k, v]) => {
@@ -177,9 +459,142 @@ async function getStartManifest() {
       })
     )
   };
-  return manifest2;
+  return {
+    manifest: manifest2,
+    clientEntry: startManifest.clientEntry,
+    injectedHeadScripts
+  };
 }
-const manifest = {};
+const textEncoder$1 = new TextEncoder();
+const EMPTY_PAYLOAD = new Uint8Array(0);
+function encodeFrame(type, streamId, payload) {
+  const frame = new Uint8Array(FRAME_HEADER_SIZE + payload.length);
+  frame[0] = type;
+  frame[1] = streamId >>> 24 & 255;
+  frame[2] = streamId >>> 16 & 255;
+  frame[3] = streamId >>> 8 & 255;
+  frame[4] = streamId & 255;
+  frame[5] = payload.length >>> 24 & 255;
+  frame[6] = payload.length >>> 16 & 255;
+  frame[7] = payload.length >>> 8 & 255;
+  frame[8] = payload.length & 255;
+  frame.set(payload, FRAME_HEADER_SIZE);
+  return frame;
+}
+function encodeJSONFrame(json) {
+  return encodeFrame(FrameType.JSON, 0, textEncoder$1.encode(json));
+}
+function encodeChunkFrame(streamId, chunk) {
+  return encodeFrame(FrameType.CHUNK, streamId, chunk);
+}
+function encodeEndFrame(streamId) {
+  return encodeFrame(FrameType.END, streamId, EMPTY_PAYLOAD);
+}
+function encodeErrorFrame(streamId, error) {
+  const message = error instanceof Error ? error.message : String(error ?? "Unknown error");
+  return encodeFrame(FrameType.ERROR, streamId, textEncoder$1.encode(message));
+}
+function createMultiplexedStream(jsonStream, rawStreams) {
+  let activePumps = 1 + rawStreams.size;
+  let controllerRef = null;
+  let cancelled = false;
+  const cancelReaders = [];
+  const safeEnqueue = (chunk) => {
+    if (cancelled || !controllerRef) return;
+    try {
+      controllerRef.enqueue(chunk);
+    } catch {
+    }
+  };
+  const safeError = (err) => {
+    if (cancelled || !controllerRef) return;
+    try {
+      controllerRef.error(err);
+    } catch {
+    }
+  };
+  const safeClose = () => {
+    if (cancelled || !controllerRef) return;
+    try {
+      controllerRef.close();
+    } catch {
+    }
+  };
+  const checkComplete = () => {
+    activePumps--;
+    if (activePumps === 0) {
+      safeClose();
+    }
+  };
+  return new ReadableStream({
+    start(controller) {
+      controllerRef = controller;
+      cancelReaders.length = 0;
+      const pumpJSON = async () => {
+        const reader = jsonStream.getReader();
+        cancelReaders.push(() => {
+          reader.cancel().catch(() => {
+          });
+        });
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (cancelled) break;
+            if (done) break;
+            safeEnqueue(encodeJSONFrame(value));
+          }
+        } catch (error) {
+          safeError(error);
+        } finally {
+          reader.releaseLock();
+          checkComplete();
+        }
+      };
+      const pumpRawStream = async (streamId, stream) => {
+        const reader = stream.getReader();
+        cancelReaders.push(() => {
+          reader.cancel().catch(() => {
+          });
+        });
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (cancelled) break;
+            if (done) {
+              safeEnqueue(encodeEndFrame(streamId));
+              break;
+            }
+            safeEnqueue(encodeChunkFrame(streamId, value));
+          }
+        } catch (error) {
+          safeEnqueue(encodeErrorFrame(streamId, error));
+        } finally {
+          reader.releaseLock();
+          checkComplete();
+        }
+      };
+      pumpJSON();
+      for (const [streamId, stream] of rawStreams) {
+        pumpRawStream(streamId, stream);
+      }
+    },
+    cancel() {
+      cancelled = true;
+      controllerRef = null;
+      for (const cancelReader of cancelReaders) {
+        cancelReader();
+      }
+      cancelReaders.length = 0;
+    }
+  });
+}
+const manifest = { "b376f5fa3d7b6b87de1ff7143c22358bfd52fc336fbf8420e982dcaad8823581": {
+  functionName: "getHostname_createServerFn_handler",
+  importer: () => import("./assets/hostname-E4_UHZrr.js")
+}, "15a7f7d6c3c17da34059ae7dc6b0529c155ec79984bfe90c7e561bc4cf82d905": {
+  functionName: "validateSession_createServerFn_handler",
+  importer: () => import("./assets/auth-functions-BYnLcOkS.js")
+} };
 async function getServerFnById(id) {
   const serverFnInfo = manifest[id];
   if (!serverFnInfo) {
@@ -200,32 +615,24 @@ async function getServerFnById(id) {
   }
   return action;
 }
-let regex = void 0;
 let serovalPlugins = void 0;
+const textEncoder = new TextEncoder();
 const FORM_DATA_CONTENT_TYPES = [
   "multipart/form-data",
   "application/x-www-form-urlencoded"
 ];
+const MAX_PAYLOAD_SIZE = 1e6;
 const handleServerAction = async ({
   request,
-  context
+  context,
+  serverFnId
 }) => {
-  const controller = new AbortController();
-  const signal = controller.signal;
-  const abort = () => controller.abort();
-  request.signal.addEventListener("abort", abort);
-  if (regex === void 0) {
-    regex = new RegExp(`${"/_serverFn/"}([^/?#]+)`);
-  }
   const method = request.method;
+  const methodUpper = method.toUpperCase();
   const methodLower = method.toLowerCase();
-  const url = new URL(request.url, "http://localhost:3000");
-  const match = url.pathname.match(regex);
-  const serverFnId = match ? match[1] : null;
-  if (typeof serverFnId !== "string") {
-    throw new Error("Invalid server action param for serverFnId: " + serverFnId);
-  }
+  const url = new URL(request.url);
   const action = await getServerFnById(serverFnId);
+  const isServerFn = request.headers.get("x-tsr-serverFn") === "true";
   if (!serovalPlugins) {
     serovalPlugins = getDefaultSerovalPlugins();
   }
@@ -236,7 +643,119 @@ const handleServerAction = async ({
   }
   const response = await (async () => {
     try {
-      const result = await (async () => {
+      let serializeResult = function(res2) {
+        let nonStreamingBody = void 0;
+        const alsResponse = getResponse();
+        if (res2 !== void 0) {
+          const rawStreams = /* @__PURE__ */ new Map();
+          const rawStreamPlugin = createRawStreamRPCPlugin(
+            (id, stream2) => {
+              rawStreams.set(id, stream2);
+            }
+          );
+          const plugins = [rawStreamPlugin, ...serovalPlugins || []];
+          let done = false;
+          const callbacks = {
+            onParse: (value) => {
+              nonStreamingBody = value;
+            },
+            onDone: () => {
+              done = true;
+            },
+            onError: (error) => {
+              throw error;
+            }
+          };
+          toCrossJSONStream(res2, {
+            refs: /* @__PURE__ */ new Map(),
+            plugins,
+            onParse(value) {
+              callbacks.onParse(value);
+            },
+            onDone() {
+              callbacks.onDone();
+            },
+            onError: (error) => {
+              callbacks.onError(error);
+            }
+          });
+          if (done && rawStreams.size === 0) {
+            return new Response(
+              nonStreamingBody ? JSON.stringify(nonStreamingBody) : void 0,
+              {
+                status: alsResponse.status,
+                statusText: alsResponse.statusText,
+                headers: {
+                  "Content-Type": "application/json",
+                  [X_TSS_SERIALIZED]: "true"
+                }
+              }
+            );
+          }
+          if (rawStreams.size > 0) {
+            const jsonStream = new ReadableStream({
+              start(controller) {
+                callbacks.onParse = (value) => {
+                  controller.enqueue(JSON.stringify(value) + "\n");
+                };
+                callbacks.onDone = () => {
+                  try {
+                    controller.close();
+                  } catch {
+                  }
+                };
+                callbacks.onError = (error) => controller.error(error);
+                if (nonStreamingBody !== void 0) {
+                  callbacks.onParse(nonStreamingBody);
+                }
+              }
+            });
+            const multiplexedStream = createMultiplexedStream(
+              jsonStream,
+              rawStreams
+            );
+            return new Response(multiplexedStream, {
+              status: alsResponse.status,
+              statusText: alsResponse.statusText,
+              headers: {
+                "Content-Type": TSS_CONTENT_TYPE_FRAMED_VERSIONED,
+                [X_TSS_SERIALIZED]: "true"
+              }
+            });
+          }
+          const stream = new ReadableStream({
+            start(controller) {
+              callbacks.onParse = (value) => controller.enqueue(
+                textEncoder.encode(JSON.stringify(value) + "\n")
+              );
+              callbacks.onDone = () => {
+                try {
+                  controller.close();
+                } catch (error) {
+                  controller.error(error);
+                }
+              };
+              callbacks.onError = (error) => controller.error(error);
+              if (nonStreamingBody !== void 0) {
+                callbacks.onParse(nonStreamingBody);
+              }
+            }
+          });
+          return new Response(stream, {
+            status: alsResponse.status,
+            statusText: alsResponse.statusText,
+            headers: {
+              "Content-Type": "application/x-ndjson",
+              [X_TSS_SERIALIZED]: "true"
+            }
+          });
+        }
+        return new Response(void 0, {
+          status: alsResponse.status,
+          statusText: alsResponse.statusText
+        });
+      };
+      let res = await (async () => {
         if (FORM_DATA_CONTENT_TYPES.some(
           (type) => contentType && contentType.includes(type)
         )) {
@@ -249,7 +768,8 @@ const handleServerAction = async ({
           formData.delete(TSS_FORMDATA_CONTEXT);
           const params = {
             context,
-            data: formData
+            data: formData,
+            method: methodUpper
           };
           if (typeof serializedContext === "string") {
             try {
@@ -258,18 +778,26 @@ const handleServerAction = async ({
                 plugins: serovalPlugins
               });
               if (typeof deserializedContext === "object" && deserializedContext) {
-                params.context = { ...context, ...deserializedContext };
+                params.context = safeObjectMerge(
+                  context,
+                  deserializedContext
+                );
               }
-            } catch {
+            } catch (e) {
+              if (false) ;
             }
           }
-          return await action(params, signal);
+          return await action(params);
         }
         if (methodLower === "get") {
           const payloadParam = url.searchParams.get("payload");
+          if (payloadParam && payloadParam.length > MAX_PAYLOAD_SIZE) {
+            throw new Error("Payload too large");
+          }
           const payload2 = payloadParam ? parsePayload(JSON.parse(payloadParam)) : {};
-          payload2.context = { ...context, ...payload2.context };
-          return await action(payload2, signal);
+          payload2.context = safeObjectMerge(context, payload2.context);
+          payload2.method = methodUpper;
+          return await action(payload2);
         }
         if (methodLower !== "post") {
           throw new Error("expected POST method");
@@ -279,87 +807,25 @@ const handleServerAction = async ({
           jsonPayload = await request.json();
         }
         const payload = jsonPayload ? parsePayload(jsonPayload) : {};
-        payload.context = { ...payload.context, ...context };
-        return await action(payload, signal);
+        payload.context = safeObjectMerge(payload.context, context);
+        payload.method = methodUpper;
+        return await action(payload);
       })();
-      if (result.result instanceof Response) {
-        result.result.headers.set(X_TSS_RAW_RESPONSE, "true");
-        return result.result;
+      const unwrapped = res.result || res.error;
+      if (isNotFound(res)) {
+        res = isNotFoundResponse(res);
       }
-      if (isNotFound(result)) {
-        return isNotFoundResponse(result);
+      if (!isServerFn) {
+        return unwrapped;
       }
-      const response2 = getResponse();
-      let nonStreamingBody = void 0;
-      if (result !== void 0) {
-        let done = false;
-        const callbacks = {
-          onParse: (value) => {
-            nonStreamingBody = value;
-          },
-          onDone: () => {
-            done = true;
-          },
-          onError: (error) => {
-            throw error;
-          }
-        };
-        toCrossJSONStream(result, {
-          refs: /* @__PURE__ */ new Map(),
-          plugins: serovalPlugins,
-          onParse(value) {
-            callbacks.onParse(value);
-          },
-          onDone() {
-            callbacks.onDone();
-          },
-          onError: (error) => {
-            callbacks.onError(error);
-          }
-        });
-        if (done) {
-          return new Response(
-            nonStreamingBody ? JSON.stringify(nonStreamingBody) : void 0,
-            {
-              status: response2.status,
-              statusText: response2.statusText,
-              headers: {
-                "Content-Type": "application/json",
-                [X_TSS_SERIALIZED]: "true"
-              }
-            }
-          );
+      if (unwrapped instanceof Response) {
+        if (isRedirect(unwrapped)) {
+          return unwrapped;
         }
-        const encoder = new TextEncoder();
-        const stream = new ReadableStream({
-          start(controller2) {
-            callbacks.onParse = (value) => controller2.enqueue(encoder.encode(JSON.stringify(value) + "\n"));
-            callbacks.onDone = () => {
-              try {
-                controller2.close();
-              } catch (error) {
-                controller2.error(error);
-              }
-            };
-            callbacks.onError = (error) => controller2.error(error);
-            if (nonStreamingBody !== void 0) {
-              callbacks.onParse(nonStreamingBody);
-            }
-          }
-        });
-        return new Response(stream, {
-          status: response2.status,
-          statusText: response2.statusText,
-          headers: {
-            "Content-Type": "application/x-ndjson",
-            [X_TSS_SERIALIZED]: "true"
-          }
-        });
+        unwrapped.headers.set(X_TSS_RAW_RESPONSE, "true");
+        return unwrapped;
       }
-      return new Response(void 0, {
-        status: response2.status,
-        statusText: response2.statusText
-      });
+      return serializeResult(res);
     } catch (error) {
       if (error instanceof Response) {
         return error;
@@ -391,7 +857,6 @@ const handleServerAction = async ({
       });
     }
   })();
-  request.signal.removeEventListener("abort", abort);
   return response;
 };
 function isNotFoundResponse(error) {
@@ -404,14 +869,114 @@ function isNotFoundResponse(error) {
     }
   });
 }
+function resolveTransformConfig(transform) {
+  if (typeof transform === "string") {
+    const prefix = transform;
+    return {
+      type: "transform",
+      transformFn: ({ url }) => `${prefix}${url}`,
+      cache: true
+    };
+  }
+  if (typeof transform === "function") {
+    return {
+      type: "transform",
+      transformFn: transform,
+      cache: true
+    };
+  }
+  if ("createTransform" in transform && transform.createTransform) {
+    return {
+      type: "createTransform",
+      createTransform: transform.createTransform,
+      cache: transform.cache !== false
+    };
+  }
+  const transformFn = typeof transform.transform === "string" ? (({ url }) => `${transform.transform}${url}`) : transform.transform;
+  return {
+    type: "transform",
+    transformFn,
+    cache: transform.cache !== false
+  };
+}
+function buildClientEntryScriptTag(clientEntry, injectedHeadScripts) {
+  const clientEntryLiteral = JSON.stringify(clientEntry);
+  let script = `import(${clientEntryLiteral})`;
+  if (injectedHeadScripts) {
+    script = `${injectedHeadScripts};${script}`;
+  }
+  return {
+    tag: "script",
+    attrs: {
+      type: "module",
+      async: true
+    },
+    children: script
+  };
+}
+function transformManifestUrls(source, transformFn, opts) {
+  return (async () => {
+    var _a;
+    const manifest2 = (opts == null ? void 0 : opts.clone) ? structuredClone(source.manifest) : source.manifest;
+    for (const route of Object.values(manifest2.routes)) {
+      if (route.preloads) {
+        route.preloads = await Promise.all(
+          route.preloads.map(
+            (url) => Promise.resolve(transformFn({ url, type: "modulepreload" }))
+          )
+        );
+      }
+      if (route.assets) {
+        for (const asset of route.assets) {
+          if (asset.tag === "link" && ((_a = asset.attrs) == null ? void 0 : _a.href)) {
+            asset.attrs.href = await Promise.resolve(
+              transformFn({
+                url: asset.attrs.href,
+                type: "stylesheet"
+              })
+            );
+          }
+        }
+      }
+    }
+    const transformedClientEntry = await Promise.resolve(
+      transformFn({
+        url: source.clientEntry,
+        type: "clientEntry"
+      })
+    );
+    const rootRoute = manifest2.routes[rootRouteId];
+    if (rootRoute) {
+      rootRoute.assets = rootRoute.assets || [];
+      rootRoute.assets.push(
+        buildClientEntryScriptTag(
+          transformedClientEntry,
+          source.injectedHeadScripts
+        )
+      );
+    }
+    return manifest2;
+  })();
+}
+function buildManifestWithClientEntry(source) {
+  const scriptTag = buildClientEntryScriptTag(
+    source.clientEntry,
+    source.injectedHeadScripts
+  );
+  const baseRootRoute = source.manifest.routes[rootRouteId];
+  const routes = {
+    ...source.manifest.routes,
+    ...baseRootRoute ? {
+      [rootRouteId]: {
+        ...baseRootRoute,
+        assets: [...baseRootRoute.assets || [], scriptTag]
+      }
+    } : {}
+  };
+  return { routes };
+}
 const HEADERS = {
   TSS_SHELL: "X-TSS_SHELL"
-};
-const createServerRpc = (functionId, splitImportFn) => {
-  return Object.assign(splitImportFn, {
-    functionId,
-    [TSS_SERVER_FUNCTION]: true
-  });
 };
 const ServerFunctionSerializationAdapter = createSerializationAdapter({
   key: "$TSS/serverfn",
@@ -420,14 +985,14 @@ const ServerFunctionSerializationAdapter = createSerializationAdapter({
     if (!(TSS_SERVER_FUNCTION in v)) return false;
     return !!v[TSS_SERVER_FUNCTION];
   },
-  toSerializable: ({ functionId }) => ({ functionId }),
+  toSerializable: ({ serverFnMeta }) => ({ functionId: serverFnMeta.id }),
   fromSerializable: ({ functionId }) => {
     const fn = async (opts, signal) => {
       const serverFn = await getServerFnById(functionId);
       const result = await serverFn(opts ?? {}, signal);
       return result.result;
     };
-    return createServerRpc(functionId, fn);
+    return fn;
   }
 });
 function getStartResponseHeaders(opts) {
@@ -441,32 +1006,160 @@ function getStartResponseHeaders(opts) {
   );
   return headers;
 }
-function createStartHandler(cb) {
-  const ROUTER_BASEPATH = "/";
-  let startRoutesManifest = null;
-  let startEntry = null;
-  let routerEntry = null;
-  const getEntries = async () => {
-    if (routerEntry === null) {
-      routerEntry = await import("./assets/router-CZNYi4nd.js").then((n) => n.r);
-    }
-    if (startEntry === null) {
-      startEntry = await import("./assets/start-HYkvq4Ni.js");
-    }
-    return {
-      startEntry,
-      routerEntry
-    };
+let entriesPromise;
+let baseManifestPromise;
+let cachedFinalManifestPromise;
+async function loadEntries() {
+  const routerEntry = await import("./assets/router-C-WeDYYE.js").then((n) => n.r);
+  const startEntry = await import("./assets/start-HYkvq4Ni.js");
+  return { startEntry, routerEntry };
+}
+function getEntries() {
+  if (!entriesPromise) {
+    entriesPromise = loadEntries();
+  }
+  return entriesPromise;
+}
+function getBaseManifest(matchedRoutes) {
+  if (!baseManifestPromise) {
+    baseManifestPromise = getStartManifest();
+  }
+  return baseManifestPromise;
+}
+async function resolveManifest(matchedRoutes, transformFn, cache) {
+  const base = await getBaseManifest();
+  const computeFinalManifest = async () => {
+    return transformFn ? await transformManifestUrls(base, transformFn, { clone: !cache }) : buildManifestWithClientEntry(base);
   };
+  if (!transformFn || cache) {
+    if (!cachedFinalManifestPromise) {
+      cachedFinalManifestPromise = computeFinalManifest();
+    }
+    return cachedFinalManifestPromise;
+  }
+  return computeFinalManifest();
+}
+const ROUTER_BASEPATH = "/";
+const SERVER_FN_BASE = "/_serverFn/";
+const IS_PRERENDERING = process.env.TSS_PRERENDERING === "true";
+const IS_SHELL_ENV = process.env.TSS_SHELL === "true";
+const ERR_NO_RESPONSE = "Internal Server Error";
+const ERR_NO_DEFER = "Internal Server Error";
+function throwRouteHandlerError() {
+  throw new Error(ERR_NO_RESPONSE);
+}
+function throwIfMayNotDefer() {
+  throw new Error(ERR_NO_DEFER);
+}
+function isSpecialResponse(value) {
+  return value instanceof Response || isRedirect(value);
+}
+function handleCtxResult(result) {
+  if (isSpecialResponse(result)) {
+    return { response: result };
+  }
+  return result;
+}
+function executeMiddleware(middlewares, ctx) {
+  let index = -1;
+  const next = async (nextCtx) => {
+    if (nextCtx) {
+      if (nextCtx.context) {
+        ctx.context = safeObjectMerge(ctx.context, nextCtx.context);
+      }
+      for (const key of Object.keys(nextCtx)) {
+        if (key !== "context") {
+          ctx[key] = nextCtx[key];
+        }
+      }
+    }
+    index++;
+    const middleware = middlewares[index];
+    if (!middleware) return ctx;
+    let result;
+    try {
+      result = await middleware({ ...ctx, next });
+    } catch (err) {
+      if (isSpecialResponse(err)) {
+        ctx.response = err;
+        return ctx;
+      }
+      throw err;
+    }
+    const normalized = handleCtxResult(result);
+    if (normalized) {
+      if (normalized.response !== void 0) {
+        ctx.response = normalized.response;
+      }
+      if (normalized.context) {
+        ctx.context = safeObjectMerge(ctx.context, normalized.context);
+      }
+    }
+    return ctx;
+  };
+  return next();
+}
+function handlerToMiddleware(handler, mayDefer = false) {
+  if (mayDefer) {
+    return handler;
+  }
+  return async (ctx) => {
+    const response = await handler({ ...ctx, next: throwIfMayNotDefer });
+    if (!response) {
+      throwRouteHandlerError();
+    }
+    return response;
+  };
+}
+function createStartHandler(cbOrOptions) {
+  const cb = typeof cbOrOptions === "function" ? cbOrOptions : cbOrOptions.handler;
+  const transformAssetUrlsOption = typeof cbOrOptions === "function" ? void 0 : cbOrOptions.transformAssetUrls;
+  const warmupTransformManifest = !!transformAssetUrlsOption && typeof transformAssetUrlsOption === "object" && transformAssetUrlsOption.warmup === true;
+  const resolvedTransformConfig = transformAssetUrlsOption ? resolveTransformConfig(transformAssetUrlsOption) : void 0;
+  const cache = resolvedTransformConfig ? resolvedTransformConfig.cache : true;
+  let cachedCreateTransformPromise;
+  const getTransformFn = async (opts) => {
+    if (!resolvedTransformConfig) return void 0;
+    if (resolvedTransformConfig.type === "createTransform") {
+      if (cache) {
+        if (!cachedCreateTransformPromise) {
+          cachedCreateTransformPromise = Promise.resolve(
+            resolvedTransformConfig.createTransform(opts)
+          );
+        }
+        return cachedCreateTransformPromise;
+      }
+      return resolvedTransformConfig.createTransform(opts);
+    }
+    return resolvedTransformConfig.transformFn;
+  };
+  if (warmupTransformManifest && cache && true && !cachedFinalManifestPromise) {
+    const warmupPromise = (async () => {
+      const base = await getBaseManifest();
+      const transformFn = await getTransformFn({ warmup: true });
+      return transformFn ? await transformManifestUrls(base, transformFn, { clone: false }) : buildManifestWithClientEntry(base);
+    })();
+    cachedFinalManifestPromise = warmupPromise;
+    warmupPromise.catch(() => {
+      if (cachedFinalManifestPromise === warmupPromise) {
+        cachedFinalManifestPromise = void 0;
+      }
+      cachedCreateTransformPromise = void 0;
+    });
+  }
   const startRequestResolver = async (request, requestOpts) => {
     var _a, _b;
     let router = null;
     let cbWillCleanup = false;
     try {
+      const { url, handledProtocolRelativeURL } = getNormalizedURL(request.url);
+      const href = url.pathname + url.search + url.hash;
       const origin = getOrigin(request);
-      const url = new URL(request.url);
-      const href = url.href.replace(url.origin, "");
-      const startOptions = await ((_a = (await getEntries()).startEntry.startInstance) == null ? void 0 : _a.getOptions()) || {};
+      if (handledProtocolRelativeURL) {
+        return Response.redirect(url, 308);
+      }
+      const entries = await getEntries();
+      const startOptions = await ((_a = entries.startEntry.startInstance) == null ? void 0 : _a.getOptions()) || {};
       const serializationAdapters = [
         ...startOptions.serializationAdapters || [],
         ServerFunctionSerializationAdapter
@@ -475,12 +1168,15 @@ function createStartHandler(cb) {
         ...startOptions,
         serializationAdapters
       };
+      const flattenedRequestMiddlewares = startOptions.requestMiddleware ? flattenMiddlewares(startOptions.requestMiddleware) : [];
+      const executedRequestMiddlewares = new Set(
+        flattenedRequestMiddlewares
+      );
       const getRouter = async () => {
         if (router) return router;
-        router = await (await getEntries()).routerEntry.getRouter();
-        const isPrerendering = process.env.TSS_PRERENDERING === "true";
-        let isShell = process.env.TSS_SHELL === "true";
-        if (isPrerendering && !isShell) {
+        router = await entries.routerEntry.getRouter();
+        let isShell = IS_SHELL_ENV;
+        if (IS_PRERENDERING && !isShell) {
           isShell = request.headers.get(HEADERS.TSS_SHELL) === "true";
         }
         const history = createMemoryHistory({
@@ -489,7 +1185,7 @@ function createStartHandler(cb) {
         router.update({
           history,
           isShell,
-          isPrerendering,
+          isPrerendering: IS_PRERENDERING,
           origin: router.options.origin ?? origin,
           ...{
             defaultSsr: requestStartOptions.defaultSsr,
@@ -502,140 +1198,111 @@ function createStartHandler(cb) {
         });
         return router;
       };
-      const requestHandlerMiddleware = handlerToMiddleware(
-        async ({ context }) => {
-          const response2 = await runWithStartContext(
+      if (SERVER_FN_BASE && url.pathname.startsWith(SERVER_FN_BASE)) {
+        const serverFnId = url.pathname.slice(SERVER_FN_BASE.length).split("/")[0];
+        if (!serverFnId) {
+          throw new Error("Invalid server action param for serverFnId");
+        }
+        const serverFnHandler = async ({ context }) => {
+          return runWithStartContext(
             {
               getRouter,
               startOptions: requestStartOptions,
               contextAfterGlobalMiddlewares: context,
-              request
+              request,
+              executedRequestMiddlewares
             },
-            async () => {
-              try {
-                if (href.startsWith("/_serverFn/")) {
-                  return await handleServerAction({
-                    request,
-                    context: requestOpts == null ? void 0 : requestOpts.context
-                  });
-                }
-                const executeRouter = async ({
-                  serverContext
-                }) => {
-                  const requestAcceptHeader = request.headers.get("Accept") || "*/*";
-                  const splitRequestAcceptHeader = requestAcceptHeader.split(",");
-                  const supportedMimeTypes = ["*/*", "text/html"];
-                  const isRouterAcceptSupported = supportedMimeTypes.some(
-                    (mimeType) => splitRequestAcceptHeader.some(
-                      (acceptedMimeType) => acceptedMimeType.trim().startsWith(mimeType)
-                    )
-                  );
-                  if (!isRouterAcceptSupported) {
-                    return Response.json(
-                      {
-                        error: "Only HTML requests are supported here"
-                      },
-                      {
-                        status: 500
-                      }
-                    );
-                  }
-                  if (startRoutesManifest === null) {
-                    startRoutesManifest = await getStartManifest();
-                  }
-                  const router2 = await getRouter();
-                  attachRouterServerSsrUtils({
-                    router: router2,
-                    manifest: startRoutesManifest
-                  });
-                  router2.update({ additionalContext: { serverContext } });
-                  await router2.load();
-                  if (router2.state.redirect) {
-                    return router2.state.redirect;
-                  }
-                  await router2.serverSsr.dehydrate();
-                  const responseHeaders = getStartResponseHeaders({ router: router2 });
-                  cbWillCleanup = true;
-                  const response4 = await cb({
-                    request,
-                    router: router2,
-                    responseHeaders
-                  });
-                  return response4;
-                };
-                const response3 = await handleServerRoutes({
-                  getRouter,
-                  request,
-                  executeRouter,
-                  context
-                });
-                return response3;
-              } catch (err) {
-                if (err instanceof Response) {
-                  return err;
-                }
-                throw err;
-              }
-            }
+            () => handleServerAction({
+              request,
+              context: requestOpts == null ? void 0 : requestOpts.context,
+              serverFnId
+            })
           );
-          return response2;
+        };
+        const middlewares2 = flattenedRequestMiddlewares.map(
+          (d) => d.options.server
+        );
+        const ctx2 = await executeMiddleware([...middlewares2, serverFnHandler], {
+          request,
+          context: createNullProtoObject(requestOpts == null ? void 0 : requestOpts.context)
+        });
+        return handleRedirectResponse(ctx2.response, request, getRouter);
+      }
+      const executeRouter = async (serverContext, matchedRoutes) => {
+        const acceptHeader = request.headers.get("Accept") || "*/*";
+        const acceptParts = acceptHeader.split(",");
+        const supportedMimeTypes = ["*/*", "text/html"];
+        const isSupported = supportedMimeTypes.some(
+          (mimeType) => acceptParts.some((part) => part.trim().startsWith(mimeType))
+        );
+        if (!isSupported) {
+          return Response.json(
+            { error: "Only HTML requests are supported here" },
+            { status: 500 }
+          );
         }
+        const manifest2 = await resolveManifest(
+          matchedRoutes,
+          await getTransformFn({ warmup: false, request }),
+          cache
+        );
+        const routerInstance = await getRouter();
+        attachRouterServerSsrUtils({
+          router: routerInstance,
+          manifest: manifest2
+        });
+        routerInstance.update({ additionalContext: { serverContext } });
+        await routerInstance.load();
+        if (routerInstance.state.redirect) {
+          return routerInstance.state.redirect;
+        }
+        await routerInstance.serverSsr.dehydrate();
+        const responseHeaders = getStartResponseHeaders({
+          router: routerInstance
+        });
+        cbWillCleanup = true;
+        return cb({
+          request,
+          router: routerInstance,
+          responseHeaders
+        });
+      };
+      const requestHandlerMiddleware = async ({ context }) => {
+        return runWithStartContext(
+          {
+            getRouter,
+            startOptions: requestStartOptions,
+            contextAfterGlobalMiddlewares: context,
+            request,
+            executedRequestMiddlewares
+          },
+          async () => {
+            try {
+              return await handleServerRoutes({
+                getRouter,
+                request,
+                url,
+                executeRouter,
+                context,
+                executedRequestMiddlewares
+              });
+            } catch (err) {
+              if (err instanceof Response) {
+                return err;
+              }
+              throw err;
+            }
+          }
+        );
+      };
+      const middlewares = flattenedRequestMiddlewares.map(
+        (d) => d.options.server
       );
-      const flattenedMiddlewares = startOptions.requestMiddleware ? flattenMiddlewares(startOptions.requestMiddleware) : [];
-      const middlewares = flattenedMiddlewares.map((d) => d.options.server);
       const ctx = await executeMiddleware(
         [...middlewares, requestHandlerMiddleware],
-        {
-          request,
-          context: (requestOpts == null ? void 0 : requestOpts.context) || {}
-        }
+        { request, context: createNullProtoObject(requestOpts == null ? void 0 : requestOpts.context) }
       );
-      const response = ctx.response;
-      if (isRedirect(response)) {
-        if (isResolvedRedirect(response)) {
-          if (request.headers.get("x-tsr-redirect") === "manual") {
-            return Response.json(
-              {
-                ...response.options,
-                isSerializedRedirect: true
-              },
-              {
-                headers: response.headers
-              }
-            );
-          }
-          return response;
-        }
-        if (response.options.to && typeof response.options.to === "string" && !response.options.to.startsWith("/")) {
-          throw new Error(
-            `Server side redirects must use absolute paths via the 'href' or 'to' options. The redirect() method's "to" property accepts an internal path only. Use the "href" property to provide an external URL. Received: ${JSON.stringify(response.options)}`
-          );
-        }
-        if (["params", "search", "hash"].some(
-          (d) => typeof response.options[d] === "function"
-        )) {
-          throw new Error(
-            `Server side redirects must use static search, params, and hash values and do not support functional values. Received functional values for: ${Object.keys(
-              response.options
-            ).filter((d) => typeof response.options[d] === "function").map((d) => `"${d}"`).join(", ")}`
-          );
-        }
-        const router2 = await getRouter();
-        const redirect = router2.resolveRedirect(response);
-        if (request.headers.get("x-tsr-redirect") === "manual") {
-          return Response.json(
-            {
-              ...response.options,
-              isSerializedRedirect: true
-            },
-            {
-              headers: response.headers
-            }
-          );
-        }
-        return redirect;
-      }
-      return response;
+      return handleRedirectResponse(ctx.response, request, getRouter);
     } finally {
       if (router && !cbWillCleanup) {
         (_b = router.serverSsr) == null ? void 0 : _b.cleanup();
@@ -645,140 +1312,102 @@ function createStartHandler(cb) {
   };
   return requestHandler(startRequestResolver);
 }
+async function handleRedirectResponse(response, request, getRouter) {
+  if (!isRedirect(response)) {
+    return response;
+  }
+  if (isResolvedRedirect(response)) {
+    if (request.headers.get("x-tsr-serverFn") === "true") {
+      return Response.json(
+        { ...response.options, isSerializedRedirect: true },
+        { headers: response.headers }
+      );
+    }
+    return response;
+  }
+  const opts = response.options;
+  if (opts.to && typeof opts.to === "string" && !opts.to.startsWith("/")) {
+    throw new Error(
+      `Server side redirects must use absolute paths via the 'href' or 'to' options. The redirect() method's "to" property accepts an internal path only. Use the "href" property to provide an external URL. Received: ${JSON.stringify(opts)}`
+    );
+  }
+  if (["params", "search", "hash"].some(
+    (d) => typeof opts[d] === "function"
+  )) {
+    throw new Error(
+      `Server side redirects must use static search, params, and hash values and do not support functional values. Received functional values for: ${Object.keys(
+        opts
+      ).filter((d) => typeof opts[d] === "function").map((d) => `"${d}"`).join(", ")}`
+    );
+  }
+  const router = await getRouter();
+  const redirect = router.resolveRedirect(response);
+  if (request.headers.get("x-tsr-serverFn") === "true") {
+    return Response.json(
+      { ...response.options, isSerializedRedirect: true },
+      { headers: response.headers }
+    );
+  }
+  return redirect;
+}
 async function handleServerRoutes({
   getRouter,
   request,
+  url,
   executeRouter,
-  context
+  context,
+  executedRequestMiddlewares
 }) {
+  var _a, _b;
   const router = await getRouter();
-  let url = new URL(request.url);
-  url = executeRewriteInput(router.rewrite, url);
-  const pathname = url.pathname;
+  const rewrittenUrl = executeRewriteInput(router.rewrite, url);
+  const pathname = rewrittenUrl.pathname;
   const { matchedRoutes, foundRoute, routeParams } = router.getMatchedRoutes(pathname);
   const isExactMatch = foundRoute && routeParams["**"] === void 0;
-  const middlewares = flattenMiddlewares(
-    matchedRoutes.flatMap((r) => {
-      var _a;
-      return (_a = r.options.server) == null ? void 0 : _a.middleware;
-    }).filter(Boolean)
-  ).map((d) => d.options.server);
-  const server2 = foundRoute == null ? void 0 : foundRoute.options.server;
-  if (server2 && isExactMatch) {
-    if (server2.handlers) {
-      const handlers = typeof server2.handlers === "function" ? server2.handlers({
-        createHandlers: (d) => d
-      }) : server2.handlers;
-      const requestMethod = request.method.toUpperCase();
-      const handler = handlers[requestMethod] ?? handlers["ANY"];
-      if (handler) {
-        const mayDefer = !!foundRoute.options.component;
-        if (typeof handler === "function") {
-          middlewares.push(handlerToMiddleware(handler, mayDefer));
-        } else {
-          const { middleware } = handler;
-          if (middleware && middleware.length) {
-            middlewares.push(
-              ...flattenMiddlewares(middleware).map((d) => d.options.server)
-            );
-          }
-          if (handler.handler) {
-            middlewares.push(handlerToMiddleware(handler.handler, mayDefer));
-          }
+  const routeMiddlewares = [];
+  for (const route of matchedRoutes) {
+    const serverMiddleware = (_a = route.options.server) == null ? void 0 : _a.middleware;
+    if (serverMiddleware) {
+      const flattened = flattenMiddlewares(serverMiddleware);
+      for (const m of flattened) {
+        if (!executedRequestMiddlewares.has(m)) {
+          routeMiddlewares.push(m.options.server);
         }
       }
     }
   }
-  middlewares.push(
-    handlerToMiddleware((ctx2) => executeRouter({ serverContext: ctx2.context }))
+  const server2 = foundRoute == null ? void 0 : foundRoute.options.server;
+  if ((server2 == null ? void 0 : server2.handlers) && isExactMatch) {
+    const handlers = typeof server2.handlers === "function" ? server2.handlers({ createHandlers: (d) => d }) : server2.handlers;
+    const requestMethod = request.method.toUpperCase();
+    const handler = handlers[requestMethod] ?? handlers["ANY"];
+    if (handler) {
+      const mayDefer = !!foundRoute.options.component;
+      if (typeof handler === "function") {
+        routeMiddlewares.push(handlerToMiddleware(handler, mayDefer));
+      } else {
+        if ((_b = handler.middleware) == null ? void 0 : _b.length) {
+          const handlerMiddlewares = flattenMiddlewares(handler.middleware);
+          for (const m of handlerMiddlewares) {
+            routeMiddlewares.push(m.options.server);
+          }
+        }
+        if (handler.handler) {
+          routeMiddlewares.push(handlerToMiddleware(handler.handler, mayDefer));
+        }
+      }
+    }
+  }
+  routeMiddlewares.push(
+    (ctx2) => executeRouter(ctx2.context, matchedRoutes)
   );
-  const ctx = await executeMiddleware(middlewares, {
+  const ctx = await executeMiddleware(routeMiddlewares, {
     request,
     context,
     params: routeParams,
     pathname
   });
-  const response = ctx.response;
-  return response;
-}
-function throwRouteHandlerError() {
-  if (process.env.NODE_ENV === "development") {
-    throw new Error(
-      `It looks like you forgot to return a response from your server route handler. If you want to defer to the app router, make sure to have a component set in this route.`
-    );
-  }
-  throw new Error("Internal Server Error");
-}
-function throwIfMayNotDefer() {
-  if (process.env.NODE_ENV === "development") {
-    throw new Error(
-      `You cannot defer to the app router if there is no component defined on this route.`
-    );
-  }
-  throw new Error("Internal Server Error");
-}
-function handlerToMiddleware(handler, mayDefer = false) {
-  if (mayDefer) {
-    return handler;
-  }
-  return async ({ next: _next, ...rest }) => {
-    const response = await handler({ ...rest, next: throwIfMayNotDefer });
-    if (!response) {
-      throwRouteHandlerError();
-    }
-    return response;
-  };
-}
-function executeMiddleware(middlewares, ctx) {
-  let index = -1;
-  const next = async (ctx2) => {
-    index++;
-    const middleware = middlewares[index];
-    if (!middleware) return ctx2;
-    let result;
-    try {
-      result = await middleware({
-        ...ctx2,
-        // Allow the middleware to call the next middleware in the chain
-        next: async (nextCtx) => {
-          const nextResult = await next({
-            ...ctx2,
-            ...nextCtx,
-            context: {
-              ...ctx2.context,
-              ...(nextCtx == null ? void 0 : nextCtx.context) || {}
-            }
-          });
-          return Object.assign(ctx2, handleCtxResult(nextResult));
-        }
-        // Allow the middleware result to extend the return context
-      });
-    } catch (err) {
-      if (isSpecialResponse(err)) {
-        result = {
-          response: err
-        };
-      } else {
-        throw err;
-      }
-    }
-    return Object.assign(ctx2, handleCtxResult(result));
-  };
-  return handleCtxResult(next(ctx));
-}
-function handleCtxResult(result) {
-  if (isSpecialResponse(result)) {
-    return {
-      response: result
-    };
-  }
-  return result;
-}
-function isSpecialResponse(err) {
-  return isResponse(err) || isRedirect(err);
-}
-function isResponse(response) {
-  return response instanceof Response;
+  return ctx.response;
 }
 const fetch = createStartHandler(defaultStreamHandler);
 function createServerEntry(entry) {
@@ -792,11 +1421,15 @@ const server = createServerEntry({ fetch });
 export {
   HEADERS as H,
   StartServer as S,
+  TSS_SERVER_FUNCTION as T,
+  getResponse as a,
+  createServerFn as b,
   createStartHandler as c,
   createServerEntry,
   defaultStreamHandler as d,
   server as default,
-  getResponse as g,
+  getServerFnById as e,
+  getRequest as g,
   requestHandler as r,
   setCookie as s
 };

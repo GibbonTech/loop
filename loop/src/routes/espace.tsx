@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import {
   LayoutDashboard,
   FileText,
-  Settings,
+  LogOut,
   Clock,
   Check,
   Loader2,
@@ -229,7 +229,7 @@ function EspacePage() {
               }`}
             >
               <FileText className="h-5 w-5" />
-              Documents {files.length > 0 && <span className="ml-auto rounded-full bg-[#fd521a] px-2 py-0.5 text-[10px] text-white">{files.length}</span>}
+              Documents {files.length > 0 && <span className="ml-auto rounded-full bg-[#fd521a] px-2 py-0.5 text-xs text-white">{files.length}</span>}
             </button>
             <Link
               to="/reunion"
@@ -242,7 +242,7 @@ function EspacePage() {
               onClick={handleLogout}
               className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-500 transition-colors hover:bg-red-50 hover:text-red-500"
             >
-              <Settings className="h-5 w-5" />
+              <LogOut className="h-5 w-5" />
               Déconnexion
             </button>
           </nav>

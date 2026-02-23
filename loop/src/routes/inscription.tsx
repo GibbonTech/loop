@@ -144,7 +144,7 @@ function InscriptionPage() {
         </div>
 
         {/* Form Card */}
-        <div className="rounded-[2rem] border border-white/50 bg-gradient-to-br from-white/80 to-[#fafaf9]/60 p-8 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15)] backdrop-blur-3xl">
+        <div className="rounded-2xl border border-gray-200 bg-white p-8">
           <form onSubmit={handleSubmit}>
             {/* Step 1: Personal Info */}
             {currentStep === 1 && (
@@ -306,7 +306,7 @@ function InscriptionPage() {
                       onChange={(e) => updateField("numeroCarteVtc", e.target.value)}
                       className="w-full rounded-xl border border-black/8 bg-white/90 px-4 py-3 text-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10"
                     />
-                    <p className="mt-1 text-[10px] text-gray-400">
+                    <p className="mt-1 text-xs text-gray-400">
                       Optionnel pour le moment
                     </p>
                   </div>

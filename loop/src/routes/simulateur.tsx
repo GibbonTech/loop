@@ -138,8 +138,8 @@ function SimulateurPage() {
         </div>
 
         {/* CA Slider Card */}
-        <div className="mb-10 rounded-[2.5rem] border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-8 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15),inset_0_1px_0_0_rgba(255,255,255,0.8)] backdrop-blur-3xl md:p-12">
-          <label className="mb-3 block text-[10px] font-bold uppercase tracking-widest text-gray-400">
+        <div className="mb-10 rounded-2xl border border-gray-200 bg-white p-8 md:p-12">
+          <label className="mb-3 block text-xs text-gray-500">
             Votre chiffre d&apos;affaires mensuel (CA HT)
           </label>
           <div className="mb-6 flex items-baseline gap-2">
@@ -166,7 +166,7 @@ function SimulateurPage() {
         {/* 3-Way Comparison Cards */}
         <div className="mb-10 grid gap-6 md:grid-cols-3">
           {/* Auto-entrepreneur Card */}
-          <div className="relative rounded-[2rem] border border-black/5 bg-gradient-to-b from-[#f7f7f5] to-[#f2f2f0] p-6 transition-all duration-300 hover:-translate-y-1">
+          <div className="relative rounded-2xl border border-gray-200 bg-white p-6">
             <div className="mb-4">
               <h3 className="mb-2 text-lg font-bold">{statusData.autoEntrepreneur.name}</h3>
               <p className="text-xs leading-relaxed text-gray-500">
@@ -175,7 +175,7 @@ function SimulateurPage() {
             </div>
 
             <div className="mb-6">
-              <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+              <div className="text-xs text-gray-500">
                 Vous touchez
               </div>
               <div className="text-4xl font-bold tracking-tight text-[#111]">
@@ -205,7 +205,7 @@ function SimulateurPage() {
           </div>
 
           {/* Driivo Card - Highlighted */}
-          <div className="relative rounded-[2rem] border-2 border-[#fd521a] bg-gradient-to-br from-white to-[#fafaf9] p-6 shadow-[0_20px_40px_-12px_rgba(253,82,26,0.15)] transition-all duration-300 hover:-translate-y-1">
+          <div className="relative rounded-2xl border-2 border-[#fd521a] bg-white p-6">
             {/* Recommended Badge */}
             <div className="absolute -top-3 left-1/2 -translate-x-1/2">
               <div className="flex items-center gap-1 rounded-full bg-[#fd521a] px-4 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-lg">
@@ -222,7 +222,7 @@ function SimulateurPage() {
             </div>
 
             <div className="mb-6">
-              <div className="text-[10px] font-bold uppercase tracking-widest text-[#fd521a]">
+              <div className="text-sm font-medium text-[#fd521a]">
                 Vous touchez
               </div>
               <div className="text-4xl font-bold tracking-tight text-green-600">
@@ -255,7 +255,7 @@ function SimulateurPage() {
           </div>
 
           {/* SASU Card */}
-          <div className="relative rounded-[2rem] border border-black/5 bg-gradient-to-b from-[#f7f7f5] to-[#f2f2f0] p-6 transition-all duration-300 hover:-translate-y-1">
+          <div className="relative rounded-2xl border border-gray-200 bg-white p-6">
             <div className="mb-4">
               <h3 className="mb-2 text-lg font-bold">{statusData.sasu.name}</h3>
               <p className="text-xs leading-relaxed text-gray-500">
@@ -264,7 +264,7 @@ function SimulateurPage() {
             </div>
 
             <div className="mb-6">
-              <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+              <div className="text-xs text-gray-500">
                 Vous touchez
               </div>
               <div className="text-4xl font-bold tracking-tight text-[#111]">
@@ -295,7 +295,7 @@ function SimulateurPage() {
         </div>
 
         {/* Benefits Grid */}
-        <div className="mb-10 rounded-[2rem] border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-6 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15)] backdrop-blur-3xl">
+        <div className="mb-10 rounded-2xl border border-gray-200 bg-white p-6">
           <div className="mb-4 text-center text-sm font-bold text-gray-400">
             Avec Driivo, vous bénéficiez de
           </div>
@@ -319,7 +319,7 @@ function SimulateurPage() {
         </div>
 
         {/* Email Gate Form */}
-        <div className="rounded-[2rem] border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-8 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15),inset_0_1px_0_0_rgba(255,255,255,0.8)] backdrop-blur-3xl">
+        <div className="rounded-2xl border border-gray-200 bg-white p-8">
           <div className="mb-6 text-center">
             <h2 className="mb-2 text-xl font-bold">Prêt à gagner plus ?</h2>
             <p className="text-sm text-gray-500">
@@ -377,10 +377,10 @@ function SimulateurPage() {
               disabled={isSubmitting}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#fd521a] py-4 text-base font-bold text-white shadow-[0_8px_20px_-4px_rgba(253,82,26,0.3)] transition-all hover:-translate-y-0.5 hover:bg-[#e0410e] hover:shadow-[0_12px_28px_-4px_rgba(253,82,26,0.4)] disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {isSubmitting ? "Chargement..." : "Rejoindre Driivo"}
+              {isSubmitting ? "Chargement..." : "Voir mes résultats"}
               <ArrowRight className="h-5 w-5" />
             </button>
-            <p className="text-center text-[10px] text-gray-400">
+            <p className="text-center text-xs text-gray-400">
               En continuant, vous acceptez notre politique de confidentialité.
               Nous ne spammons pas.
             </p>
