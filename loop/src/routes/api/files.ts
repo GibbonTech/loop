@@ -73,7 +73,7 @@ export const Route = createFileRoute("/api/files")({
 
           await db.insert(storedFile).values(record);
 
-          return json({ success: true, file: record });
+          return json({ success: true, file: { ...record, createdAt: new Date().toISOString() } });
         } catch (error: any) {
           console.error("[API] File upload error:", error);
           return json({ success: false, error: error.message || "Erreur interne" }, { status: 500 });

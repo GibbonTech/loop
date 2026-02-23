@@ -481,7 +481,7 @@ function ApplicationDetailPage() {
                       <div className="min-w-0">
                         <p className="text-sm font-medium truncate">{file.originalName}</p>
                         <p className="text-xs text-muted-foreground">
-                          {formatFileSize(file.size)} · {new Date(file.createdAt).toLocaleDateString("fr-FR")}
+                          {formatFileSize(file.size)} · {file.createdAt ? new Date(file.createdAt).toLocaleDateString("fr-FR") : "Aujourd'hui"}
                         </p>
                       </div>
                     </div>

@@ -429,7 +429,7 @@ function EspacePage() {
                         </div>
                         <div className="min-w-0">
                           <p className="text-sm font-medium truncate">{file.originalName}</p>
-                          <p className="text-xs text-gray-400">{formatFileSize(file.size)} · {new Date(file.createdAt).toLocaleDateString("fr-FR")}</p>
+                          <p className="text-xs text-gray-400">{formatFileSize(file.size)} · {file.createdAt ? new Date(file.createdAt).toLocaleDateString("fr-FR") : "Aujourd'hui"}</p>
                         </div>
                       </div>
                       <button onClick={() => downloadFile(file.key)} className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-[#fd521a]">
