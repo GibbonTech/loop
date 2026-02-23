@@ -1,10 +1,8 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   LayoutDashboard,
   FileText,
-  BarChart3,
-  Wallet,
   Settings,
   Clock,
   Check,
@@ -15,8 +13,9 @@ import {
   Info,
   CheckCircle,
   XCircle,
+  Download,
 } from "lucide-react";
-import { useSession } from "~/lib/auth/auth-client";
+import { useSession, signOut } from "~/lib/auth/auth-client";
 import { validateSession } from "~/lib/auth/auth-functions";
 
 export const Route = createFileRoute("/espace")({
@@ -37,14 +36,26 @@ interface Application {
   lastName: string;
   email: string;
   createdAt: string;
+  submittedAt: string;
+}
+
+interface StoredFile {
+  id: string;
+  key: string;
+  originalName: string;
+  mimeType: string;
+  size: number;
+  createdAt: string;
 }
 
 function EspacePage() {
   const { data: session, isPending } = useSession();
   const [application, setApplication] = useState<Application | null>(null);
+  const [files, setFiles] = useState<StoredFile[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // beforeLoad now handles auth - no useEffect guard needed
+  const [uploading, setUploading] = useState(false);
+  const [activeTab, setActiveTab] = useState<"dashboard" | "documents">("dashboard");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (session?.user) {
@@ -57,14 +68,70 @@ function EspacePage() {
       const response = await fetch("/api/applications");
       const data = await response.json();
       if (data.success && data.data?.length > 0) {
-        // Get the most recent application
         setApplication(data.data[0]);
+        fetchFiles(data.data[0].id);
       }
     } catch (error) {
       console.error("Error fetching application:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchFiles = async (entityId: string) => {
+    try {
+      const response = await fetch(`/api/files?entityId=${entityId}`);
+      const data = await response.json();
+      if (data.success) setFiles(data.data || []);
+    } catch (error) {
+      console.error("Error fetching files:", error);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !application) return;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("entityType", "APPLICATION");
+      formData.append("entityId", application.id);
+      const response = await fetch("/api/files", { method: "POST", body: formData });
+      const data = await response.json();
+      if (data.success) {
+        setFiles((prev) => [...prev, data.file]);
+      } else {
+        alert(data.error || "Erreur lors du téléversement");
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert("Erreur lors du téléversement");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const downloadFile = async (key: string) => {
+    try {
+      const response = await fetch(`/api/files?key=${encodeURIComponent(key)}`);
+      const data = await response.json();
+      if (data.success && data.url) window.open(data.url, "_blank");
+    } catch (error) {
+      console.error("Download error:", error);
+    }
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} o`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} Ko`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
+  };
+
+  const handleLogout = async () => {
+    await signOut();
+    window.location.href = "/";
   };
 
   const getStatusInfo = (status: string) => {
@@ -146,41 +213,38 @@ function EspacePage() {
 
           {/* Nav */}
           <nav className="space-y-2">
-            <a
-              href="#"
-              className="flex items-center gap-3 rounded-xl bg-[#fd521a]/10 px-4 py-3 text-sm font-medium text-[#fd521a]"
+            <button
+              onClick={() => setActiveTab("dashboard")}
+              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors ${
+                activeTab === "dashboard" ? "bg-[#fd521a]/10 text-[#fd521a]" : "text-gray-500 hover:bg-[#fd521a]/10 hover:text-[#fd521a]"
+              }`}
             >
               <LayoutDashboard className="h-5 w-5" />
               Tableau de bord
-            </a>
-            <a
-              href="#"
-              className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-500 transition-colors hover:bg-[#fd521a]/10 hover:text-[#fd521a]"
+            </button>
+            <button
+              onClick={() => setActiveTab("documents")}
+              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors ${
+                activeTab === "documents" ? "bg-[#fd521a]/10 text-[#fd521a]" : "text-gray-500 hover:bg-[#fd521a]/10 hover:text-[#fd521a]"
+              }`}
             >
               <FileText className="h-5 w-5" />
-              Documents
-            </a>
-            <a
-              href="#"
+              Documents {files.length > 0 && <span className="ml-auto rounded-full bg-[#fd521a] px-2 py-0.5 text-[10px] text-white">{files.length}</span>}
+            </button>
+            <Link
+              to="/reunion"
               className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-500 transition-colors hover:bg-[#fd521a]/10 hover:text-[#fd521a]"
             >
-              <BarChart3 className="h-5 w-5" />
-              Activité
-            </a>
-            <a
-              href="#"
-              className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-500 transition-colors hover:bg-[#fd521a]/10 hover:text-[#fd521a]"
-            >
-              <Wallet className="h-5 w-5" />
-              Paiements
-            </a>
-            <a
-              href="#"
-              className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-500 transition-colors hover:bg-[#fd521a]/10 hover:text-[#fd521a]"
+              <Calendar className="h-5 w-5" />
+              Réserver un appel
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-500 transition-colors hover:bg-red-50 hover:text-red-500"
             >
               <Settings className="h-5 w-5" />
-              Paramètres
-            </a>
+              Déconnexion
+            </button>
           </nav>
 
           {/* User */}
@@ -234,116 +298,149 @@ function EspacePage() {
             </div>
           </div>
 
-          {/* Onboarding Checklist */}
-          <div className="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div className="mb-6 flex items-center justify-between">
-              <h2 className="font-bold">Votre progression</h2>
-              <span className="text-sm font-bold text-[#fd521a]">2/5 complétées</span>
-            </div>
+          {activeTab === "dashboard" && (
+            <>
+              {/* Dynamic Checklist */}
+              {(() => {
+                const status = application?.status || "SUBMITTED";
+                const steps = [
+                  { label: "Candidature envoyée", done: true, date: application?.submittedAt || application?.createdAt },
+                  { label: "Dossier en cours d'examen", done: ["UNDER_REVIEW", "APPROVED", "REJECTED"].includes(status), inProgress: status === "SUBMITTED" },
+                  { label: "Documents téléversés", done: files.length > 0, action: files.length === 0 ? () => setActiveTab("documents") : undefined, actionLabel: "Ajouter" },
+                  { label: "Entretien téléphonique", done: status === "APPROVED", action: status !== "APPROVED" ? undefined : undefined, actionLabel: "Réserver", actionLink: "/reunion" },
+                  { label: "Validation finale", done: status === "APPROVED" },
+                ];
+                const completedCount = steps.filter(s => s.done).length;
+                return (
+                  <div className="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                    <div className="mb-6 flex items-center justify-between">
+                      <h2 className="font-bold">Votre progression</h2>
+                      <span className="text-sm font-bold text-[#fd521a]">{completedCount}/{steps.length} complétées</span>
+                    </div>
+                    <div className="space-y-3">
+                      {steps.map((step, i) => (
+                        <div key={i} className={`flex items-center gap-4 rounded-xl border p-4 ${
+                          step.done ? "border-green-100 bg-green-50" : step.inProgress ? "border-amber-100 bg-amber-50" : "border-gray-100 bg-gray-50"
+                        }`}>
+                          <div className={`flex h-8 w-8 items-center justify-center rounded-full text-white ${
+                            step.done ? "bg-green-500" : step.inProgress ? "bg-amber-400" : "bg-gray-200 !text-gray-400"
+                          }`}>
+                            {step.done ? <Check className="h-4 w-4" /> : step.inProgress ? <Loader2 className="h-4 w-4 animate-spin" /> : <span className="text-sm font-bold">{i + 1}</span>}
+                          </div>
+                          <div className="flex-1">
+                            <div className={`text-sm font-bold ${!step.done && !step.inProgress ? "text-gray-400" : ""}`}>{step.label}</div>
+                            {step.done && step.date && (
+                              <div className="text-xs text-gray-500">Complétée le {new Date(step.date).toLocaleDateString("fr-FR")}</div>
+                            )}
+                            {step.inProgress && <div className="text-xs text-gray-500">En cours...</div>}
+                          </div>
+                          {step.actionLink && !step.done && (
+                            <Link to={step.actionLink} className="text-xs font-bold text-[#fd521a] hover:underline">{step.actionLabel}</Link>
+                          )}
+                          {step.action && !step.done && (
+                            <button onClick={step.action} className="text-xs font-bold text-[#fd521a] hover:underline">{step.actionLabel}</button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
 
-            <div className="space-y-3">
-              {/* Step 1 - Completed */}
-              <div className="flex items-center gap-4 rounded-xl border border-green-100 bg-green-50 p-4">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-500 text-white">
-                  <Check className="h-4 w-4" />
-                </div>
-                <div className="flex-1">
-                  <div className="text-sm font-bold">Candidature envoyée</div>
-                  <div className="text-xs text-gray-500">Complétée le 31/12/2024</div>
-                </div>
-              </div>
-
-              {/* Step 2 - Completed */}
-              <div className="flex items-center gap-4 rounded-xl border border-green-100 bg-green-50 p-4">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-500 text-white">
-                  <Check className="h-4 w-4" />
-                </div>
-                <div className="flex-1">
-                  <div className="text-sm font-bold">Email vérifié</div>
-                  <div className="text-xs text-gray-500">Complétée le 31/12/2024</div>
-                </div>
-              </div>
-
-              {/* Step 3 - In Progress */}
-              <div className="flex items-center gap-4 rounded-xl border border-amber-100 bg-amber-50 p-4">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-400 text-white">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                </div>
-                <div className="flex-1">
-                  <div className="text-sm font-bold">Vérification des documents</div>
-                  <div className="text-xs text-gray-500">En cours... (24h max)</div>
-                </div>
-              </div>
-
-              {/* Step 4 - Pending */}
-              <div className="flex items-center gap-4 rounded-xl border border-gray-100 bg-gray-50 p-4">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-sm font-bold text-gray-400">
-                  4
-                </div>
-                <div className="flex-1">
-                  <div className="text-sm font-bold text-gray-400">Entretien téléphonique</div>
-                  <div className="text-xs text-gray-400">15 min avec un conseiller</div>
-                </div>
-                <Link to="/reunion" className="text-xs font-bold text-[#fd521a] hover:underline">
-                  Réserver
+              {/* Quick Actions */}
+              <div className="mb-8 grid gap-4 md:grid-cols-3">
+                <Link
+                  to="/reunion"
+                  className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-lg"
+                >
+                  <Calendar className="mb-3 h-6 w-6 text-[#fd521a]" />
+                  <div className="text-sm font-bold">Réserver un appel</div>
+                  <div className="text-xs text-gray-400">Poser vos questions</div>
                 </Link>
+                <button
+                  onClick={() => setActiveTab("documents")}
+                  className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-lg text-left"
+                >
+                  <Upload className="mb-3 h-6 w-6 text-[#fd521a]" />
+                  <div className="text-sm font-bold">Ajouter un document</div>
+                  <div className="text-xs text-gray-400">Carte VTC, permis...</div>
+                </button>
+                <a
+                  href="mailto:contact@driivo.fr"
+                  className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-lg"
+                >
+                  <MessageCircle className="mb-3 h-6 w-6 text-[#fd521a]" />
+                  <div className="text-sm font-bold">Contacter le support</div>
+                  <div className="text-xs text-gray-400">contact@driivo.fr</div>
+                </a>
               </div>
 
-              {/* Step 5 - Pending */}
-              <div className="flex items-center gap-4 rounded-xl border border-gray-100 bg-gray-50 p-4">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-sm font-bold text-gray-400">
-                  5
+              {/* Info Card */}
+              <div className="rounded-2xl border border-[#fd521a]/10 bg-[#fd521a]/5 p-6">
+                <div className="flex items-start gap-4">
+                  <Info className="h-6 w-6 shrink-0 text-[#fd521a]" />
+                  <div>
+                    <div className="mb-1 text-sm font-bold">Prochaine étape</div>
+                    <p className="text-sm text-gray-600">
+                      {application?.status === "APPROVED"
+                        ? "Félicitations ! Votre candidature est approuvée. Nous vous contacterons sous peu pour la signature du contrat."
+                        : application?.status === "REJECTED"
+                        ? "Votre candidature n'a pas été retenue. N'hésitez pas à nous contacter pour plus d'informations."
+                        : "Une fois vos documents validés, vous pourrez réserver un créneau pour un court entretien téléphonique (15 min)."}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <div className="text-sm font-bold text-gray-400">Signature du contrat</div>
-                  <div className="text-xs text-gray-400">Contrat en ligne</div>
+              </div>
+            </>
+          )}
+
+          {/* Documents Tab */}
+          {activeTab === "documents" && (
+            <>
+              <div className="mb-6 flex items-center justify-between">
+                <h2 className="text-lg font-bold">Mes documents</h2>
+                <label className={`flex cursor-pointer items-center gap-2 rounded-lg bg-[#fd521a] px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 ${uploading ? "opacity-50 pointer-events-none" : ""}`}>
+                  <Upload className="h-4 w-4" />
+                  {uploading ? "Envoi..." : "Téléverser"}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    className="hidden"
+                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                    onChange={handleFileUpload}
+                    disabled={uploading}
+                  />
+                </label>
+              </div>
+
+              {files.length === 0 ? (
+                <div className="rounded-2xl border-2 border-dashed border-gray-200 bg-white p-12 text-center">
+                  <Upload className="mx-auto mb-4 h-10 w-10 text-gray-300" />
+                  <p className="mb-1 text-sm font-bold text-gray-400">Aucun document</p>
+                  <p className="text-xs text-gray-400">Téléversez vos documents : carte VTC, permis de conduire, etc.</p>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="mb-8 grid gap-4 md:grid-cols-3">
-            <Link
-              to="/reunion"
-              className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-lg"
-            >
-              <Calendar className="mb-3 h-6 w-6 text-[#fd521a]" />
-              <div className="text-sm font-bold">Réserver un appel</div>
-              <div className="text-xs text-gray-400">Poser vos questions</div>
-            </Link>
-            <a
-              href="#"
-              className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-lg"
-            >
-              <Upload className="mb-3 h-6 w-6 text-[#fd521a]" />
-              <div className="text-sm font-bold">Ajouter un document</div>
-              <div className="text-xs text-gray-400">Carte VTC, permis...</div>
-            </a>
-            <a
-              href="#"
-              className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-lg"
-            >
-              <MessageCircle className="mb-3 h-6 w-6 text-[#fd521a]" />
-              <div className="text-sm font-bold">Contacter le support</div>
-              <div className="text-xs text-gray-400">Réponse sous 2h</div>
-            </a>
-          </div>
-
-          {/* Info Card */}
-          <div className="rounded-2xl border border-[#fd521a]/10 bg-[#fd521a]/5 p-6">
-            <div className="flex items-start gap-4">
-              <Info className="h-6 w-6 shrink-0 text-[#fd521a]" />
-              <div>
-                <div className="mb-1 text-sm font-bold">Prochaine étape</div>
-                <p className="text-sm text-gray-600">
-                  Une fois vos documents validés, vous pourrez réserver un créneau pour un court
-                  entretien téléphonique (15 min). Ce sera l'occasion de valider ensemble les
-                  derniers détails.
-                </p>
-              </div>
-            </div>
-          </div>
+              ) : (
+                <div className="space-y-3">
+                  {files.map((file) => (
+                    <div key={file.id} className="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#fd521a]/10">
+                          <FileText className="h-5 w-5 text-[#fd521a]" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium truncate">{file.originalName}</p>
+                          <p className="text-xs text-gray-400">{formatFileSize(file.size)} · {new Date(file.createdAt).toLocaleDateString("fr-FR")}</p>
+                        </div>
+                      </div>
+                      <button onClick={() => downloadFile(file.key)} className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-[#fd521a]">
+                        <Download className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
         </main>
       </div>
     </div>

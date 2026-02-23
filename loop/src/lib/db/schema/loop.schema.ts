@@ -2,6 +2,13 @@ import { relations } from "drizzle-orm";
 import { index, integer, jsonb, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { user } from "./better-auth.schema";
 
+// File entity type enum
+export const fileEntityTypeEnum = pgEnum("file_entity_type", [
+  "APPLICATION",
+  "DOCUMENT",
+  "OTHER",
+]);
+
 // Lead source enum
 export const leadSourceEnum = pgEnum("lead_source", [
   "SIMULATEUR",
@@ -181,4 +188,28 @@ export const applicationRelations = relations(application, ({ one }) => ({
     references: [user.id],
   }),
 }));
+
+// ============================================
+// STORED FILE (R2/S3 file metadata)
+// ============================================
+
+export const storedFile = pgTable(
+  "StoredFile",
+  {
+    id: text("id").primaryKey(),
+    key: text("key").notNull().unique(), // R2 object key: "applications/{id}/carte_vtc.pdf"
+    originalName: text("originalName").notNull(),
+    mimeType: text("mimeType").notNull(),
+    size: integer("size").notNull(), // bytes
+    entityType: fileEntityTypeEnum("entityType").notNull(),
+    entityId: text("entityId").notNull(), // FK to application.id, etc.
+    uploadedBy: text("uploadedBy"), // userId if authenticated upload, null for public
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (table) => [
+    index("storedFile_entityType_idx").on(table.entityType),
+    index("storedFile_entityId_idx").on(table.entityId),
+    index("storedFile_key_idx").on(table.key),
+  ],
+);
 

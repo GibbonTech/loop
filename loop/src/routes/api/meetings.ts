@@ -3,6 +3,7 @@ import { db } from "~/lib/db";
 import { meetingBooking } from "~/lib/db/schema";
 import { nanoid } from "nanoid";
 import { desc } from "drizzle-orm";
+import { sendMeetingConfirmationEmail } from "~/lib/server/email";
 
 export const Route = createFileRoute("/api/meetings")({
   server: {
@@ -31,8 +32,22 @@ export const Route = createFileRoute("/api/meetings")({
             })
             .returning();
 
+          // Send confirmation email
+          const meeting = newMeeting[0];
+          if (meeting.email) {
+            const dateStr = new Date(scheduledDate).toLocaleDateString("fr-FR", {
+              weekday: "long", day: "numeric", month: "long", year: "numeric",
+            });
+            sendMeetingConfirmationEmail({
+              email: meeting.email,
+              firstName: firstName || "Candidat",
+              date: dateStr,
+              timeSlot: timeSlot,
+            }).catch((e) => console.error("[Email] Meeting confirmation error:", e));
+          }
+
           return new Response(
-            JSON.stringify({ success: true, id: newMeeting[0].id, data: newMeeting[0] }),
+            JSON.stringify({ success: true, id: meeting.id, data: meeting }),
             { headers: { "Content-Type": "application/json" } }
           );
         } catch (error) {

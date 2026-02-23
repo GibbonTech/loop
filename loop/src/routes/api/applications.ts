@@ -5,6 +5,7 @@ import { application } from "~/lib/db/schema";
 import { nanoid } from "nanoid";
 import { eq, desc } from "drizzle-orm";
 import { auth } from "~/lib/auth/auth";
+import { sendApplicationConfirmationEmail, sendApplicationStatusEmail, sendNewApplicationAdminEmail } from "~/lib/server/email";
 
 export const Route = createFileRoute("/api/applications")({
   server: {
@@ -35,7 +36,23 @@ export const Route = createFileRoute("/api/applications")({
             submittedAt: new Date(),
           }).returning();
 
-          return json({ success: true, id: newApplication[0].id });
+          // Send emails (fire-and-forget, don't block the response)
+          const app = newApplication[0];
+          if (app.email && app.firstName) {
+            sendApplicationConfirmationEmail({
+              email: app.email,
+              firstName: app.firstName,
+            }).catch((e) => console.error("[Email] Confirmation error:", e));
+
+            sendNewApplicationAdminEmail({
+              firstName: app.firstName || "",
+              lastName: app.lastName || "",
+              email: app.email,
+              applicationId: app.id,
+            }).catch((e) => console.error("[Email] Admin notification error:", e));
+          }
+
+          return json({ success: true, id: app.id });
         } catch (error) {
           console.error("Error creating application:", error);
           return json({ success: false, error: "Failed to create application" }, { status: 500 });
@@ -76,24 +93,49 @@ export const Route = createFileRoute("/api/applications")({
       },
       PATCH: async ({ request }) => {
         try {
+          const session = await auth.api.getSession({ headers: request.headers });
+          if (!session?.user) {
+            return json({ success: false, error: "Unauthorized" }, { status: 401 });
+          }
+          const userRole = (session.user as { role?: string }).role;
+          if (userRole !== "ADMIN") {
+            return json({ success: false, error: "Admin access required" }, { status: 403 });
+          }
+
           const body = await request.json();
-          const { id, status } = body;
+          const { id, status, notes } = body;
 
           if (!id || !status) {
             return json({ success: false, error: "ID and status required" }, { status: 400 });
           }
 
+          const updateData: Record<string, any> = {
+            status,
+            reviewedAt: new Date(),
+            reviewedBy: session.user.id,
+          };
+          if (notes !== undefined) {
+            updateData.notes = notes;
+          }
+
           const [updated] = await db
             .update(application)
-            .set({
-              status,
-              reviewedAt: new Date(),
-            })
+            .set(updateData)
             .where(eq(application.id, id))
             .returning();
 
           if (!updated) {
             return json({ success: false, error: "Application not found" }, { status: 404 });
+          }
+
+          // Send status notification email
+          if (updated.email && updated.firstName && ["APPROVED", "REJECTED", "UNDER_REVIEW"].includes(status)) {
+            sendApplicationStatusEmail({
+              email: updated.email,
+              firstName: updated.firstName,
+              status: status as "APPROVED" | "REJECTED" | "UNDER_REVIEW",
+              notes: notes || undefined,
+            }).catch((e) => console.error("[Email] Status notification error:", e));
           }
 
           return json({ success: true, data: updated });

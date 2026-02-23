@@ -22,6 +22,7 @@ import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as ApiMeetingsRouteImport } from './routes/api/meetings'
 import { Route as ApiLeadsRouteImport } from './routes/api/leads'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
+import { Route as ApiFilesRouteImport } from './routes/api/files'
 import { Route as ApiApplicationsRouteImport } from './routes/api/applications'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
@@ -92,6 +93,11 @@ const ApiHealthRoute = ApiHealthRouteImport.update({
   path: '/api/health',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiFilesRoute = ApiFilesRouteImport.update({
+  id: '/api/files',
+  path: '/api/files',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiApplicationsRoute = ApiApplicationsRouteImport.update({
   id: '/api/applications',
   path: '/api/applications',
@@ -125,10 +131,11 @@ export interface FileRoutesByFullPath {
   '/simulateur': typeof SimulateurRoute
   '/admin/login': typeof AdminLoginRoute
   '/api/applications': typeof ApiApplicationsRoute
+  '/api/files': typeof ApiFilesRoute
   '/api/health': typeof ApiHealthRoute
   '/api/leads': typeof ApiLeadsRoute
   '/api/meetings': typeof ApiMeetingsRoute
-  '/admin': typeof AdminIndexRoute
+  '/admin/': typeof AdminIndexRoute
   '/admin/applications/$id': typeof AdminApplicationsIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -144,6 +151,7 @@ export interface FileRoutesByTo {
   '/simulateur': typeof SimulateurRoute
   '/admin/login': typeof AdminLoginRoute
   '/api/applications': typeof ApiApplicationsRoute
+  '/api/files': typeof ApiFilesRoute
   '/api/health': typeof ApiHealthRoute
   '/api/leads': typeof ApiLeadsRoute
   '/api/meetings': typeof ApiMeetingsRoute
@@ -164,6 +172,7 @@ export interface FileRoutesById {
   '/simulateur': typeof SimulateurRoute
   '/admin/login': typeof AdminLoginRoute
   '/api/applications': typeof ApiApplicationsRoute
+  '/api/files': typeof ApiFilesRoute
   '/api/health': typeof ApiHealthRoute
   '/api/leads': typeof ApiLeadsRoute
   '/api/meetings': typeof ApiMeetingsRoute
@@ -185,10 +194,11 @@ export interface FileRouteTypes {
     | '/simulateur'
     | '/admin/login'
     | '/api/applications'
+    | '/api/files'
     | '/api/health'
     | '/api/leads'
     | '/api/meetings'
-    | '/admin'
+    | '/admin/'
     | '/admin/applications/$id'
     | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
@@ -204,6 +214,7 @@ export interface FileRouteTypes {
     | '/simulateur'
     | '/admin/login'
     | '/api/applications'
+    | '/api/files'
     | '/api/health'
     | '/api/leads'
     | '/api/meetings'
@@ -223,6 +234,7 @@ export interface FileRouteTypes {
     | '/simulateur'
     | '/admin/login'
     | '/api/applications'
+    | '/api/files'
     | '/api/health'
     | '/api/leads'
     | '/api/meetings'
@@ -243,6 +255,7 @@ export interface RootRouteChildren {
   SimulateurRoute: typeof SimulateurRoute
   AdminLoginRoute: typeof AdminLoginRoute
   ApiApplicationsRoute: typeof ApiApplicationsRoute
+  ApiFilesRoute: typeof ApiFilesRoute
   ApiHealthRoute: typeof ApiHealthRoute
   ApiLeadsRoute: typeof ApiLeadsRoute
   ApiMeetingsRoute: typeof ApiMeetingsRoute
@@ -319,7 +332,7 @@ declare module '@tanstack/react-router' {
     '/admin/': {
       id: '/admin/'
       path: '/admin'
-      fullPath: '/admin'
+      fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -342,6 +355,13 @@ declare module '@tanstack/react-router' {
       path: '/api/health'
       fullPath: '/api/health'
       preLoaderRoute: typeof ApiHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/files': {
+      id: '/api/files'
+      path: '/api/files'
+      fullPath: '/api/files'
+      preLoaderRoute: typeof ApiFilesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/applications': {
@@ -387,6 +407,7 @@ const rootRouteChildren: RootRouteChildren = {
   SimulateurRoute: SimulateurRoute,
   AdminLoginRoute: AdminLoginRoute,
   ApiApplicationsRoute: ApiApplicationsRoute,
+  ApiFilesRoute: ApiFilesRoute,
   ApiHealthRoute: ApiHealthRoute,
   ApiLeadsRoute: ApiLeadsRoute,
   ApiMeetingsRoute: ApiMeetingsRoute,

@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-router";
 import { Toaster } from "sonner";
 import appCss from "~/styles.css?url";
+import { Analytics } from "~/components/analytics";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -35,6 +36,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
     <html lang="fr" suppressHydrationWarning>
       <head>
         <HeadContent />
+        <Analytics />
         <style
           dangerouslySetInnerHTML={{
             __html: `body{background:#f2f2f0;opacity:0;transition:opacity .1s}body.ready{opacity:1}`,

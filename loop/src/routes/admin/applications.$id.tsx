@@ -1,6 +1,6 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, CheckCircle2, XCircle, Eye, Mail, CircleCheck, CircleDashed } from "lucide-react";
+import { ArrowLeft, CheckCircle2, XCircle, Eye, Mail, CircleCheck, CircleDashed, FileText, Download, Trash2 } from "lucide-react";
 import { useSession } from "~/lib/auth/auth-client";
 import { validateSession } from "~/lib/auth/auth-functions";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
@@ -14,6 +14,15 @@ import {
   TableCell,
   TableRow,
 } from "~/components/ui/table";
+
+interface StoredFile {
+  id: string;
+  key: string;
+  originalName: string;
+  mimeType: string;
+  size: number;
+  createdAt: string;
+}
 
 export const Route = createFileRoute("/admin/applications/$id")({
   beforeLoad: async () => {
@@ -96,11 +105,14 @@ function ApplicationDetailPage() {
   const { id } = Route.useParams();
   const { isPending: sessionPending } = useSession();
   const [application, setApplication] = useState<Application | null>(null);
+  const [files, setFiles] = useState<StoredFile[]>([]);
+  const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
     fetchApplication();
+    fetchFiles();
   }, [id]);
 
   const fetchApplication = async () => {
@@ -109,11 +121,44 @@ function ApplicationDetailPage() {
       const data = await response.json();
       if (data.success && data.data) {
         setApplication(data.data);
+        setNotes(data.data.notes || "");
       }
     } catch (error) {
       console.error("Error fetching application:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchFiles = async () => {
+    try {
+      const response = await fetch(`/api/files?entityId=${id}`);
+      const data = await response.json();
+      if (data.success) setFiles(data.data || []);
+    } catch (error) {
+      console.error("Error fetching files:", error);
+    }
+  };
+
+  const downloadFile = async (key: string) => {
+    try {
+      const response = await fetch(`/api/files?key=${encodeURIComponent(key)}`);
+      const data = await response.json();
+      if (data.success && data.url) {
+        window.open(data.url, "_blank");
+      }
+    } catch (error) {
+      console.error("Error downloading file:", error);
+    }
+  };
+
+  const handleDeleteFile = async (fileId: string) => {
+    if (!confirm("Supprimer ce fichier ?")) return;
+    try {
+      await fetch(`/api/files?fileId=${fileId}`, { method: "DELETE" });
+      setFiles((prev) => prev.filter((f) => f.id !== fileId));
+    } catch (error) {
+      console.error("Error deleting file:", error);
     }
   };
 
@@ -123,7 +168,7 @@ function ApplicationDetailPage() {
       await fetch(`/api/applications`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, status: newStatus }),
+        body: JSON.stringify({ id, status: newStatus, notes }),
       });
       setApplication((prev) => (prev ? { ...prev, status: newStatus } : null));
     } catch (error) {
@@ -131,6 +176,24 @@ function ApplicationDetailPage() {
     } finally {
       setUpdating(false);
     }
+  };
+
+  const saveNotes = async () => {
+    try {
+      await fetch(`/api/applications`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status: application?.status || "SUBMITTED", notes }),
+      });
+    } catch (error) {
+      console.error("Error saving notes:", error);
+    }
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} o`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} Ko`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
   };
 
   if (sessionPending || loading) {
@@ -397,6 +460,65 @@ function ApplicationDetailPage() {
             </Card>
           )}
         </div>
+
+        {/* Documents */}
+        <Card className="mt-4">
+          <CardHeader>
+            <CardTitle className="text-sm">Documents</CardTitle>
+            <CardDescription>
+              {files.length > 0
+                ? `${files.length} fichier${files.length > 1 ? "s" : ""} téléversé${files.length > 1 ? "s" : ""}`
+                : "Aucun document téléversé"}
+            </CardDescription>
+          </CardHeader>
+          {files.length > 0 && (
+            <CardContent>
+              <div className="space-y-2">
+                {files.map((file) => (
+                  <div key={file.id} className="flex items-center justify-between rounded-lg border p-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium truncate">{file.originalName}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatFileSize(file.size)} · {new Date(file.createdAt).toLocaleDateString("fr-FR")}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Button variant="ghost" size="icon-sm" onClick={() => downloadFile(file.key)} title="Télécharger">
+                        <Download className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button variant="ghost" size="icon-sm" onClick={() => handleDeleteFile(file.id)} title="Supprimer">
+                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          )}
+        </Card>
+
+        {/* Notes */}
+        <Card className="mt-4">
+          <CardHeader>
+            <CardTitle className="text-sm">Notes internes</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Ajouter des notes sur cette candidature..."
+              className="w-full rounded-md border bg-transparent px-3 py-2 text-sm min-h-[100px] focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+            <div className="mt-2 flex justify-end">
+              <Button size="sm" variant="outline" onClick={saveNotes}>
+                Enregistrer les notes
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
