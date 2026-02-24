@@ -8,10 +8,6 @@ import { auth } from "~/lib/auth/auth";
 import { sendApplicationConfirmationEmail, sendApplicationStatusEmail, sendNewApplicationAdminEmail } from "~/lib/server/email";
 import crypto from "crypto";
 
-function generatePassword(): string {
-  return crypto.randomBytes(4).toString("hex"); // 8-char hex password
-}
-
 export const Route = createFileRoute("/api/applications")({
   server: {
     handlers: {
@@ -44,22 +40,34 @@ export const Route = createFileRoute("/api/applications")({
           const app = newApplication[0];
 
           // Auto-create user account so they can access /espace
-          let tempPassword = "";
+          let accountCreated = false;
           if (app.email) {
-            tempPassword = generatePassword();
+            const tempPw = crypto.randomBytes(16).toString("hex");
             try {
               await auth.api.signUpEmail({
                 body: {
                   email: app.email,
-                  password: tempPassword,
+                  password: tempPw,
                   name: `${app.firstName || ""} ${app.lastName || ""}`.trim(),
                 },
               });
+              accountCreated = true;
               console.log("[Auth] User account created for:", app.email);
+
+              // Trigger password reset so user can set their own password
+              try {
+                await auth.api.requestPasswordReset({
+                  body: {
+                    email: app.email,
+                    redirectTo: "https://app.driivo.fr/set-password",
+                  },
+                });
+                console.log("[Auth] Set-password email triggered for:", app.email);
+              } catch (resetErr: any) {
+                console.error("[Auth] Password reset trigger failed:", resetErr?.message || resetErr);
+              }
             } catch (e: any) {
-              // User might already exist (duplicate application)
               console.warn("[Auth] Could not create user:", e?.message || e);
-              tempPassword = ""; // Don't send password if account wasn't created
             }
           }
 
@@ -68,18 +76,17 @@ export const Route = createFileRoute("/api/applications")({
             sendApplicationConfirmationEmail({
               email: app.email,
               firstName: app.firstName,
-              tempPassword: tempPassword || undefined,
-            }).catch((e) => console.error("[Email] Confirmation error:", e));
+            }).catch((e: any) => console.error("[Email] Confirmation error:", e));
 
             sendNewApplicationAdminEmail({
               firstName: app.firstName || "",
               lastName: app.lastName || "",
               email: app.email,
               applicationId: app.id,
-            }).catch((e) => console.error("[Email] Admin notification error:", e));
+            }).catch((e: any) => console.error("[Email] Admin notification error:", e));
           }
 
-          return json({ success: true, id: app.id, hasAccount: !!tempPassword });
+          return json({ success: true, id: app.id, hasAccount: accountCreated });
         } catch (error) {
           console.error("Error creating application:", error);
           return json({ success: false, error: "Failed to create application" }, { status: 500 });

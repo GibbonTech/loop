@@ -7,6 +7,7 @@ import { compare, hash } from "bcryptjs";
 import { env } from "~/env/server";
 import { db } from "~/lib/db";
 import * as schema from "~/lib/db/schema";
+import { sendSetPasswordEmail } from "~/lib/server/email";
 
 export const auth = betterAuth({
   baseURL: env.VITE_BASE_URL,
@@ -76,6 +77,15 @@ export const auth = betterAuth({
       verify: async ({ hash: hashedPassword, password }) =>
         compare(password, hashedPassword),
     },
+    sendResetPassword: async ({ user, token }) => {
+      const url = `https://app.driivo.fr/set-password?token=${token}`;
+      sendSetPasswordEmail({
+        email: user.email,
+        firstName: user.name?.split(" ")[0] || "Chauffeur",
+        url,
+      }).catch((e) => console.error("[Email] Set password error:", e));
+    },
+    resetPasswordTokenExpiresIn: 60 * 60 * 24 * 7, // 7 days for new accounts
   },
 
   trustedOrigins: [

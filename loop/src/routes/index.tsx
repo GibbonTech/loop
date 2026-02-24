@@ -140,9 +140,30 @@ function LoginPage() {
                 />
               </div>
               <div>
-                <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-gray-700">
-                  Mot de passe
-                </label>
+                <div className="mb-1.5 flex items-center justify-between">
+                  <label htmlFor="password" className="text-sm font-medium text-gray-700">
+                    Mot de passe
+                  </label>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (!email) {
+                        toast.error("Entrez votre email d'abord");
+                        return;
+                      }
+                      try {
+                        const { requestPasswordReset } = await import("~/lib/auth/auth-client");
+                        await requestPasswordReset({ email, redirectTo: "/set-password" });
+                        toast.success("Email de réinitialisation envoyé");
+                      } catch {
+                        toast.error("Erreur, réessayez");
+                      }
+                    }}
+                    className="text-xs text-gray-500 hover:text-gray-900"
+                  >
+                    Mot de passe oublié ?
+                  </button>
+                </div>
                 <input
                   id="password"
                   type="password"
@@ -712,65 +733,46 @@ function LandingPage() {
           </div>
         </section>
 
-        {/* 5 STEPS TO JOIN */}
+        {/* HOW IT WORKS */}
         <section className="py-16">
-          <div className="mb-12 text-center">
-            <div className="mb-3 text-xs font-bold uppercase tracking-widest text-gray-400">
-              Inscription
-            </div>
-            <h2 className="mb-4 text-3xl font-bold">
-              5 étapes pour devenir chauffeur Driivo
-            </h2>
+          <div className="mb-10 text-center">
+            <h2 className="mb-3 text-3xl font-bold">Comment ça marche ?</h2>
+            <p className="text-gray-500">Trois étapes. Rien de plus.</p>
           </div>
 
-          <div className="relative grid gap-4 md:grid-cols-5">
-            {/* Connecting line */}
-            <div className="absolute left-[10%] right-[10%] top-6 hidden h-px bg-gradient-to-r from-[#fd521a]/20 via-gray-200 to-green-400/30 md:block"></div>
-
-            <div className="relative rounded-2xl border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-5 text-center shadow-[0_8px_24px_-8px_rgba(168,162,158,0.12)] backdrop-blur-xl">
-              <div className="relative z-10 mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#fd521a] font-bold text-white shadow-[0_4px_12px_rgba(253,82,26,0.3)]">
-                1
-              </div>
-              <h4 className="mb-1 text-sm font-bold">Candidature</h4>
-              <p className="text-xs text-gray-400">2 minutes en ligne</p>
+          <div className="grid gap-6 md:grid-cols-3">
+            <div className="rounded-[2rem] border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-8 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15),inset_0_1px_0_0_rgba(255,255,255,0.8)] backdrop-blur-3xl">
+              <div className="mb-4 text-4xl font-bold text-[#fd521a]/20">01</div>
+              <h4 className="mb-2 text-base font-bold">Vous postulez</h4>
+              <p className="text-sm leading-relaxed text-gray-500">
+                Formulaire en ligne, 2 minutes. On vous rappelle sous 24h pour
+                un échange rapide.
+              </p>
             </div>
-            <div className="relative rounded-2xl border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-5 text-center shadow-[0_8px_24px_-8px_rgba(168,162,158,0.12)] backdrop-blur-xl">
-              <div className="relative z-10 mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/60 bg-white font-bold text-gray-600 shadow-sm">
-                2
-              </div>
-              <h4 className="mb-1 text-sm font-bold">Vérification</h4>
-              <p className="text-xs text-gray-400">On valide vos docs</p>
+            <div className="rounded-[2rem] border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-8 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15),inset_0_1px_0_0_rgba(255,255,255,0.8)] backdrop-blur-3xl">
+              <div className="mb-4 text-4xl font-bold text-[#fd521a]/20">02</div>
+              <h4 className="mb-2 text-base font-bold">On prépare tout</h4>
+              <p className="text-sm leading-relaxed text-gray-500">
+                Vérification de vos docs, signature du contrat en ligne.
+                On s&apos;occupe de l&apos;admin.
+              </p>
             </div>
-            <div className="relative rounded-2xl border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-5 text-center shadow-[0_8px_24px_-8px_rgba(168,162,158,0.12)] backdrop-blur-xl">
-              <div className="relative z-10 mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/60 bg-white font-bold text-gray-600 shadow-sm">
-                3
-              </div>
-              <h4 className="mb-1 text-sm font-bold">Entretien</h4>
-              <p className="text-xs text-gray-400">Appel de 15 min</p>
-            </div>
-            <div className="relative rounded-2xl border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-5 text-center shadow-[0_8px_24px_-8px_rgba(168,162,158,0.12)] backdrop-blur-xl">
-              <div className="relative z-10 mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/60 bg-white font-bold text-gray-600 shadow-sm">
-                4
-              </div>
-              <h4 className="mb-1 text-sm font-bold">Signature</h4>
-              <p className="text-xs text-gray-400">Contrat en ligne</p>
-            </div>
-            <div className="relative rounded-2xl border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-5 text-center shadow-[0_8px_24px_-8px_rgba(168,162,158,0.12)] backdrop-blur-xl">
-              <div className="relative z-10 mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-500 font-bold text-white shadow-[0_4px_12px_rgba(34,197,94,0.3)]">
-                <Check className="h-5 w-5" />
-              </div>
-              <h4 className="mb-1 text-sm font-bold">C&apos;est parti !</h4>
-              <p className="text-xs text-gray-400">Roulez dès 48h</p>
+            <div className="rounded-[2rem] border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-8 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15),inset_0_1px_0_0_rgba(255,255,255,0.8)] backdrop-blur-3xl">
+              <div className="mb-4 text-4xl font-bold text-green-500/20">03</div>
+              <h4 className="mb-2 text-base font-bold">Vous roulez</h4>
+              <p className="text-sm leading-relaxed text-gray-500">
+                Fiche de paie, chômage, retraite, mutuelle — tout est inclus.
+                Vous gardez vos applis, vos zones, vos horaires.
+              </p>
             </div>
           </div>
 
-          {/* CTA for 5-step section */}
           <div className="mt-10 text-center">
             <a
               href="https://app.driivo.fr/inscription"
               className="inline-flex items-center gap-2 rounded-full bg-[#fd521a] px-8 py-4 text-base font-bold text-white shadow-[0_8px_20px_-4px_rgba(253,82,26,0.3)] transition-all hover:-translate-y-0.5 hover:bg-[#e0410e]"
             >
-              Commencer ma candidature
+              Commencer
               <ArrowRight className="h-5 w-5" />
             </a>
           </div>

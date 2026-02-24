@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SimulateurRouteImport } from './routes/simulateur'
+import { Route as SetPasswordRouteImport } from './routes/set-password'
 import { Route as ReunionRouteImport } from './routes/reunion'
 import { Route as ResultatsRouteImport } from './routes/resultats'
 import { Route as LoginRouteImport } from './routes/login'
@@ -31,6 +32,11 @@ import { Route as AdminApplicationsIdRouteImport } from './routes/admin/applicat
 const SimulateurRoute = SimulateurRouteImport.update({
   id: '/simulateur',
   path: '/simulateur',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SetPasswordRoute = SetPasswordRouteImport.update({
+  id: '/set-password',
+  path: '/set-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReunionRoute = ReunionRouteImport.update({
@@ -128,6 +134,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/resultats': typeof ResultatsRoute
   '/reunion': typeof ReunionRoute
+  '/set-password': typeof SetPasswordRoute
   '/simulateur': typeof SimulateurRoute
   '/admin/login': typeof AdminLoginRoute
   '/api/applications': typeof ApiApplicationsRoute
@@ -148,6 +155,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/resultats': typeof ResultatsRoute
   '/reunion': typeof ReunionRoute
+  '/set-password': typeof SetPasswordRoute
   '/simulateur': typeof SimulateurRoute
   '/admin/login': typeof AdminLoginRoute
   '/api/applications': typeof ApiApplicationsRoute
@@ -169,6 +177,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/resultats': typeof ResultatsRoute
   '/reunion': typeof ReunionRoute
+  '/set-password': typeof SetPasswordRoute
   '/simulateur': typeof SimulateurRoute
   '/admin/login': typeof AdminLoginRoute
   '/api/applications': typeof ApiApplicationsRoute
@@ -191,6 +200,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/resultats'
     | '/reunion'
+    | '/set-password'
     | '/simulateur'
     | '/admin/login'
     | '/api/applications'
@@ -211,6 +221,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/resultats'
     | '/reunion'
+    | '/set-password'
     | '/simulateur'
     | '/admin/login'
     | '/api/applications'
@@ -231,6 +242,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/resultats'
     | '/reunion'
+    | '/set-password'
     | '/simulateur'
     | '/admin/login'
     | '/api/applications'
@@ -252,6 +264,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   ResultatsRoute: typeof ResultatsRoute
   ReunionRoute: typeof ReunionRoute
+  SetPasswordRoute: typeof SetPasswordRoute
   SimulateurRoute: typeof SimulateurRoute
   AdminLoginRoute: typeof AdminLoginRoute
   ApiApplicationsRoute: typeof ApiApplicationsRoute
@@ -271,6 +284,13 @@ declare module '@tanstack/react-router' {
       path: '/simulateur'
       fullPath: '/simulateur'
       preLoaderRoute: typeof SimulateurRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/set-password': {
+      id: '/set-password'
+      path: '/set-password'
+      fullPath: '/set-password'
+      preLoaderRoute: typeof SetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reunion': {
@@ -404,6 +424,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   ResultatsRoute: ResultatsRoute,
   ReunionRoute: ReunionRoute,
+  SetPasswordRoute: SetPasswordRoute,
   SimulateurRoute: SimulateurRoute,
   AdminLoginRoute: AdminLoginRoute,
   ApiApplicationsRoute: ApiApplicationsRoute,

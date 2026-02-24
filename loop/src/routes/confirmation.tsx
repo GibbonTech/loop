@@ -136,32 +136,32 @@ function ConfirmationPage() {
             <div className="mb-6 rounded-2xl border border-blue-100 bg-blue-50/50 p-5 text-left">
               <div className="mb-2 flex items-center gap-2 text-sm font-bold text-blue-900">
                 <LayoutDashboard className="h-4 w-4" />
-                Votre espace est prêt
+                Votre espace personnel
               </div>
               <p className="mb-1 text-xs text-blue-800">
-                Un compte a été créé automatiquement avec votre email. Vos identifiants vous ont été envoyés par email.
+                Un compte a été créé avec votre email. Consultez votre boîte mail pour choisir votre mot de passe et accéder à votre espace.
               </p>
               <p className="text-xs text-blue-600">
-                Connectez-vous pour suivre l&apos;avancement de votre dossier en temps réel.
+                Suivez l&apos;avancement de votre dossier en temps réel.
               </p>
             </div>
 
             {/* CTAs */}
             <div className="space-y-3">
-              <a
-                href="https://app.driivo.fr"
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#fd521a] py-4 text-base font-bold text-white shadow-[0_8px_20px_-4px_rgba(253,82,26,0.3)] transition-all hover:-translate-y-0.5 hover:bg-[#e0410e]"
-              >
-                <LayoutDashboard className="h-5 w-5" />
-                Accéder à mon espace
-              </a>
               <Link
                 to="/reunion"
-                className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/60 bg-white/70 py-4 text-base font-bold shadow-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-[#fd521a] hover:text-[#fd521a]"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#fd521a] py-4 text-base font-bold text-white shadow-[0_8px_20px_-4px_rgba(253,82,26,0.3)] transition-all hover:-translate-y-0.5 hover:bg-[#e0410e]"
               >
                 <Calendar className="h-5 w-5" />
                 Réserver un créneau d&apos;appel
               </Link>
+              <a
+                href="https://app.driivo.fr"
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/60 bg-white/70 py-4 text-base font-bold shadow-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-[#fd521a] hover:text-[#fd521a]"
+              >
+                <LayoutDashboard className="h-5 w-5" />
+                Se connecter
+              </a>
             </div>
           </div>
 
