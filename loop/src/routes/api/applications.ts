@@ -6,6 +6,11 @@ import { nanoid } from "nanoid";
 import { eq, desc } from "drizzle-orm";
 import { auth } from "~/lib/auth/auth";
 import { sendApplicationConfirmationEmail, sendApplicationStatusEmail, sendNewApplicationAdminEmail } from "~/lib/server/email";
+import crypto from "crypto";
+
+function generatePassword(): string {
+  return crypto.randomBytes(4).toString("hex"); // 8-char hex password
+}
 
 export const Route = createFileRoute("/api/applications")({
   server: {
@@ -36,12 +41,34 @@ export const Route = createFileRoute("/api/applications")({
             submittedAt: new Date(),
           }).returning();
 
-          // Send emails (fire-and-forget, don't block the response)
           const app = newApplication[0];
+
+          // Auto-create user account so they can access /espace
+          let tempPassword = "";
+          if (app.email) {
+            tempPassword = generatePassword();
+            try {
+              await auth.api.signUpEmail({
+                body: {
+                  email: app.email,
+                  password: tempPassword,
+                  name: `${app.firstName || ""} ${app.lastName || ""}`.trim(),
+                },
+              });
+              console.log("[Auth] User account created for:", app.email);
+            } catch (e: any) {
+              // User might already exist (duplicate application)
+              console.warn("[Auth] Could not create user:", e?.message || e);
+              tempPassword = ""; // Don't send password if account wasn't created
+            }
+          }
+
+          // Send emails (fire-and-forget, don't block the response)
           if (app.email && app.firstName) {
             sendApplicationConfirmationEmail({
               email: app.email,
               firstName: app.firstName,
+              tempPassword: tempPassword || undefined,
             }).catch((e) => console.error("[Email] Confirmation error:", e));
 
             sendNewApplicationAdminEmail({
@@ -52,7 +79,7 @@ export const Route = createFileRoute("/api/applications")({
             }).catch((e) => console.error("[Email] Admin notification error:", e));
           }
 
-          return json({ success: true, id: app.id });
+          return json({ success: true, id: app.id, hasAccount: !!tempPassword });
         } catch (error) {
           console.error("Error creating application:", error);
           return json({ success: false, error: "Failed to create application" }, { status: 500 });

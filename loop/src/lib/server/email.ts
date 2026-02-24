@@ -57,22 +57,35 @@ function emailTemplate(content: string) {
 export async function sendApplicationConfirmationEmail(data: {
   email: string;
   firstName: string;
+  tempPassword?: string;
 }) {
-  const { email, firstName } = data;
+  const { email, firstName, tempPassword } = data;
+
+  const credentialsBlock = tempPassword
+    ? `
+    <div style="margin: 20px 0; padding: 20px; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px;">
+      <p style="margin: 0 0 8px 0; font-weight: bold; color: #0369a1;">Vos identifiants de connexion</p>
+      <p style="margin: 0; font-size: 14px;"><strong>Email :</strong> ${email}</p>
+      <p style="margin: 4px 0 0 0; font-size: 14px;"><strong>Mot de passe :</strong> <code style="background: #e0f2fe; padding: 2px 6px; border-radius: 4px;">${tempPassword}</code></p>
+      <p style="margin: 8px 0 0 0; font-size: 12px; color: #6b7280;">Conservez ces identifiants pour suivre votre candidature.</p>
+    </div>
+    `
+    : "";
 
   const html = emailTemplate(`
     <p>Bonjour ${firstName},</p>
     <p>Nous avons bien reçu votre candidature pour rejoindre Driivo en tant qu'entrepreneur salarié VTC.</p>
     <p>Notre équipe va examiner votre dossier dans les plus brefs délais. Vous recevrez un email dès qu'une décision sera prise.</p>
+    ${credentialsBlock}
     <p><strong>Prochaines étapes :</strong></p>
     <ul style="margin: 16px 0; padding-left: 20px;">
       <li>Vérification de votre dossier par notre équipe</li>
       <li>Prise de contact pour un entretien téléphonique</li>
       <li>Signature du contrat et démarrage</li>
     </ul>
-    <p>En attendant, vous pouvez suivre l'avancement de votre candidature depuis votre espace :</p>
+    <p>Suivez l'avancement de votre candidature depuis votre espace personnel :</p>
     <p style="margin: 24px 0;">
-      <a href="${APP_URL}/espace" style="display: inline-block; background: ${DRIIVO_PRIMARY}; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none;">Accéder à mon espace</a>
+      <a href="${APP_URL}" style="display: inline-block; background: ${DRIIVO_PRIMARY}; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Accéder à mon espace</a>
     </p>
   `);
 

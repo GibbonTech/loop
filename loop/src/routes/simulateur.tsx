@@ -139,7 +139,7 @@ function SimulateurPage() {
 
         {/* CA Slider Card */}
         <div className="mb-10 rounded-[2.5rem] border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-8 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15),inset_0_1px_0_0_rgba(255,255,255,0.8)] backdrop-blur-3xl md:p-12">
-          <label className="mb-3 block text-[10px] font-bold uppercase tracking-widest text-gray-400">
+          <label className="mb-3 block text-xs font-bold uppercase tracking-widest text-gray-400">
             Votre chiffre d&apos;affaires mensuel (CA HT)
           </label>
           <div className="mb-6 flex items-baseline gap-2">
@@ -166,7 +166,7 @@ function SimulateurPage() {
         {/* 3-Way Comparison Cards */}
         <div className="mb-10 grid gap-6 md:grid-cols-3">
           {/* Auto-entrepreneur Card */}
-          <div className="relative rounded-[2rem] border border-black/5 bg-gradient-to-b from-[#f7f7f5] to-[#f2f2f0] p-6 transition-all duration-300 hover:-translate-y-1">
+          <div className="relative rounded-[2rem] border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-6 shadow-[0_8px_24px_-8px_rgba(168,162,158,0.12)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1">
             <div className="mb-4">
               <h3 className="mb-2 text-lg font-bold">{statusData.autoEntrepreneur.name}</h3>
               <p className="text-xs leading-relaxed text-gray-500">
@@ -175,7 +175,7 @@ function SimulateurPage() {
             </div>
 
             <div className="mb-6">
-              <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+              <div className="text-xs font-bold uppercase tracking-widest text-gray-400">
                 Vous touchez
               </div>
               <div className="text-4xl font-bold tracking-tight text-[#111]">
@@ -208,7 +208,7 @@ function SimulateurPage() {
           <div className="relative rounded-[2rem] border-2 border-[#fd521a] bg-gradient-to-br from-white to-[#fafaf9] p-6 shadow-[0_20px_40px_-12px_rgba(253,82,26,0.15)] transition-all duration-300 hover:-translate-y-1">
             {/* Recommended Badge */}
             <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-              <div className="flex items-center gap-1 rounded-full bg-[#fd521a] px-4 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-lg">
+              <div className="flex items-center gap-1 rounded-full bg-[#fd521a] px-4 py-1 text-xs font-bold uppercase tracking-wider text-white shadow-lg">
                 <Sparkles className="h-3 w-3" />
                 Recommandé
               </div>
@@ -222,7 +222,7 @@ function SimulateurPage() {
             </div>
 
             <div className="mb-6">
-              <div className="text-[10px] font-bold uppercase tracking-widest text-[#fd521a]">
+              <div className="text-xs font-bold uppercase tracking-widest text-[#fd521a]">
                 Vous touchez
               </div>
               <div className="text-4xl font-bold tracking-tight text-green-600">
@@ -230,7 +230,7 @@ function SimulateurPage() {
               </div>
               <div className="text-xs text-gray-400">/mois</div>
               {advantage < 0 && (
-                <div className="mt-1 inline-block rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-bold text-green-700">
+                <div className="mt-1 inline-block rounded-full bg-green-100 px-2 py-0.5 text-xs font-bold text-green-700">
                   +{formatNumber(Math.abs(advantage))} € vs auto-entrepreneur
                 </div>
               )}
@@ -255,7 +255,7 @@ function SimulateurPage() {
           </div>
 
           {/* SASU Card */}
-          <div className="relative rounded-[2rem] border border-black/5 bg-gradient-to-b from-[#f7f7f5] to-[#f2f2f0] p-6 transition-all duration-300 hover:-translate-y-1">
+          <div className="relative rounded-[2rem] border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-6 shadow-[0_8px_24px_-8px_rgba(168,162,158,0.12)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1">
             <div className="mb-4">
               <h3 className="mb-2 text-lg font-bold">{statusData.sasu.name}</h3>
               <p className="text-xs leading-relaxed text-gray-500">
@@ -264,7 +264,7 @@ function SimulateurPage() {
             </div>
 
             <div className="mb-6">
-              <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+              <div className="text-xs font-bold uppercase tracking-widest text-gray-400">
                 Vous touchez
               </div>
               <div className="text-4xl font-bold tracking-tight text-[#111]">
@@ -303,17 +303,17 @@ function SimulateurPage() {
             <div className="rounded-xl bg-green-50 p-4">
               <ShieldCheck className="mx-auto mb-2 h-6 w-6 text-green-600" />
               <div className="text-xs font-bold text-green-700">Chômage</div>
-              <div className="text-[10px] text-green-600">Cotisé</div>
+              <div className="text-xs text-green-600">Cotisé</div>
             </div>
             <div className="rounded-xl bg-blue-50 p-4">
               <Heart className="mx-auto mb-2 h-6 w-6 text-blue-600" />
               <div className="text-xs font-bold text-blue-700">Mutuelle</div>
-              <div className="text-[10px] text-blue-600">Incluse</div>
+              <div className="text-xs text-blue-600">Incluse</div>
             </div>
             <div className="rounded-xl bg-purple-50 p-4">
               <PiggyBank className="mx-auto mb-2 h-6 w-6 text-purple-600" />
               <div className="text-xs font-bold text-purple-700">Retraite</div>
-              <div className="text-[10px] text-purple-600">Cotisée</div>
+              <div className="text-xs text-purple-600">Cotisée</div>
             </div>
           </div>
         </div>
@@ -338,7 +338,7 @@ function SimulateurPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, prenom: e.target.value })
                 }
-                className={`w-full rounded-xl border bg-white/80 px-4 py-3 text-sm transition-all focus:outline-none focus:ring-[3px] ${errors.prenom ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : 'border-black/8 focus:border-[#fd521a] focus:ring-[#fd521a]/10'}`}
+                className={`w-full rounded-xl border bg-white/80 px-4 py-3 text-sm transition-all focus:outline-none focus:ring-[3px] ${errors.prenom ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : 'border-white/60 focus:border-[#fd521a] focus:ring-[#fd521a]/10'}`}
               />
               {errors.prenom && <p className="mt-1 text-xs text-red-500">{errors.prenom}</p>}
             </div>
@@ -353,7 +353,7 @@ function SimulateurPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
-                className={`w-full rounded-xl border bg-white/80 px-4 py-3 text-sm transition-all focus:outline-none focus:ring-[3px] ${errors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : 'border-black/8 focus:border-[#fd521a] focus:ring-[#fd521a]/10'}`}
+                className={`w-full rounded-xl border bg-white/80 px-4 py-3 text-sm transition-all focus:outline-none focus:ring-[3px] ${errors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : 'border-white/60 focus:border-[#fd521a] focus:ring-[#fd521a]/10'}`}
               />
               {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
             </div>
@@ -368,7 +368,7 @@ function SimulateurPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, telephone: e.target.value })
                 }
-                className={`w-full rounded-xl border bg-white/80 px-4 py-3 text-sm transition-all focus:outline-none focus:ring-[3px] ${errors.telephone ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : 'border-black/8 focus:border-[#fd521a] focus:ring-[#fd521a]/10'}`}
+                className={`w-full rounded-xl border bg-white/80 px-4 py-3 text-sm transition-all focus:outline-none focus:ring-[3px] ${errors.telephone ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : 'border-white/60 focus:border-[#fd521a] focus:ring-[#fd521a]/10'}`}
               />
               {errors.telephone && <p className="mt-1 text-xs text-red-500">{errors.telephone}</p>}
             </div>
@@ -380,7 +380,7 @@ function SimulateurPage() {
               {isSubmitting ? "Chargement..." : "Rejoindre Driivo"}
               <ArrowRight className="h-5 w-5" />
             </button>
-            <p className="text-center text-[10px] text-gray-400">
+            <p className="text-center text-xs text-gray-400">
               En continuant, vous acceptez notre politique de confidentialité.
               Nous ne spammons pas.
             </p>

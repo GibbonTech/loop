@@ -221,10 +221,10 @@ function ReunionPage() {
                   className={`rounded-xl border p-3 text-center transition-all ${
                     selectedDay === day.date
                       ? "border-[#fd521a] bg-[#fd521a] text-white"
-                      : "border-gray-200 hover:border-[#fd521a]/50 hover:bg-[#fd521a]/5"
+                      : "border-white/60 bg-white/50 shadow-sm hover:border-[#fd521a]/50 hover:bg-[#fd521a]/5"
                   }`}
                 >
-                  <div className="text-[10px] opacity-70">{day.dayName}</div>
+                  <div className="text-xs opacity-70">{day.dayName}</div>
                   <div className="font-bold">{day.dayNum}</div>
                 </button>
               ))}
@@ -249,7 +249,7 @@ function ReunionPage() {
                           selectedSlot === slot
                             ? "border-[#fd521a] bg-[#fd521a]/10 text-[#fd521a]"
                             : available
-                              ? "border-gray-200 hover:border-[#fd521a] hover:bg-[#fd521a]/5"
+                              ? "border-white/60 bg-white/50 shadow-sm hover:border-[#fd521a] hover:bg-[#fd521a]/5"
                               : "cursor-not-allowed border-gray-100 text-gray-300"
                         }`}
                       >
@@ -263,28 +263,28 @@ function ReunionPage() {
 
             {/* Contact Form */}
             {selectedSlot && (
-              <div className="mb-6 space-y-3 border-t border-gray-200 pt-6">
+              <div className="mb-6 space-y-3 border-t border-white/40 pt-6">
                 <div className="text-xs font-bold text-gray-400">Vos coordonnées</div>
                 <input
                   type="text"
                   placeholder="Votre nom"
                   value={contactInfo.name}
                   onChange={(e) => setContactInfo({ ...contactInfo, name: e.target.value })}
-                  className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm focus:border-[#fd521a] focus:outline-none focus:ring-2 focus:ring-[#fd521a]/10"
+                  className="w-full rounded-xl border border-white/60 bg-white/70 px-4 py-3 text-sm shadow-sm backdrop-blur-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10"
                 />
                 <input
                   type="email"
                   placeholder="Votre email"
                   value={contactInfo.email}
                   onChange={(e) => setContactInfo({ ...contactInfo, email: e.target.value })}
-                  className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm focus:border-[#fd521a] focus:outline-none focus:ring-2 focus:ring-[#fd521a]/10"
+                  className="w-full rounded-xl border border-white/60 bg-white/70 px-4 py-3 text-sm shadow-sm backdrop-blur-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10"
                 />
                 <input
                   type="tel"
                   placeholder="Votre téléphone"
                   value={contactInfo.phone}
                   onChange={(e) => setContactInfo({ ...contactInfo, phone: e.target.value })}
-                  className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm focus:border-[#fd521a] focus:outline-none focus:ring-2 focus:ring-[#fd521a]/10"
+                  className="w-full rounded-xl border border-white/60 bg-white/70 px-4 py-3 text-sm shadow-sm backdrop-blur-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10"
                 />
               </div>
             )}

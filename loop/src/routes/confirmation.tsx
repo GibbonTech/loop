@@ -99,7 +99,7 @@ function ConfirmationPage() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-200 text-xs font-bold text-gray-600">
+                  <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/60 bg-white text-xs font-bold text-gray-600 shadow-sm">
                     2
                   </div>
                   <div>
@@ -110,7 +110,7 @@ function ConfirmationPage() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-200 text-xs font-bold text-gray-600">
+                  <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/60 bg-white text-xs font-bold text-gray-600 shadow-sm">
                     3
                   </div>
                   <div>
@@ -132,22 +132,36 @@ function ConfirmationPage() {
               </div>
             </div>
 
+            {/* Access Info */}
+            <div className="mb-6 rounded-2xl border border-blue-100 bg-blue-50/50 p-5 text-left">
+              <div className="mb-2 flex items-center gap-2 text-sm font-bold text-blue-900">
+                <LayoutDashboard className="h-4 w-4" />
+                Votre espace est prêt
+              </div>
+              <p className="mb-1 text-xs text-blue-800">
+                Un compte a été créé automatiquement avec votre email. Vos identifiants vous ont été envoyés par email.
+              </p>
+              <p className="text-xs text-blue-600">
+                Connectez-vous pour suivre l&apos;avancement de votre dossier en temps réel.
+              </p>
+            </div>
+
             {/* CTAs */}
             <div className="space-y-3">
+              <a
+                href="https://app.driivo.fr"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#fd521a] py-4 text-base font-bold text-white shadow-[0_8px_20px_-4px_rgba(253,82,26,0.3)] transition-all hover:-translate-y-0.5 hover:bg-[#e0410e]"
+              >
+                <LayoutDashboard className="h-5 w-5" />
+                Accéder à mon espace
+              </a>
               <Link
                 to="/reunion"
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#fd521a] py-4 text-base font-bold text-white shadow-[0_8px_20px_-4px_rgba(253,82,26,0.3)] transition-all hover:-translate-y-0.5 hover:bg-[#e0410e]"
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/60 bg-white/70 py-4 text-base font-bold shadow-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-[#fd521a] hover:text-[#fd521a]"
               >
                 <Calendar className="h-5 w-5" />
                 Réserver un créneau d&apos;appel
               </Link>
-              <a
-                href="https://driivo.fr"
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#111] py-4 text-base font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-[#fd521a]"
-              >
-                <LayoutDashboard className="h-5 w-5" />
-                Retour à l&apos;accueil
-              </a>
             </div>
           </div>
 
@@ -166,7 +180,7 @@ function ConfirmationPage() {
                 type="text"
                 value="https://app.driivo.fr/inscription"
                 readOnly
-                className="flex-1 rounded-lg border border-gray-200 bg-gray-100 px-4 py-2 text-xs"
+                className="flex-1 rounded-lg border border-white/60 bg-white/50 px-4 py-2 text-xs shadow-sm"
               />
               <button
                 onClick={copyReferralLink}

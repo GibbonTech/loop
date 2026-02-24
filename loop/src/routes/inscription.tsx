@@ -104,16 +104,16 @@ function InscriptionPage() {
             className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold transition-all ${
               currentStep >= 1
                 ? currentStep > 1
-                  ? "bg-green-500 text-white"
-                  : "bg-[#fd521a] text-white"
-                : "bg-gray-200"
+                  ? "bg-green-500 text-white shadow-[0_4px_12px_rgba(34,197,94,0.3)]"
+                  : "bg-[#fd521a] text-white shadow-[0_4px_12px_rgba(253,82,26,0.3)]"
+                : "border-2 border-white/60 bg-white text-gray-400 shadow-sm"
             }`}
           >
             {currentStep > 1 ? <Check className="h-5 w-5" /> : "1"}
           </div>
-          <div className="h-1 w-12 overflow-hidden rounded-full bg-gray-200">
+          <div className="h-1 w-12 overflow-hidden rounded-full bg-white/60 shadow-inner">
             <div
-              className="h-full bg-[#fd521a] transition-all duration-300"
+              className="h-full bg-[#fd521a] transition-all duration-500"
               style={{ width: currentStep > 1 ? "100%" : "0%" }}
             ></div>
           </div>
@@ -121,22 +121,22 @@ function InscriptionPage() {
             className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold transition-all ${
               currentStep >= 2
                 ? currentStep > 2
-                  ? "bg-green-500 text-white"
-                  : "bg-[#fd521a] text-white"
-                : "bg-gray-200"
+                  ? "bg-green-500 text-white shadow-[0_4px_12px_rgba(34,197,94,0.3)]"
+                  : "bg-[#fd521a] text-white shadow-[0_4px_12px_rgba(253,82,26,0.3)]"
+                : "border-2 border-white/60 bg-white text-gray-400 shadow-sm"
             }`}
           >
             {currentStep > 2 ? <Check className="h-5 w-5" /> : "2"}
           </div>
-          <div className="h-1 w-12 overflow-hidden rounded-full bg-gray-200">
+          <div className="h-1 w-12 overflow-hidden rounded-full bg-white/60 shadow-inner">
             <div
-              className="h-full bg-[#fd521a] transition-all duration-300"
+              className="h-full bg-[#fd521a] transition-all duration-500"
               style={{ width: currentStep > 2 ? "100%" : "0%" }}
             ></div>
           </div>
           <div
             className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold transition-all ${
-              currentStep >= 3 ? "bg-[#fd521a] text-white" : "bg-gray-200"
+              currentStep >= 3 ? "bg-[#fd521a] text-white shadow-[0_4px_12px_rgba(253,82,26,0.3)]" : "border-2 border-white/60 bg-white text-gray-400 shadow-sm"
             }`}
           >
             3
@@ -171,7 +171,7 @@ function InscriptionPage() {
                         placeholder="Jean"
                         value={formData.prenom}
                         onChange={(e) => updateField("prenom", e.target.value)}
-                        className="w-full rounded-xl border border-black/8 bg-white/90 px-4 py-3 text-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10"
+                        className="w-full rounded-xl border border-white/60 bg-white/70 px-4 py-3 text-sm shadow-sm backdrop-blur-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10"
                       />
                     </div>
                     <div>
@@ -184,7 +184,7 @@ function InscriptionPage() {
                         placeholder="Dupont"
                         value={formData.nom}
                         onChange={(e) => updateField("nom", e.target.value)}
-                        className="w-full rounded-xl border border-black/8 bg-white/90 px-4 py-3 text-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10"
+                        className="w-full rounded-xl border border-white/60 bg-white/70 px-4 py-3 text-sm shadow-sm backdrop-blur-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10"
                       />
                     </div>
                   </div>
@@ -198,7 +198,7 @@ function InscriptionPage() {
                       placeholder="jean@example.com"
                       value={formData.email}
                       onChange={(e) => updateField("email", e.target.value)}
-                      className="w-full rounded-xl border border-black/8 bg-white/90 px-4 py-3 text-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10"
+                      className="w-full rounded-xl border border-white/60 bg-white/70 px-4 py-3 text-sm shadow-sm backdrop-blur-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10"
                     />
                   </div>
                   <div>
@@ -211,7 +211,7 @@ function InscriptionPage() {
                       placeholder="06 12 34 56 78"
                       value={formData.telephone}
                       onChange={(e) => updateField("telephone", e.target.value)}
-                      className="w-full rounded-xl border border-black/8 bg-white/90 px-4 py-3 text-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10"
+                      className="w-full rounded-xl border border-white/60 bg-white/70 px-4 py-3 text-sm shadow-sm backdrop-blur-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10"
                     />
                   </div>
                   <div>
@@ -224,7 +224,7 @@ function InscriptionPage() {
                       placeholder="Paris"
                       value={formData.ville}
                       onChange={(e) => updateField("ville", e.target.value)}
-                      className="w-full rounded-xl border border-black/8 bg-white/90 px-4 py-3 text-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10"
+                      className="w-full rounded-xl border border-white/60 bg-white/70 px-4 py-3 text-sm shadow-sm backdrop-blur-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10"
                     />
                   </div>
                 </div>
@@ -263,7 +263,7 @@ function InscriptionPage() {
                         className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-sm transition-all hover:border-[#fd521a] ${
                           formData.carteVtc === "oui"
                             ? "border-[#fd521a] bg-[#fd521a]/5"
-                            : "border-black/8 bg-white/90"
+                            : "border-white/60 bg-white/70 shadow-sm"
                         }`}
                       >
                         <input
@@ -280,7 +280,7 @@ function InscriptionPage() {
                         className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-sm transition-all hover:border-[#fd521a] ${
                           formData.carteVtc === "non"
                             ? "border-[#fd521a] bg-[#fd521a]/5"
-                            : "border-black/8 bg-white/90"
+                            : "border-white/60 bg-white/70 shadow-sm"
                         }`}
                       >
                         <input
@@ -304,9 +304,9 @@ function InscriptionPage() {
                       placeholder="VTC-XXXXXXXX"
                       value={formData.numeroCarteVtc}
                       onChange={(e) => updateField("numeroCarteVtc", e.target.value)}
-                      className="w-full rounded-xl border border-black/8 bg-white/90 px-4 py-3 text-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10"
+                      className="w-full rounded-xl border border-white/60 bg-white/70 px-4 py-3 text-sm shadow-sm backdrop-blur-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10"
                     />
-                    <p className="mt-1 text-[10px] text-gray-400">
+                    <p className="mt-1 text-xs text-gray-400">
                       Optionnel pour le moment
                     </p>
                   </div>
@@ -318,7 +318,7 @@ function InscriptionPage() {
                       required
                       value={formData.experience}
                       onChange={(e) => updateField("experience", e.target.value)}
-                      className="w-full rounded-xl border border-black/8 bg-white/90 px-4 py-3 text-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10"
+                      className="w-full rounded-xl border border-white/60 bg-white/70 px-4 py-3 text-sm shadow-sm backdrop-blur-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10"
                     >
                       <option value="">Sélectionnez...</option>
                       <option value="moins_1an">Moins d&apos;1 an</option>
@@ -333,7 +333,7 @@ function InscriptionPage() {
                   <button
                     type="button"
                     onClick={() => prevStep(1)}
-                    className="flex-1 rounded-xl border border-gray-200 bg-white py-4 text-base font-bold transition-colors hover:bg-gray-50"
+                    className="flex-1 rounded-xl border border-white/60 bg-white/70 py-4 text-base font-bold shadow-sm backdrop-blur-sm transition-all hover:bg-white/90"
                   >
                     Retour
                   </button>
@@ -372,7 +372,7 @@ function InscriptionPage() {
                         className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-sm transition-all hover:border-[#fd521a] ${
                           formData.vehicule === "oui"
                             ? "border-[#fd521a] bg-[#fd521a]/5"
-                            : "border-black/8 bg-white/90"
+                            : "border-white/60 bg-white/70 shadow-sm"
                         }`}
                       >
                         <input
@@ -389,7 +389,7 @@ function InscriptionPage() {
                         className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-sm transition-all hover:border-[#fd521a] ${
                           formData.vehicule === "besoin"
                             ? "border-[#fd521a] bg-[#fd521a]/5"
-                            : "border-black/8 bg-white/90"
+                            : "border-white/60 bg-white/70 shadow-sm"
                         }`}
                       >
                         <input
@@ -413,7 +413,7 @@ function InscriptionPage() {
                       placeholder="Ex: Tesla Model 3"
                       value={formData.vehiculeModele}
                       onChange={(e) => updateField("vehiculeModele", e.target.value)}
-                      className="w-full rounded-xl border border-black/8 bg-white/90 px-4 py-3 text-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10"
+                      className="w-full rounded-xl border border-white/60 bg-white/70 px-4 py-3 text-sm shadow-sm backdrop-blur-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10"
                     />
                   </div>
                   <div>
@@ -427,7 +427,7 @@ function InscriptionPage() {
                           className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-all hover:border-[#fd521a] ${
                             formData.plateformes.includes(platform)
                               ? "border-[#fd521a] bg-[#fd521a]/5"
-                              : "border-black/8 bg-white/90"
+                              : "border-white/60 bg-white/70 shadow-sm"
                           }`}
                         >
                           <input
@@ -448,7 +448,7 @@ function InscriptionPage() {
                     <select
                       value={formData.caMensuel}
                       onChange={(e) => updateField("caMensuel", e.target.value)}
-                      className="w-full rounded-xl border border-black/8 bg-white/90 px-4 py-3 text-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10"
+                      className="w-full rounded-xl border border-white/60 bg-white/70 px-4 py-3 text-sm shadow-sm backdrop-blur-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10"
                     >
                       <option value="">Sélectionnez...</option>
                       <option value="moins_3000">Moins de 3 000 €</option>
@@ -464,7 +464,7 @@ function InscriptionPage() {
                   <button
                     type="button"
                     onClick={() => prevStep(2)}
-                    className="flex-1 rounded-xl border border-gray-200 bg-white py-4 text-base font-bold transition-colors hover:bg-gray-50"
+                    className="flex-1 rounded-xl border border-white/60 bg-white/70 py-4 text-base font-bold shadow-sm backdrop-blur-sm transition-all hover:bg-white/90"
                   >
                     Retour
                   </button>

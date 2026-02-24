@@ -294,19 +294,19 @@ function LandingPage() {
           <div className="grid grid-cols-3 gap-8 border-t border-gray-200/50 pt-10 md:gap-16">
             <div className="flex flex-col items-center gap-2">
               <span className="text-3xl font-bold text-[#111] md:text-4xl">500+</span>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+              <span className="text-xs font-bold uppercase tracking-widest text-gray-400">
                 Chauffeurs actifs
               </span>
             </div>
             <div className="flex flex-col items-center gap-2">
               <span className="text-3xl font-bold text-[#fd521a] md:text-4xl">+500€</span>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+              <span className="text-xs font-bold uppercase tracking-widest text-gray-400">
                 Gain moyen / mois
               </span>
             </div>
             <div className="flex flex-col items-center gap-2">
               <span className="text-3xl font-bold text-[#111] md:text-4xl">10%</span>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+              <span className="text-xs font-bold uppercase tracking-widest text-gray-400">
                 Frais seulement
               </span>
             </div>
@@ -351,7 +351,7 @@ function LandingPage() {
               <div className="rounded-2xl bg-gray-100 p-4 text-center">
                 <div className="text-xs font-bold uppercase tracking-wider text-gray-500">Cotisations payées</div>
                 <div className="text-2xl font-bold text-gray-600">{formatNumber(cotisations)} €</div>
-                <div className="text-[10px] text-gray-400">Chômage, retraite, mutuelle inclus</div>
+                <div className="text-xs text-gray-400">Chômage, retraite, mutuelle inclus</div>
               </div>
             </div>
 
@@ -377,7 +377,7 @@ function LandingPage() {
         {/* THE PROBLEM SECTION */}
         <section id="probleme" className="mb-10 py-16">
           <div className="mb-12 text-center">
-            <div className="mb-3 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+            <div className="mb-3 text-xs font-bold uppercase tracking-widest text-gray-400">
               Le constat
             </div>
             <h2 className="mb-4 text-3xl font-bold md:text-4xl">
@@ -391,7 +391,7 @@ function LandingPage() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-3">
-            <div className="rounded-[2rem] border border-black/5 bg-gradient-to-b from-[#f7f7f5] to-[#f2f2f0] p-8">
+            <div className="group rounded-[2rem] border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-8 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15),inset_0_1px_0_0_rgba(255,255,255,0.8)] backdrop-blur-3xl transition-all duration-300 hover:-translate-y-1 hover:bg-white/85">
               <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-red-500">
                 <ShieldOff className="h-6 w-6" />
               </div>
@@ -402,7 +402,7 @@ function LandingPage() {
               </p>
             </div>
 
-            <div className="rounded-[2rem] border border-black/5 bg-gradient-to-b from-[#f7f7f5] to-[#f2f2f0] p-8">
+            <div className="group rounded-[2rem] border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-8 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15),inset_0_1px_0_0_rgba(255,255,255,0.8)] backdrop-blur-3xl transition-all duration-300 hover:-translate-y-1 hover:bg-white/85">
               <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-500">
                 <FileX2 className="h-6 w-6" />
               </div>
@@ -413,7 +413,7 @@ function LandingPage() {
               </p>
             </div>
 
-            <div className="rounded-[2rem] border border-black/5 bg-gradient-to-b from-[#f7f7f5] to-[#f2f2f0] p-8">
+            <div className="group rounded-[2rem] border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-8 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15),inset_0_1px_0_0_rgba(255,255,255,0.8)] backdrop-blur-3xl transition-all duration-300 hover:-translate-y-1 hover:bg-white/85">
               <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100 text-gray-500">
                 <Ban className="h-6 w-6" />
               </div>
@@ -435,7 +435,7 @@ function LandingPage() {
         {/* THE SOLUTION SECTION */}
         <section id="solution" className="mb-10 py-16">
           <div className="mb-16 text-center">
-            <div className="mb-3 text-[10px] font-bold uppercase tracking-widest text-[#fd521a]">
+            <div className="mb-3 text-xs font-bold uppercase tracking-widest text-[#fd521a]">
               La solution
             </div>
             <h2 className="mb-4 text-3xl font-bold md:text-4xl">
@@ -499,7 +499,7 @@ function LandingPage() {
           <div className="grid gap-6 md:grid-cols-12">
             <div className="flex min-h-[300px] flex-col justify-between rounded-[2.5rem] border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-10 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15),inset_0_1px_0_0_rgba(255,255,255,0.8)] backdrop-blur-3xl md:col-span-7">
               <div>
-                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gray-100 bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gray-100 bg-white px-3 py-1 text-xs font-bold uppercase tracking-wider text-gray-400">
                   <Unlock className="h-3 w-3" /> Liberté Totale
                 </div>
                 <h3 className="mb-4 text-3xl font-bold">
@@ -527,7 +527,7 @@ function LandingPage() {
             </div>
 
             <div className="rounded-[2.5rem] border border-white/50 bg-white/40 p-10 shadow-[0_20px_40px_-12px_rgba(168,162,158,0.15)] backdrop-blur-3xl md:col-span-5">
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gray-100 bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gray-100 bg-white px-3 py-1 text-xs font-bold uppercase tracking-wider text-gray-400">
                 <ShieldCheck className="h-3 w-3" /> Sécurité Totale
               </div>
               <h3 className="mb-4 text-2xl font-bold">
@@ -569,7 +569,7 @@ function LandingPage() {
 
               <div className="relative z-10 flex flex-col items-end justify-between gap-8 md:flex-row md:items-center">
                 <div className="max-w-md">
-                  <div className="mb-4 inline-block rounded-full bg-[#fd521a]/5 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#fd521a]">
+                  <div className="mb-4 inline-block rounded-full bg-[#fd521a]/5 px-3 py-1 text-xs font-bold uppercase tracking-widest text-[#fd521a]">
                     Le Pacte Driivo
                   </div>
                   <h3 className="mb-2 text-3xl font-bold">90% pour vous.</h3>
@@ -597,7 +597,7 @@ function LandingPage() {
                     <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200">
                       <div className="h-full w-[10%] rounded-r-full bg-[#fd521a]"></div>
                     </div>
-                    <p className="mt-2 text-right text-[10px] text-gray-400">
+                    <p className="mt-2 text-right text-xs text-gray-400">
                       *Contre 15-20% chez les concurrents
                     </p>
                   </div>
@@ -610,7 +610,7 @@ function LandingPage() {
         {/* TESTIMONIALS */}
         <section className="py-16">
           <div className="mb-12 text-center">
-            <div className="mb-3 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+            <div className="mb-3 text-xs font-bold uppercase tracking-widest text-gray-400">
               Ils nous font confiance
             </div>
             <h2 className="mb-4 text-3xl font-bold">
@@ -699,7 +699,7 @@ function LandingPage() {
           </div>
 
           <div className="mt-16 text-center">
-            <p className="mb-6 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+            <p className="mb-6 text-xs font-bold uppercase tracking-widest text-gray-400">
               Compatible avec toutes vos applis préférées
             </p>
             <div className="flex flex-wrap items-center justify-center gap-8 opacity-50">
@@ -715,7 +715,7 @@ function LandingPage() {
         {/* 5 STEPS TO JOIN */}
         <section className="py-16">
           <div className="mb-12 text-center">
-            <div className="mb-3 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+            <div className="mb-3 text-xs font-bold uppercase tracking-widest text-gray-400">
               Inscription
             </div>
             <h2 className="mb-4 text-3xl font-bold">
@@ -723,37 +723,40 @@ function LandingPage() {
             </h2>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-5">
-            <div className="p-4 text-center">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#fd521a] font-bold text-white">
+          <div className="relative grid gap-4 md:grid-cols-5">
+            {/* Connecting line */}
+            <div className="absolute left-[10%] right-[10%] top-6 hidden h-px bg-gradient-to-r from-[#fd521a]/20 via-gray-200 to-green-400/30 md:block"></div>
+
+            <div className="relative rounded-2xl border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-5 text-center shadow-[0_8px_24px_-8px_rgba(168,162,158,0.12)] backdrop-blur-xl">
+              <div className="relative z-10 mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#fd521a] font-bold text-white shadow-[0_4px_12px_rgba(253,82,26,0.3)]">
                 1
               </div>
               <h4 className="mb-1 text-sm font-bold">Candidature</h4>
               <p className="text-xs text-gray-400">2 minutes en ligne</p>
             </div>
-            <div className="p-4 text-center">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-200 font-bold text-gray-600">
+            <div className="relative rounded-2xl border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-5 text-center shadow-[0_8px_24px_-8px_rgba(168,162,158,0.12)] backdrop-blur-xl">
+              <div className="relative z-10 mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/60 bg-white font-bold text-gray-600 shadow-sm">
                 2
               </div>
               <h4 className="mb-1 text-sm font-bold">Vérification</h4>
               <p className="text-xs text-gray-400">On valide vos docs</p>
             </div>
-            <div className="p-4 text-center">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-200 font-bold text-gray-600">
+            <div className="relative rounded-2xl border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-5 text-center shadow-[0_8px_24px_-8px_rgba(168,162,158,0.12)] backdrop-blur-xl">
+              <div className="relative z-10 mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/60 bg-white font-bold text-gray-600 shadow-sm">
                 3
               </div>
               <h4 className="mb-1 text-sm font-bold">Entretien</h4>
               <p className="text-xs text-gray-400">Appel de 15 min</p>
             </div>
-            <div className="p-4 text-center">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-200 font-bold text-gray-600">
+            <div className="relative rounded-2xl border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-5 text-center shadow-[0_8px_24px_-8px_rgba(168,162,158,0.12)] backdrop-blur-xl">
+              <div className="relative z-10 mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/60 bg-white font-bold text-gray-600 shadow-sm">
                 4
               </div>
               <h4 className="mb-1 text-sm font-bold">Signature</h4>
               <p className="text-xs text-gray-400">Contrat en ligne</p>
             </div>
-            <div className="p-4 text-center">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-500 font-bold text-white">
+            <div className="relative rounded-2xl border border-white/50 bg-gradient-to-br from-white/70 to-[#fafaf9]/50 p-5 text-center shadow-[0_8px_24px_-8px_rgba(168,162,158,0.12)] backdrop-blur-xl">
+              <div className="relative z-10 mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-500 font-bold text-white shadow-[0_4px_12px_rgba(34,197,94,0.3)]">
                 <Check className="h-5 w-5" />
               </div>
               <h4 className="mb-1 text-sm font-bold">C&apos;est parti !</h4>
@@ -776,7 +779,7 @@ function LandingPage() {
         {/* FAQ */}
         <section id="faq" className="mx-auto max-w-2xl py-20">
           <div className="mb-12 text-center">
-            <div className="mb-3 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+            <div className="mb-3 text-xs font-bold uppercase tracking-widest text-gray-400">
               FAQ
             </div>
             <h2 className="mb-4 text-3xl font-bold">
