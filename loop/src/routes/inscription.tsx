@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { User, FileText, Car, ArrowRight, Check, Lock } from "lucide-react";
+import { toast } from "sonner";
 import { PageLayout } from "~/components/layout";
 
 export const Route = createFileRoute("/inscription")({
@@ -45,6 +46,26 @@ function InscriptionPage() {
   };
 
   const nextStep = (step: number) => {
+    if (currentStep === 1) {
+      if (!formData.prenom.trim() || !formData.nom.trim() || !formData.email.trim() || !formData.telephone.trim() || !formData.ville.trim()) {
+        toast.error("Veuillez remplir tous les champs obligatoires");
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+        toast.error("Veuillez entrer un email valide");
+        return;
+      }
+    }
+    if (currentStep === 2) {
+      if (!formData.carteVtc) {
+        toast.error("Veuillez indiquer si vous avez une carte VTC");
+        return;
+      }
+      if (!formData.experience) {
+        toast.error("Veuillez sélectionner votre expérience");
+        return;
+      }
+    }
     setCurrentStep(step);
   };
 
@@ -54,6 +75,14 @@ function InscriptionPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.vehicule) {
+      toast.error("Veuillez indiquer si vous avez un véhicule");
+      return;
+    }
+    if (formData.plateformes.length === 0) {
+      toast.error("Veuillez sélectionner au moins une plateforme");
+      return;
+    }
     setIsSubmitting(true);
 
     try {
@@ -72,15 +101,21 @@ function InscriptionPage() {
         monthlyRevenue: formData.caMensuel,
       };
       
-      await fetch("/api/applications", {
+      const res = await fetch("/api/applications", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(apiData),
       });
+      const result = await res.json();
+      if (!res.ok || !result.success) {
+        toast.error(result.error || "Erreur lors de l'envoi. Réessayez.");
+        return;
+      }
       // Use window.location for clean navigation to avoid hydration issues
       window.location.href = "/confirmation";
     } catch (error) {
       console.error("Error submitting application:", error);
+      toast.error("Erreur de connexion. Vérifiez votre réseau et réessayez.");
     } finally {
       setIsSubmitting(false);
     }

@@ -91,7 +91,7 @@ function ReunionPage() {
 
     setIsSubmitting(true);
     try {
-      await fetch("/api/meetings", {
+      const res = await fetch("/api/meetings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -102,6 +102,11 @@ function ReunionPage() {
           phone: contactInfo.phone,
         }),
       });
+      const result = await res.json();
+      if (!res.ok || !result.success) {
+        toast.error(result.error || "Erreur lors de la réservation");
+        return;
+      }
       toast.success("Créneau réservé ! Vous recevrez un email de confirmation.");
       // Redirect to espace after short delay
       setTimeout(() => {
