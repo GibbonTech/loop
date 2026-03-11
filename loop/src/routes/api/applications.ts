@@ -103,16 +103,20 @@ export const Route = createFileRoute("/api/applications")({
           const url = new URL(request.url);
           const id = url.searchParams.get("id");
 
+          const userRole = (session.user as { role?: string }).role;
+
           if (id) {
             // Get single application by ID
             const [app] = await db.select().from(application).where(eq(application.id, id));
             if (!app) {
               return json({ success: false, error: "Application not found" }, { status: 404 });
             }
+            // Non-admin users can only view their own applications
+            if (userRole !== "ADMIN" && app.email !== session.user.email) {
+              return json({ success: false, error: "Unauthorized" }, { status: 403 });
+            }
             return json({ success: true, data: app });
           }
-
-          const userRole = (session.user as { role?: string }).role;
 
           // Regular users: return only their own applications (by email)
           if (userRole !== "ADMIN") {
