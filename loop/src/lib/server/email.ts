@@ -19,9 +19,8 @@ function getResendClient(): Resend | null {
 }
 
 const APP_URL = "https://app.driivo.fr";
-// Use Resend sandbox until driivo.fr domain is verified in Resend
-// Change to "Driivo <noreply@driivo.fr>" once domain is added
-const FROM_EMAIL = "Driivo <onboarding@resend.dev>";
+// Using verified siratscolaire.fr domain on Resend
+const FROM_EMAIL = "Driivo <noreply@siratscolaire.fr>";
 const DRIIVO_PRIMARY = "#f97316"; // orange-500
 
 /**

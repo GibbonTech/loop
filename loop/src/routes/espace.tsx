@@ -181,10 +181,13 @@ function EspacePage() {
 
   const statusInfo = application ? getStatusInfo(application.status) : getStatusInfo("SUBMITTED");
   const StatusIcon = statusInfo.icon;
-  const userName = application?.firstName || "Candidat";
+  const sessionName = session?.user?.name || "";
+  const userName = application?.firstName || sessionName.split(" ")[0] || "Candidat";
   const userInitials = application
     ? `${application.firstName?.[0] || ""}${application.lastName?.[0] || ""}`.toUpperCase()
-    : "??";
+    : sessionName
+      ? sessionName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)
+      : "D";
 
   if (isPending || loading) {
     return (

@@ -156,7 +156,7 @@ function ConfirmationPage() {
                 Réserver un créneau d&apos;appel
               </Link>
               <a
-                href="https://app.driivo.fr"
+                href="https://app.driivo.fr/login"
                 className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/60 bg-white/70 py-4 text-base font-bold shadow-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-[#fd521a] hover:text-[#fd521a]"
               >
                 <LayoutDashboard className="h-5 w-5" />

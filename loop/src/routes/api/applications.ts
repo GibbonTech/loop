@@ -112,12 +112,18 @@ export const Route = createFileRoute("/api/applications")({
             return json({ success: true, data: app });
           }
 
-          // Get all applications (admin only)
           const userRole = (session.user as { role?: string }).role;
+
+          // Regular users: return only their own applications (by email)
           if (userRole !== "ADMIN") {
-            return json({ success: false, error: "Admin access required" }, { status: 403 });
+            const userEmail = session.user.email;
+            const userApps = await db.select().from(application)
+              .where(eq(application.email, userEmail))
+              .orderBy(desc(application.createdAt));
+            return json({ success: true, data: userApps });
           }
 
+          // Admin: return all applications
           const applications = await db.select().from(application).orderBy(desc(application.createdAt));
           return json({ success: true, data: applications });
         } catch (error) {
