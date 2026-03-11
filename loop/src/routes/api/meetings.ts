@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { db } from "~/lib/db";
 import { meetingBooking } from "~/lib/db/schema";
 import { nanoid } from "nanoid";
-import { desc } from "drizzle-orm";
+import { desc, and, gte, lte, eq } from "drizzle-orm";
 import { sendMeetingConfirmationEmail } from "~/lib/server/email";
 
 export const Route = createFileRoute("/api/meetings")({
@@ -58,8 +58,52 @@ export const Route = createFileRoute("/api/meetings")({
           );
         }
       },
-      GET: async () => {
+      GET: async ({ request }) => {
         try {
+          const url = new URL(request.url);
+          const mode = url.searchParams.get("mode");
+
+          // Availability check mode: returns booked slots for date range
+          if (mode === "availability") {
+            const startDate = url.searchParams.get("start");
+            const endDate = url.searchParams.get("end");
+            
+            if (!startDate || !endDate) {
+              return new Response(
+                JSON.stringify({ success: false, error: "start and end dates required" }),
+                { status: 400, headers: { "Content-Type": "application/json" } }
+              );
+            }
+
+            const bookedSlots = await db
+              .select({
+                date: meetingBooking.scheduledDate,
+                timeSlot: meetingBooking.timeSlot,
+              })
+              .from(meetingBooking)
+              .where(
+                and(
+                  gte(meetingBooking.scheduledDate, new Date(startDate)),
+                  lte(meetingBooking.scheduledDate, new Date(endDate)),
+                  eq(meetingBooking.status, "SCHEDULED")
+                )
+              );
+
+            // Format as map: "2026-03-15" -> ["10:00", "14:00"]
+            const bookedMap: Record<string, string[]> = {};
+            for (const slot of bookedSlots) {
+              const dateKey = slot.date.toISOString().split("T")[0];
+              if (!bookedMap[dateKey]) bookedMap[dateKey] = [];
+              bookedMap[dateKey].push(slot.timeSlot);
+            }
+
+            return new Response(
+              JSON.stringify({ success: true, data: bookedMap }),
+              { headers: { "Content-Type": "application/json" } }
+            );
+          }
+
+          // Default: return all meetings
           const meetings = await db
             .select()
             .from(meetingBooking)

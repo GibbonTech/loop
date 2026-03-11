@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { MessageCircle, Calculator, Rocket, ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { toast } from "sonner";
 import { PageLayout } from "~/components/layout";
@@ -21,6 +21,8 @@ function ReunionPage() {
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [currentWeekOffset, setCurrentWeekOffset] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [bookedSlots, setBookedSlots] = useState<Record<string, string[]>>({});
+  const [loadingAvailability, setLoadingAvailability] = useState(false);
   const [contactInfo, setContactInfo] = useState({
     name: "",
     email: "",
@@ -30,21 +32,33 @@ function ReunionPage() {
   const slots = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00"];
   const dayNames = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
 
-  // Deterministic slot availability based on day and slot
-  const getSlotAvailability = useMemo(() => {
-    const availabilityMap: Record<string, boolean[]> = {};
-    return (dayDate: string) => {
-      if (!availabilityMap[dayDate]) {
-        // Use day of month as seed for deterministic "randomness"
-        const dayNum = new Date(dayDate).getDate();
-        availabilityMap[dayDate] = slots.map((_, idx) => {
-          // Simple deterministic pattern: most slots available, some blocked
-          return !((dayNum + idx) % 4 === 0);
-        });
+  // Fetch real availability from database
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      setLoadingAvailability(true);
+      try {
+        const today = new Date();
+        today.setDate(today.getDate() + currentWeekOffset * 7);
+        const start = today.toISOString().split("T")[0];
+        
+        const endDate = new Date(today);
+        endDate.setDate(endDate.getDate() + 14);
+        const end = endDate.toISOString().split("T")[0];
+
+        const res = await fetch(`/api/meetings?mode=availability&start=${start}&end=${end}`);
+        const result = await res.json();
+        if (result.success) {
+          setBookedSlots(result.data || {});
+        }
+      } catch (error) {
+        console.error("Error fetching availability:", error);
+      } finally {
+        setLoadingAvailability(false);
       }
-      return availabilityMap[dayDate];
     };
-  }, []);
+    
+    fetchAvailability();
+  }, [currentWeekOffset]);
 
   const getDays = () => {
     const today = new Date();
@@ -242,20 +256,21 @@ function ReunionPage() {
               </div>
               {selectedDay && (
                 <div className="grid grid-cols-3 gap-2">
-                  {slots.map((slot, idx) => {
-                    const availability = getSlotAvailability(selectedDay);
-                    const available = availability[idx];
+                  {slots.map((slot) => {
+                    const dateKey = new Date(selectedDay).toISOString().split("T")[0];
+                    const isBooked = bookedSlots[dateKey]?.includes(slot) || false;
+                    const available = !isBooked;
                     return (
                       <button
                         key={slot}
-                        disabled={!available}
+                        disabled={!available || loadingAvailability}
                         onClick={() => setSelectedSlot(slot)}
                         className={`rounded-lg border px-3 py-2 text-sm font-medium transition-all ${
                           selectedSlot === slot
                             ? "border-[#fd521a] bg-[#fd521a]/10 text-[#fd521a]"
                             : available
                               ? "border-white/60 bg-white/50 shadow-sm hover:border-[#fd521a] hover:bg-[#fd521a]/5"
-                              : "cursor-not-allowed border-gray-100 text-gray-300"
+                              : "cursor-not-allowed border-gray-100 bg-gray-50 text-gray-300 line-through"
                         }`}
                       >
                         {slot}

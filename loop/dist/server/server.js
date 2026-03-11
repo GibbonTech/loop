@@ -434,7 +434,7 @@ function getResponse() {
   return event.res;
 }
 async function getStartManifest(matchedRoutes) {
-  const { tsrStartManifest } = await import("./assets/_tanstack-start-manifest_v-DfP8eudO.js");
+  const { tsrStartManifest } = await import("./assets/_tanstack-start-manifest_v-DpAn80GH.js");
   const startManifest = tsrStartManifest();
   const rootRoute = startManifest.routes[rootRouteId] = startManifest.routes[rootRouteId] || {};
   rootRoute.assets = rootRoute.assets || [];
@@ -588,12 +588,12 @@ function createMultiplexedStream(jsonStream, rawStreams) {
     }
   });
 }
-const manifest = { "b376f5fa3d7b6b87de1ff7143c22358bfd52fc336fbf8420e982dcaad8823581": {
-  functionName: "getHostname_createServerFn_handler",
-  importer: () => import("./assets/hostname-E4_UHZrr.js")
-}, "15a7f7d6c3c17da34059ae7dc6b0529c155ec79984bfe90c7e561bc4cf82d905": {
+const manifest = { "15a7f7d6c3c17da34059ae7dc6b0529c155ec79984bfe90c7e561bc4cf82d905": {
   functionName: "validateSession_createServerFn_handler",
   importer: () => import("./assets/auth-functions-BqfuNWBk.js")
+}, "b376f5fa3d7b6b87de1ff7143c22358bfd52fc336fbf8420e982dcaad8823581": {
+  functionName: "getHostname_createServerFn_handler",
+  importer: () => import("./assets/hostname-E4_UHZrr.js")
 } };
 async function getServerFnById(id) {
   const serverFnInfo = manifest[id];
@@ -1010,7 +1010,7 @@ let entriesPromise;
 let baseManifestPromise;
 let cachedFinalManifestPromise;
 async function loadEntries() {
-  const routerEntry = await import("./assets/router-D2uns15o.js").then((n) => n.r);
+  const routerEntry = await import("./assets/router-B9ajuz3y.js").then((n) => n.r);
   const startEntry = await import("./assets/start-HYkvq4Ni.js");
   return { startEntry, routerEntry };
 }
