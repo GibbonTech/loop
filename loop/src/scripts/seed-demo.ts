@@ -419,6 +419,52 @@ async function seedDemo() {
         updatedAt: now,
       });
 
+      const operationFiles = [
+        {
+          id: `demo-file-${profileId}-contract`,
+          key: `demo/${profileId}/contrat-a-signer.pdf`,
+          originalName: "contrat-a-signer.pdf",
+        },
+        ...(active
+          ? [
+              {
+                id: `demo-file-${profileId}-signed-contract`,
+                key: `demo/${profileId}/contrat-signe.pdf`,
+                originalName: "contrat-signe.pdf",
+              },
+              {
+                id: `demo-file-${profileId}-invoice`,
+                key: `demo/${profileId}/facture-${period}.pdf`,
+                originalName: `facture-${period}.pdf`,
+              },
+              {
+                id: `demo-file-${profileId}-payslip`,
+                key: `demo/${profileId}/bulletin-${period}.pdf`,
+                originalName: `bulletin-${period}.pdf`,
+              },
+            ]
+          : []),
+      ];
+
+      for (const file of operationFiles) {
+        await db.insert(storedFile).values({
+          id: file.id,
+          key: file.key,
+          originalName: file.originalName,
+          mimeType: "application/pdf",
+          size: 228000,
+          entityType: "DOCUMENT",
+          entityId: profileId,
+          uploadedBy: client.userId,
+          documentCategory: "OTHER",
+          reviewStatus: "APPROVED",
+          reviewNotes: null,
+          reviewedAt: now,
+          reviewedBy: null,
+          createdAt: now,
+        });
+      }
+
       await db.insert(contractRecord).values({
         id: `demo-contract-${client.userId}`,
         driverProfileId: profileId,
@@ -535,52 +581,6 @@ async function seedDemo() {
           paidAt: now,
           createdAt: now,
           updatedAt: now,
-        });
-      }
-
-      const operationFiles = [
-        {
-          id: `demo-file-${profileId}-contract`,
-          key: `demo/${profileId}/contrat-a-signer.pdf`,
-          originalName: "contrat-a-signer.pdf",
-        },
-        ...(active
-          ? [
-              {
-                id: `demo-file-${profileId}-signed-contract`,
-                key: `demo/${profileId}/contrat-signe.pdf`,
-                originalName: "contrat-signe.pdf",
-              },
-              {
-                id: `demo-file-${profileId}-invoice`,
-                key: `demo/${profileId}/facture-${period}.pdf`,
-                originalName: `facture-${period}.pdf`,
-              },
-              {
-                id: `demo-file-${profileId}-payslip`,
-                key: `demo/${profileId}/bulletin-${period}.pdf`,
-                originalName: `bulletin-${period}.pdf`,
-              },
-            ]
-          : []),
-      ];
-
-      for (const file of operationFiles) {
-        await db.insert(storedFile).values({
-          id: file.id,
-          key: file.key,
-          originalName: file.originalName,
-          mimeType: "application/pdf",
-          size: 228000,
-          entityType: "DOCUMENT",
-          entityId: profileId,
-          uploadedBy: client.userId,
-          documentCategory: "OTHER",
-          reviewStatus: "APPROVED",
-          reviewNotes: null,
-          reviewedAt: now,
-          reviewedBy: null,
-          createdAt: now,
         });
       }
 
