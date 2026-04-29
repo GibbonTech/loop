@@ -2,6 +2,7 @@ import { createHash, timingSafeEqual } from "node:crypto";
 import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
 import { env } from "~/env/server";
+import { requireAdmin } from "~/lib/server/api-guards";
 import { seed } from "~/scripts/seed";
 import { seedDemo } from "~/scripts/seed-demo";
 
@@ -31,31 +32,46 @@ export const Route = createFileRoute("/api/demo-seed")({
           new URL(request.url).searchParams.get("token");
 
         if (!validSeedToken(providedToken)) {
-          return json({ success: false, error: "Not found" }, { status: 404 });
+          const adminContext = await requireAdmin(request);
+          if (adminContext instanceof Response) {
+            return json({ success: false, error: "Not found" }, { status: 404 });
+          }
         }
 
-        process.env.ALLOW_DEMO_SEED = "true";
-        process.env.DEMO_USER_PASSWORD ||= "demo-password-123";
-        process.env.ADMIN_EMAIL ||= "demo.admin@driivo.fr";
-        process.env.ADMIN_NAME ||= "Demo Admin Driivo";
-        process.env.ADMIN_PASSWORD ||= "DriivoDemo-2026!";
+        try {
+          process.env.ALLOW_DEMO_SEED = "true";
+          process.env.DEMO_USER_PASSWORD ||= "demo-password-123";
+          process.env.ADMIN_EMAIL ||= "demo.admin@driivo.fr";
+          process.env.ADMIN_NAME ||= "Demo Admin Driivo";
+          process.env.ADMIN_PASSWORD ||= "DriivoDemo-2026!";
 
-        await seedDemo();
-        await seed();
+          await seedDemo();
+          await seed();
 
-        return json({
-          success: true,
-          seededAt: new Date().toISOString(),
-          demoUsers: [
-            "amine.benkacem@example.com",
-            "sarah.meunier@example.com",
-            "karim.ouedraogo@example.com",
-            "nora.belhadj@example.com",
-            "mehdi.aouad@example.com",
-            "camille.rossi@example.com",
-          ],
-          adminEmail: process.env.ADMIN_EMAIL,
-        });
+          return json({
+            success: true,
+            seededAt: new Date().toISOString(),
+            demoUsers: [
+              "amine.benkacem@example.com",
+              "sarah.meunier@example.com",
+              "karim.ouedraogo@example.com",
+              "nora.belhadj@example.com",
+              "mehdi.aouad@example.com",
+              "camille.rossi@example.com",
+            ],
+            adminEmail: process.env.ADMIN_EMAIL,
+          });
+        } catch (error) {
+          console.error("[Demo seed] error:", error);
+          return json(
+            {
+              success: false,
+              error:
+                error instanceof Error ? error.message : "Failed to seed demo",
+            },
+            { status: 500 },
+          );
+        }
       },
     },
   },
