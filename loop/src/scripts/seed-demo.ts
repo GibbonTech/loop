@@ -244,9 +244,6 @@ export async function seedDemo() {
 
   console.log("Resetting existing demo records...");
   await db
-    .delete(storedFile)
-    .where(inArray(storedFile.entityId, [...appIds, ...profileIds]));
-  await db
     .delete(timelineEvent)
     .where(inArray(timelineEvent.driverProfileId, profileIds));
   await db
@@ -268,6 +265,9 @@ export async function seedDemo() {
   await db
     .delete(contractRecord)
     .where(inArray(contractRecord.driverProfileId, profileIds));
+  await db
+    .delete(storedFile)
+    .where(inArray(storedFile.entityId, [...appIds, ...profileIds]));
   await db.delete(driverProfile).where(inArray(driverProfile.id, profileIds));
   await db
     .delete(meetingBooking)
