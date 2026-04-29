@@ -20,6 +20,7 @@ import { Route as ConfirmationRouteImport } from './routes/confirmation'
 import { Route as SplatRouteImport } from './routes/$'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as ApiOperationsRouteImport } from './routes/api/operations'
 import { Route as ApiMeetingsRouteImport } from './routes/api/meetings'
 import { Route as ApiLeadsRouteImport } from './routes/api/leads'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
@@ -83,6 +84,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiOperationsRoute = ApiOperationsRouteImport.update({
+  id: '/api/operations',
+  path: '/api/operations',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiMeetingsRoute = ApiMeetingsRouteImport.update({
@@ -149,6 +155,7 @@ export interface FileRoutesByFullPath {
   '/api/health': typeof ApiHealthRoute
   '/api/leads': typeof ApiLeadsRoute
   '/api/meetings': typeof ApiMeetingsRoute
+  '/api/operations': typeof ApiOperationsRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/applications/$id': typeof AdminApplicationsIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -171,6 +178,7 @@ export interface FileRoutesByTo {
   '/api/health': typeof ApiHealthRoute
   '/api/leads': typeof ApiLeadsRoute
   '/api/meetings': typeof ApiMeetingsRoute
+  '/api/operations': typeof ApiOperationsRoute
   '/admin': typeof AdminIndexRoute
   '/admin/applications/$id': typeof AdminApplicationsIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -194,6 +202,7 @@ export interface FileRoutesById {
   '/api/health': typeof ApiHealthRoute
   '/api/leads': typeof ApiLeadsRoute
   '/api/meetings': typeof ApiMeetingsRoute
+  '/api/operations': typeof ApiOperationsRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/applications/$id': typeof AdminApplicationsIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -218,6 +227,7 @@ export interface FileRouteTypes {
     | '/api/health'
     | '/api/leads'
     | '/api/meetings'
+    | '/api/operations'
     | '/admin/'
     | '/admin/applications/$id'
     | '/api/auth/$'
@@ -240,6 +250,7 @@ export interface FileRouteTypes {
     | '/api/health'
     | '/api/leads'
     | '/api/meetings'
+    | '/api/operations'
     | '/admin'
     | '/admin/applications/$id'
     | '/api/auth/$'
@@ -262,6 +273,7 @@ export interface FileRouteTypes {
     | '/api/health'
     | '/api/leads'
     | '/api/meetings'
+    | '/api/operations'
     | '/admin/'
     | '/admin/applications/$id'
     | '/api/auth/$'
@@ -285,6 +297,7 @@ export interface RootRouteChildren {
   ApiHealthRoute: typeof ApiHealthRoute
   ApiLeadsRoute: typeof ApiLeadsRoute
   ApiMeetingsRoute: typeof ApiMeetingsRoute
+  ApiOperationsRoute: typeof ApiOperationsRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminApplicationsIdRoute: typeof AdminApplicationsIdRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -367,6 +380,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/operations': {
+      id: '/api/operations'
+      path: '/api/operations'
+      fullPath: '/api/operations'
+      preLoaderRoute: typeof ApiOperationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/meetings': {
@@ -453,6 +473,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiHealthRoute: ApiHealthRoute,
   ApiLeadsRoute: ApiLeadsRoute,
   ApiMeetingsRoute: ApiMeetingsRoute,
+  ApiOperationsRoute: ApiOperationsRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminApplicationsIdRoute: AdminApplicationsIdRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,

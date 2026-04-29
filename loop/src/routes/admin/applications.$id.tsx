@@ -1,5 +1,5 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -48,6 +48,74 @@ interface StoredFile {
   reviewStatus: string;
   reviewNotes?: string | null;
 }
+
+interface OperationsBundle {
+  profile: {
+    id: string;
+    status: string;
+    startDate?: string | null;
+    notes?: string | null;
+  };
+  contract: {
+    id: string;
+    status: string;
+    providerLabel: string;
+    unsignedFileId?: string | null;
+    signedFileId?: string | null;
+  } | null;
+  onboardingTasks: Array<{
+    id: string;
+    taskKey: string;
+    label: string;
+    status: string;
+  }>;
+  monthlyActivities: Array<{
+    id: string;
+    period: string;
+    status: string;
+    declaredRevenue: number;
+  }>;
+  invoices: Array<{
+    id: string;
+    invoiceNumber: string;
+    recipient: string;
+    amountTTC: number;
+    status: string;
+  }>;
+  payments: Array<{
+    id: string;
+    invoiceId: string;
+    amount: number;
+    status: string;
+  }>;
+  expenses: Array<{
+    id: string;
+    category: string;
+    amount: number;
+    description?: string | null;
+    status: string;
+    reviewNotes?: string | null;
+  }>;
+  payrollSummaries: Array<{
+    id: string;
+    period: string;
+    grossSalary: number;
+    netSalary: number;
+    payoutAmount: number;
+    status: string;
+    payslipFileId?: string | null;
+  }>;
+  timeline: Array<{
+    id: string;
+    title: string;
+    description?: string | null;
+    createdAt: string;
+  }>;
+  filesById: Record<string, StoredFile>;
+}
+
+const formatEuro = (value?: number | null) =>
+  `${Math.round(value || 0).toLocaleString("fr-FR")} €`;
 
 export const Route = createFileRoute("/admin/applications/$id")({
   beforeLoad: async () => {
@@ -141,13 +209,17 @@ function ApplicationDetailPage() {
   const { isPending: sessionPending } = useSession();
   const [application, setApplication] = useState<Application | null>(null);
   const [files, setFiles] = useState<StoredFile[]>([]);
+  const [operations, setOperations] = useState<OperationsBundle | null>(null);
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const operationFileInputRef = useRef<HTMLInputElement>(null);
+  const pendingUploadPurposeRef = useRef<"contract" | "signedContract" | "payslip" | "invoice">("contract");
 
   useEffect(() => {
     fetchApplication();
     fetchFiles();
+    fetchOperations();
   }, [id]);
 
   const fetchApplication = async () => {
@@ -173,6 +245,49 @@ function ApplicationDetailPage() {
     } catch (error) {
       console.error("Error fetching files:", error);
     }
+  };
+
+  const fetchOperations = async () => {
+    try {
+      const response = await fetch(`/api/operations?applicationId=${id}`);
+      const data = await response.json();
+      if (data.success) setOperations(data.data || null);
+    } catch (error) {
+      console.error("Error fetching operations:", error);
+    }
+  };
+
+  const runOperation = async (payload: Record<string, unknown>) => {
+    setUpdating(true);
+    try {
+      const response = await fetch("/api/operations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          applicationId: id,
+          profileId: operations?.profile?.id,
+          ...payload,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        toast.error(data.error || "Opération impossible");
+        return false;
+      }
+      setOperations(data.data || null);
+      toast.success("Opération mise à jour");
+      return true;
+    } catch (error) {
+      console.error("Operation error:", error);
+      toast.error("Opération impossible");
+      return false;
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const activateClientProfile = async () => {
+    await runOperation({ action: "activateProfile", applicationId: id });
   };
 
   const downloadFile = async (key: string) => {
@@ -339,6 +454,145 @@ function ApplicationDetailPage() {
       console.error("Error saving notes:", error);
       toast.error("Enregistrement impossible");
     }
+  };
+
+  const uploadOperationFile = async (file: File) => {
+    if (!operations?.profile) return;
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("entityType", "DOCUMENT");
+    formData.append("entityId", operations.profile.id);
+    formData.append("documentCategory", "OTHER");
+
+    const response = await fetch("/api/files", {
+      method: "POST",
+      body: formData,
+    });
+    const data = await response.json();
+    if (!response.ok || !data.success) {
+      toast.error(data.error || "Téléversement impossible");
+      return;
+    }
+
+    if (pendingUploadPurposeRef.current === "contract") {
+      await runOperation({
+        action: "updateContract",
+        status: "SENT",
+        unsignedFileId: data.file.id,
+      });
+    }
+    if (pendingUploadPurposeRef.current === "signedContract") {
+      await runOperation({
+        action: "updateContract",
+        status: "SIGNED",
+        signedFileId: data.file.id,
+      });
+    }
+    if (pendingUploadPurposeRef.current === "payslip") {
+      const period =
+        window.prompt("Période du bulletin (YYYY-MM)", new Date().toISOString().slice(0, 7)) ||
+        "";
+      if (!period) return;
+      await runOperation({
+        action: "upsertPayroll",
+        period,
+        status: "READY",
+        payslipFileId: data.file.id,
+      });
+    }
+    if (pendingUploadPurposeRef.current === "invoice") {
+      const invoiceNumber =
+        window.prompt("Numéro de facture", `DRIIVO-${Date.now().toString().slice(-6)}`) ||
+        "";
+      if (!invoiceNumber) return;
+      await runOperation({
+        action: "upsertInvoice",
+        invoiceNumber,
+        status: "SENT",
+        fileId: data.file.id,
+      });
+    }
+  };
+
+  const startOperationUpload = (
+    purpose: "contract" | "signedContract" | "payslip" | "invoice",
+  ) => {
+    pendingUploadPurposeRef.current = purpose;
+    operationFileInputRef.current?.click();
+  };
+
+  const handleOperationFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    await uploadOperationFile(file);
+    event.target.value = "";
+  };
+
+  const promptMonthlyActivity = async () => {
+    const period =
+      window.prompt("Période à ouvrir/mettre à jour (YYYY-MM)", new Date().toISOString().slice(0, 7)) ||
+      "";
+    if (!period) return;
+    const declaredRevenue = window.prompt("CA déclaré (€)", "6500") || "0";
+    await runOperation({
+      action: "upsertMonthlyActivity",
+      period,
+      declaredRevenue,
+      status: "VALIDATED",
+      platformBreakdown: { Uber: declaredRevenue },
+      notes: "Montant validé manuellement par l'équipe Driivo.",
+    });
+  };
+
+  const promptInvoice = async () => {
+    if (!operations?.profile) return;
+    const periodActivity = operations.monthlyActivities[0];
+    const amount = window.prompt("Montant facture TTC (€)", "6500") || "0";
+    const invoiceNumber =
+      window.prompt("Numéro de facture", `DRIIVO-${Date.now().toString().slice(-6)}`) ||
+      "";
+    if (!invoiceNumber) return;
+    await runOperation({
+      action: "upsertInvoice",
+      monthlyActivityId: periodActivity?.id,
+      invoiceNumber,
+      recipient: "Plateformes VTC",
+      amountHT: amount,
+      amountTTC: amount,
+      status: "SENT",
+    });
+  };
+
+  const promptPayment = async (invoiceId: string, amount: number) => {
+    const received = window.prompt("Montant reçu (€)", String(amount)) || "0";
+    await runOperation({
+      action: "upsertPayment",
+      invoiceId,
+      amount: received,
+      status: "RECEIVED",
+      reference: "Virement manuel",
+    });
+  };
+
+  const promptPayroll = async () => {
+    const period =
+      window.prompt("Période de paie (YYYY-MM)", new Date().toISOString().slice(0, 7)) ||
+      "";
+    if (!period) return;
+    const netSalary = window.prompt("Salaire net (€)", "3900") || "0";
+    const payoutAmount = window.prompt("Versement chauffeur (€)", netSalary) || "0";
+    await runOperation({
+      action: "upsertPayroll",
+      period,
+      netSalary,
+      payoutAmount,
+      grossSalary: window.prompt("Brut indicatif (€)", "5200") || "0",
+      managementFee: window.prompt("Frais Driivo (€)", "650") || "0",
+      socialContributions: window.prompt("Cotisations (€)", "950") || "0",
+      status: "READY",
+    });
   };
 
   const formatFileSize = (bytes: number) => {
@@ -520,6 +774,14 @@ function ApplicationDetailPage() {
       </header>
 
       <div className="mx-auto max-w-6xl px-6 py-8">
+        <input
+          ref={operationFileInputRef}
+          type="file"
+          className="hidden"
+          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+          onChange={handleOperationFileChange}
+        />
+
         {/* Profile + Actions */}
         <Card className="mb-6">
           <CardHeader>
@@ -658,6 +920,228 @@ function ApplicationDetailPage() {
                 </div>
               ))}
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Manual operations */}
+        <Card className="mb-6">
+          <CardHeader>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <CardTitle className="text-sm">
+                  Opérations client manuelles
+                </CardTitle>
+                <CardDescription className="mt-1">
+                  Contrat, activité, factures, paiements, frais et bulletins
+                  suivis par l'équipe et le comptable.
+                </CardDescription>
+              </div>
+              {!operations?.profile ? (
+                <Button
+                  size="sm"
+                  onClick={activateClientProfile}
+                  disabled={updating || application.status !== "APPROVED"}
+                >
+                  Activer le client
+                </Button>
+              ) : (
+                <Badge variant="outline">{operations.profile.status}</Badge>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            {!operations?.profile ? (
+              <div className="rounded-lg border border-dashed p-5 text-sm text-muted-foreground">
+                Approuvez la candidature puis activez le dossier client pour
+                afficher le suivi opérationnel dans l'espace utilisateur.
+              </div>
+            ) : (
+              <div className="space-y-5">
+                <div className="grid gap-3 md:grid-cols-4">
+                  <div className="rounded-lg border p-3">
+                    <div className="text-xs text-muted-foreground">Contrat</div>
+                    <div className="mt-1 text-lg font-semibold">
+                      {operations.contract?.status || "DRAFT"}
+                    </div>
+                  </div>
+                  <div className="rounded-lg border p-3">
+                    <div className="text-xs text-muted-foreground">Activités</div>
+                    <div className="mt-1 text-lg font-semibold">
+                      {operations.monthlyActivities.length}
+                    </div>
+                  </div>
+                  <div className="rounded-lg border p-3">
+                    <div className="text-xs text-muted-foreground">Factures</div>
+                    <div className="mt-1 text-lg font-semibold">
+                      {operations.invoices.length}
+                    </div>
+                  </div>
+                  <div className="rounded-lg border p-3">
+                    <div className="text-xs text-muted-foreground">Dernier payout</div>
+                    <div className="mt-1 text-lg font-semibold">
+                      {formatEuro(operations.payrollSummaries[0]?.payoutAmount)}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => startOperationUpload("contract")}
+                    disabled={updating}
+                  >
+                    <FileText className="h-3.5 w-3.5" />
+                    Upload contrat
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => startOperationUpload("signedContract")}
+                    disabled={updating}
+                  >
+                    <FileText className="h-3.5 w-3.5" />
+                    Upload signé
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={promptMonthlyActivity}
+                    disabled={updating}
+                  >
+                    Ouvrir/valider mois
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={promptInvoice}
+                    disabled={updating}
+                  >
+                    Créer facture
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => startOperationUpload("invoice")}
+                    disabled={updating}
+                  >
+                    Upload facture
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={promptPayroll}
+                    disabled={updating}
+                  >
+                    Synthèse paie
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => startOperationUpload("payslip")}
+                    disabled={updating}
+                  >
+                    Upload bulletin
+                  </Button>
+                  <Button size="sm" variant="outline" asChild>
+                    <a
+                      href={`/api/operations?export=accounting&period=${new Date().toISOString().slice(0, 7)}`}
+                    >
+                      Export compta CSV
+                    </a>
+                  </Button>
+                </div>
+
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <AdminOpsList
+                    title="Checklist onboarding"
+                    empty="Aucune tâche"
+                    rows={operations.onboardingTasks.map((task) => ({
+                      id: task.id,
+                      main: task.label,
+                      meta: task.status,
+                      action:
+                        task.status !== "DONE"
+                          ? () =>
+                              runOperation({
+                                action: "updateTask",
+                                taskId: task.id,
+                                status: "DONE",
+                              })
+                          : undefined,
+                    }))}
+                  />
+                  <AdminOpsList
+                    title="Activité mensuelle"
+                    empty="Aucun mois ouvert"
+                    rows={operations.monthlyActivities.map((activity) => ({
+                      id: activity.id,
+                      main: activity.period,
+                      meta: `${formatEuro(activity.declaredRevenue)} · ${activity.status}`,
+                    }))}
+                  />
+                  <AdminOpsList
+                    title="Factures et paiements"
+                    empty="Aucune facture"
+                    rows={operations.invoices.map((invoice) => ({
+                      id: invoice.id,
+                      main: invoice.invoiceNumber,
+                      meta: `${invoice.recipient} · ${formatEuro(invoice.amountTTC)} · ${invoice.status}`,
+                      action:
+                        invoice.status !== "PAID"
+                          ? () => promptPayment(invoice.id, invoice.amountTTC)
+                          : undefined,
+                    }))}
+                  />
+                  <AdminOpsList
+                    title="Frais"
+                    empty="Aucun frais"
+                    rows={operations.expenses.map((expense) => ({
+                      id: expense.id,
+                      main: expense.category,
+                      meta: `${formatEuro(expense.amount)} · ${expense.status}${
+                        expense.reviewNotes ? ` · ${expense.reviewNotes}` : ""
+                      }`,
+                      action:
+                        expense.status === "SUBMITTED"
+                          ? () =>
+                              runOperation({
+                                action: "reviewExpense",
+                                expenseId: expense.id,
+                                status: "APPROVED",
+                              })
+                          : undefined,
+                    }))}
+                  />
+                  <AdminOpsList
+                    title="Paie / bulletins"
+                    empty="Aucune synthèse"
+                    rows={operations.payrollSummaries.map((payroll) => {
+                      const payslip =
+                        payroll.payslipFileId &&
+                        operations.filesById[payroll.payslipFileId];
+                      return {
+                        id: payroll.id,
+                        main: payroll.period,
+                        meta: `${formatEuro(payroll.payoutAmount)} · ${payroll.status}`,
+                        action: payslip ? () => downloadFile(payslip.key) : undefined,
+                      };
+                    })}
+                  />
+                  <AdminOpsList
+                    title="Timeline"
+                    empty="Aucun événement"
+                    rows={operations.timeline.slice(0, 6).map((event) => ({
+                      id: event.id,
+                      main: event.title,
+                      meta: `${new Date(event.createdAt).toLocaleDateString("fr-FR")}${
+                        event.description ? ` · ${event.description}` : ""
+                      }`,
+                    }))}
+                  />
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -914,6 +1398,51 @@ function ApplicationDetailPage() {
             </div>
           </CardContent>
         </Card>
+      </div>
+    </div>
+  );
+}
+
+function AdminOpsList({
+  title,
+  empty,
+  rows,
+}: {
+  title: string;
+  empty: string;
+  rows: Array<{
+    id: string;
+    main: string;
+    meta: string;
+    action?: () => void | Promise<void | boolean>;
+  }>;
+}) {
+  return (
+    <div className="rounded-lg border">
+      <div className="border-b px-4 py-3">
+        <div className="text-sm font-medium">{title}</div>
+      </div>
+      <div className="divide-y">
+        {rows.map((row) => (
+          <div key={row.id} className="flex items-center gap-3 px-4 py-3">
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-sm font-medium">{row.main}</div>
+              <div className="truncate text-xs text-muted-foreground">
+                {row.meta}
+              </div>
+            </div>
+            {row.action && (
+              <Button variant="outline" size="xs" onClick={() => row.action?.()}>
+                Action
+              </Button>
+            )}
+          </div>
+        ))}
+        {rows.length === 0 && (
+          <div className="px-4 py-6 text-sm text-muted-foreground">
+            {empty}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -5,9 +5,18 @@ import { db } from "../lib/db";
 import {
   account,
   application,
+  contractRecord,
+  driverProfile,
+  expenseRecord,
+  invoiceRecord,
   lead,
   meetingBooking,
+  monthlyActivity,
+  onboardingTask,
+  paymentRecord,
+  payrollSummary,
   storedFile,
+  timelineEvent,
   user,
 } from "../lib/db/schema";
 import type { DocumentCategory, DocumentReviewStatus } from "../lib/documents";
@@ -229,9 +238,36 @@ async function seedDemo() {
   const emailsToReset = [...emails, ...legacyDemoEmails];
   const appIds = clients.map((client) => client.appId);
   const userIds = clients.map((client) => client.userId);
+  const profileIds = clients.map((client) => `demo-profile-${client.userId}`);
+  const invoiceIds = clients.map((client) => `demo-invoice-${client.userId}`);
 
   console.log("Resetting existing demo records...");
-  await db.delete(storedFile).where(inArray(storedFile.entityId, appIds));
+  await db
+    .delete(storedFile)
+    .where(inArray(storedFile.entityId, [...appIds, ...profileIds]));
+  await db
+    .delete(timelineEvent)
+    .where(inArray(timelineEvent.driverProfileId, profileIds));
+  await db
+    .delete(payrollSummary)
+    .where(inArray(payrollSummary.driverProfileId, profileIds));
+  await db
+    .delete(expenseRecord)
+    .where(inArray(expenseRecord.driverProfileId, profileIds));
+  await db.delete(paymentRecord).where(inArray(paymentRecord.invoiceId, invoiceIds));
+  await db
+    .delete(invoiceRecord)
+    .where(inArray(invoiceRecord.driverProfileId, profileIds));
+  await db
+    .delete(monthlyActivity)
+    .where(inArray(monthlyActivity.driverProfileId, profileIds));
+  await db
+    .delete(onboardingTask)
+    .where(inArray(onboardingTask.driverProfileId, profileIds));
+  await db
+    .delete(contractRecord)
+    .where(inArray(contractRecord.driverProfileId, profileIds));
+  await db.delete(driverProfile).where(inArray(driverProfile.id, profileIds));
   await db
     .delete(meetingBooking)
     .where(inArray(meetingBooking.email, emailsToReset));
@@ -354,6 +390,241 @@ async function seedDemo() {
         reviewedBy: null,
         createdAt: now,
       });
+    }
+
+    if (client.status === "APPROVED") {
+      const profileId = `demo-profile-${client.userId}`;
+      const activityId = `demo-activity-${client.userId}`;
+      const invoiceId = `demo-invoice-${client.userId}`;
+      const payrollId = `demo-payroll-${client.userId}`;
+      const active = client.firstName === "Mehdi";
+      const period = now.toISOString().slice(0, 7);
+      const declaredRevenue =
+        client.monthlyRevenue === "7000_10000" ? 8600 : 6200;
+      const fee = Math.round(declaredRevenue * 0.1);
+      const contributions = Math.round(declaredRevenue * 0.14);
+      const net = declaredRevenue - fee - contributions;
+
+      await db.insert(driverProfile).values({
+        id: profileId,
+        applicationId: client.appId,
+        userEmail: client.email,
+        status: active ? "ACTIVE" : "CONTRACT_SENT",
+        startDate: now.toISOString().slice(0, 10),
+        assignedAccountantId: null,
+        notes: active
+          ? "Client actif suivi par le comptable, paie importée manuellement."
+          : "Contrat envoyé, en attente de signature.",
+        createdAt: now,
+        updatedAt: now,
+      });
+
+      await db.insert(contractRecord).values({
+        id: `demo-contract-${client.userId}`,
+        driverProfileId: profileId,
+        status: active ? "SIGNED" : "SENT",
+        providerLabel: "Manual demo",
+        unsignedFileId: `demo-file-${profileId}-contract`,
+        signedFileId: active ? `demo-file-${profileId}-signed-contract` : null,
+        sentAt: now,
+        signedAt: active ? now : null,
+        createdAt: now,
+        updatedAt: now,
+      });
+
+      const taskStates = [
+        ["application_approved", "Candidature approuvée", "DONE"],
+        ["documents_validated", "Documents principaux validés", "DONE"],
+        ["contract_sent", "Contrat envoyé", "DONE"],
+        ["contract_signed", "Contrat signé", active ? "DONE" : "PENDING"],
+        ["bank_ready", "RIB et paiement prêts", active ? "DONE" : "PENDING"],
+        ["accountant_assigned", "Comptable assigné", "DONE"],
+        ["first_month_opened", "Premier mois d'activité ouvert", "DONE"],
+      ] as const;
+
+      await db.insert(onboardingTask).values(
+        taskStates.map(([taskKey, label, status]) => ({
+          id: `demo-task-${profileId}-${taskKey}`,
+          driverProfileId: profileId,
+          taskKey,
+          label,
+          status,
+          completedAt: status === "DONE" ? now : null,
+          completedBy: null,
+          createdAt: now,
+          updatedAt: now,
+        })),
+      );
+
+      await db.insert(monthlyActivity).values({
+        id: activityId,
+        driverProfileId: profileId,
+        period,
+        status: active ? "VALIDATED" : "OPEN",
+        declaredRevenue: active ? declaredRevenue : 0,
+        platformBreakdown: active
+          ? { Uber: Math.round(declaredRevenue * 0.65), Bolt: Math.round(declaredRevenue * 0.35) }
+          : {},
+        notes: active
+          ? "CA validé depuis les relevés plateformes."
+          : "Premier mois ouvert, déclaration attendue.",
+        submittedAt: active ? now : null,
+        validatedAt: active ? now : null,
+        validatedBy: null,
+        createdAt: now,
+        updatedAt: now,
+      });
+
+      if (active) {
+        await db.insert(invoiceRecord).values({
+          id: invoiceId,
+          driverProfileId: profileId,
+          monthlyActivityId: activityId,
+          invoiceNumber: `DRIIVO-${period.replace("-", "")}-${client.firstName.toUpperCase()}`,
+          recipient: "Plateformes VTC",
+          amountHT: declaredRevenue,
+          vatAmount: 0,
+          amountTTC: declaredRevenue,
+          status: "PAID",
+          fileId: `demo-file-${profileId}-invoice`,
+          issuedAt: now,
+          paidAt: now,
+          createdAt: now,
+          updatedAt: now,
+        });
+
+        await db.insert(paymentRecord).values({
+          id: `demo-payment-${client.userId}`,
+          invoiceId,
+          amount: declaredRevenue,
+          status: "RECONCILED",
+          receivedAt: now,
+          reference: "Virement plateforme demo",
+          createdAt: now,
+          updatedAt: now,
+        });
+
+        await db.insert(expenseRecord).values({
+          id: `demo-expense-${client.userId}`,
+          driverProfileId: profileId,
+          monthlyActivityId: activityId,
+          category: "Recharge",
+          amount: 180,
+          description: "Recharges électriques du mois.",
+          status: "APPROVED",
+          reviewNotes: "Validé par le comptable.",
+          reviewedAt: now,
+          reviewedBy: null,
+          createdAt: now,
+          updatedAt: now,
+        });
+
+        await db.insert(payrollSummary).values({
+          id: payrollId,
+          driverProfileId: profileId,
+          monthlyActivityId: activityId,
+          period,
+          grossSalary: Math.round(net * 1.32),
+          netSalary: net,
+          managementFee: fee,
+          socialContributions: contributions,
+          expensesReimbursed: 180,
+          payoutAmount: net + 180,
+          status: "PAID",
+          payslipFileId: `demo-file-${profileId}-payslip`,
+          paidAt: now,
+          createdAt: now,
+          updatedAt: now,
+        });
+      }
+
+      const operationFiles = [
+        {
+          id: `demo-file-${profileId}-contract`,
+          key: `demo/${profileId}/contrat-a-signer.pdf`,
+          originalName: "contrat-a-signer.pdf",
+        },
+        ...(active
+          ? [
+              {
+                id: `demo-file-${profileId}-signed-contract`,
+                key: `demo/${profileId}/contrat-signe.pdf`,
+                originalName: "contrat-signe.pdf",
+              },
+              {
+                id: `demo-file-${profileId}-invoice`,
+                key: `demo/${profileId}/facture-${period}.pdf`,
+                originalName: `facture-${period}.pdf`,
+              },
+              {
+                id: `demo-file-${profileId}-payslip`,
+                key: `demo/${profileId}/bulletin-${period}.pdf`,
+                originalName: `bulletin-${period}.pdf`,
+              },
+            ]
+          : []),
+      ];
+
+      for (const file of operationFiles) {
+        await db.insert(storedFile).values({
+          id: file.id,
+          key: file.key,
+          originalName: file.originalName,
+          mimeType: "application/pdf",
+          size: 228000,
+          entityType: "DOCUMENT",
+          entityId: profileId,
+          uploadedBy: client.userId,
+          documentCategory: "OTHER",
+          reviewStatus: "APPROVED",
+          reviewNotes: null,
+          reviewedAt: now,
+          reviewedBy: null,
+          createdAt: now,
+        });
+      }
+
+      await db.insert(timelineEvent).values([
+        {
+          id: `demo-timeline-${client.userId}-activated`,
+          actorId: null,
+          driverProfileId: profileId,
+          applicationId: client.appId,
+          eventType: "profile_activated",
+          title: "Dossier client activé",
+          description: "Activation manuelle après approbation.",
+          metadata: { demo: true },
+          createdAt: now,
+        },
+        {
+          id: `demo-timeline-${client.userId}-contract`,
+          actorId: null,
+          driverProfileId: profileId,
+          applicationId: client.appId,
+          eventType: "contract_updated",
+          title: active ? "Contrat signé" : "Contrat envoyé",
+          description: active
+            ? "Contrat signé importé dans le dossier."
+            : "Contrat envoyé, signature attendue.",
+          metadata: { demo: true },
+          createdAt: now,
+        },
+        ...(active
+          ? [
+              {
+                id: `demo-timeline-${client.userId}-payroll`,
+                actorId: null,
+                driverProfileId: profileId,
+                applicationId: client.appId,
+                eventType: "payroll_updated",
+                title: `Bulletin ${period} disponible`,
+                description: `${net + 180} EUR marqués payés.`,
+                metadata: { demo: true },
+                createdAt: now,
+              },
+            ]
+          : []),
+      ]);
     }
   }
 

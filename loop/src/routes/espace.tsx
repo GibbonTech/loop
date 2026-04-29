@@ -67,16 +67,92 @@ interface Meeting {
   status: string;
 }
 
+interface OperationsBundle {
+  profile: {
+    id: string;
+    status: string;
+    startDate?: string | null;
+    notes?: string | null;
+  };
+  contract: {
+    id: string;
+    status: string;
+    providerLabel: string;
+    unsignedFileId?: string | null;
+    signedFileId?: string | null;
+    sentAt?: string | null;
+    signedAt?: string | null;
+  } | null;
+  onboardingTasks: Array<{
+    id: string;
+    taskKey: string;
+    label: string;
+    status: string;
+    completedAt?: string | null;
+  }>;
+  monthlyActivities: Array<{
+    id: string;
+    period: string;
+    status: string;
+    declaredRevenue: number;
+    platformBreakdown?: Record<string, number> | null;
+    notes?: string | null;
+  }>;
+  invoices: Array<{
+    id: string;
+    invoiceNumber: string;
+    recipient: string;
+    amountTTC: number;
+    status: string;
+    fileId?: string | null;
+  }>;
+  payments: Array<{
+    id: string;
+    invoiceId: string;
+    amount: number;
+    status: string;
+    receivedAt?: string | null;
+  }>;
+  expenses: Array<{
+    id: string;
+    category: string;
+    amount: number;
+    description?: string | null;
+    status: string;
+    reviewNotes?: string | null;
+  }>;
+  payrollSummaries: Array<{
+    id: string;
+    period: string;
+    netSalary: number;
+    payoutAmount: number;
+    status: string;
+    payslipFileId?: string | null;
+  }>;
+  timeline: Array<{
+    id: string;
+    title: string;
+    description?: string | null;
+    eventType: string;
+    createdAt: string;
+  }>;
+  filesById: Record<string, StoredFile>;
+}
+
+const formatEuro = (value?: number | null) =>
+  `${Math.round(value || 0).toLocaleString("fr-FR")} €`;
+
 function EspacePage() {
   const { data: session, isPending } = useSession();
   const [application, setApplication] = useState<Application | null>(null);
   const [files, setFiles] = useState<StoredFile[]>([]);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [operations, setOperations] = useState<OperationsBundle | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const [activeTab, setActiveTab] = useState<"dashboard" | "documents">(
-    "dashboard",
-  );
+  const [activeTab, setActiveTab] = useState<
+    "dashboard" | "operations" | "documents"
+  >("dashboard");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pendingDocumentCategoryRef = useRef<DocumentCategory>("OTHER");
 
@@ -94,11 +170,50 @@ function EspacePage() {
       if (data.success && data.data?.length > 0) {
         setApplication(data.data[0]);
         fetchFiles(data.data[0].id);
+        fetchOperations(data.data[0].id);
       }
     } catch (error) {
       console.error("Error fetching application:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchOperations = async (applicationId: string) => {
+    try {
+      const response = await fetch(
+        `/api/operations?applicationId=${encodeURIComponent(applicationId)}`,
+      );
+      const data = await response.json();
+      if (data.success) setOperations(data.data || null);
+    } catch (error) {
+      console.error("Error fetching operations:", error);
+    }
+  };
+
+  const submitOperation = async (payload: Record<string, unknown>) => {
+    if (!application) return false;
+    try {
+      const response = await fetch("/api/operations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          applicationId: application.id,
+          profileId: operations?.profile?.id,
+          ...payload,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        toast.error(data.error || "Mise à jour impossible");
+        return false;
+      }
+      setOperations(data.data || null);
+      return true;
+    } catch (error) {
+      console.error("Operations error:", error);
+      toast.error("Mise à jour impossible");
+      return false;
     }
   };
 
@@ -354,6 +469,19 @@ function EspacePage() {
               <LayoutDashboard className="h-4 w-4" />
               Tableau de bord
             </button>
+            {(operations?.profile || application.status === "APPROVED") && (
+              <button
+                onClick={() => setActiveTab("operations")}
+                className={`flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors ${
+                  activeTab === "operations"
+                    ? "bg-white font-medium text-gray-900 shadow-sm"
+                    : "text-gray-600 hover:bg-white hover:text-gray-900"
+                }`}
+              >
+                <FileText className="h-4 w-4" />
+                Opérations
+              </button>
+            )}
             <button
               onClick={() => setActiveTab("documents")}
               className={`flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors ${
@@ -439,7 +567,13 @@ function EspacePage() {
               onChange={handleFileUpload}
               disabled={uploading}
             />
-            <div className="mb-5 grid grid-cols-2 rounded-lg border border-gray-200 bg-gray-50 p-1 md:hidden">
+            <div
+              className={`mb-5 grid rounded-lg border border-gray-200 bg-gray-50 p-1 md:hidden ${
+                operations?.profile || application.status === "APPROVED"
+                  ? "grid-cols-3"
+                  : "grid-cols-2"
+              }`}
+            >
               <button
                 onClick={() => setActiveTab("dashboard")}
                 className={`flex h-9 items-center justify-center gap-2 rounded-md text-sm font-medium ${
@@ -451,6 +585,19 @@ function EspacePage() {
                 <LayoutDashboard className="h-4 w-4" />
                 Tableau
               </button>
+              {(operations?.profile || application.status === "APPROVED") && (
+                <button
+                  onClick={() => setActiveTab("operations")}
+                  className={`flex h-9 items-center justify-center gap-2 rounded-md text-sm font-medium ${
+                    activeTab === "operations"
+                      ? "bg-white text-gray-900 shadow-sm"
+                      : "text-gray-500"
+                  }`}
+                >
+                  <FileText className="h-4 w-4" />
+                  Ops
+                </button>
+              )}
               <button
                 onClick={() => setActiveTab("documents")}
                 className={`flex h-9 items-center justify-center gap-2 rounded-md text-sm font-medium ${
@@ -665,6 +812,14 @@ function EspacePage() {
               </>
             )}
 
+            {activeTab === "operations" && (
+              <OperationsPanel
+                operations={operations}
+                onSubmit={submitOperation}
+                onDownload={downloadFile}
+              />
+            )}
+
             {/* Documents Tab */}
             {activeTab === "documents" && (
               <>
@@ -846,5 +1001,428 @@ function EspacePage() {
         </main>
       </div>
     </div>
+  );
+}
+
+function OperationsPanel({
+  operations,
+  onSubmit,
+  onDownload,
+}: {
+  operations: OperationsBundle | null;
+  onSubmit: (payload: Record<string, unknown>) => Promise<boolean>;
+  onDownload: (key: string) => Promise<void>;
+}) {
+  const currentPeriod = new Date().toISOString().slice(0, 7);
+  const [activityForm, setActivityForm] = useState({
+    period: currentPeriod,
+    uber: "",
+    bolt: "",
+    heetch: "",
+    freenow: "",
+    other: "",
+    notes: "",
+  });
+  const [expenseForm, setExpenseForm] = useState({
+    category: "Carburant",
+    amount: "",
+    description: "",
+  });
+  const [submitting, setSubmitting] = useState(false);
+
+  if (!operations?.profile) {
+    return (
+      <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-5">
+        <div className="mb-1 text-sm font-medium text-gray-900">
+          Dossier approuvé, activation en préparation
+        </div>
+        <p className="text-sm text-emerald-800">
+          L'équipe Driivo va activer votre espace client, préparer le contrat et
+          ouvrir votre premier mois d'activité.
+        </p>
+      </div>
+    );
+  }
+
+  const profile = operations.profile;
+  const contract = operations.contract;
+  const latestActivity = operations.monthlyActivities[0];
+  const latestPayroll = operations.payrollSummaries[0];
+  const signedContractFile =
+    contract?.signedFileId && operations.filesById[contract.signedFileId];
+  const unsignedContractFile =
+    contract?.unsignedFileId && operations.filesById[contract.unsignedFileId];
+
+  const submitActivity = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setSubmitting(true);
+    const platformBreakdown = {
+      Uber: activityForm.uber,
+      Bolt: activityForm.bolt,
+      Heetch: activityForm.heetch,
+      FreeNow: activityForm.freenow,
+      Autre: activityForm.other,
+    };
+    const declaredRevenue = Object.values(platformBreakdown).reduce(
+      (sum, value) => sum + (Number(String(value).replace(",", ".")) || 0),
+      0,
+    );
+    const ok = await onSubmit({
+      action: "upsertMonthlyActivity",
+      period: activityForm.period,
+      declaredRevenue,
+      platformBreakdown,
+      notes: activityForm.notes,
+    });
+    if (ok) {
+      toast.success("Déclaration envoyée");
+      setActivityForm((prev) => ({
+        ...prev,
+        uber: "",
+        bolt: "",
+        heetch: "",
+        freenow: "",
+        other: "",
+        notes: "",
+      }));
+    }
+    setSubmitting(false);
+  };
+
+  const submitExpense = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setSubmitting(true);
+    const ok = await onSubmit({
+      action: "submitExpense",
+      category: expenseForm.category,
+      amount: expenseForm.amount,
+      description: expenseForm.description,
+      monthlyActivityId: latestActivity?.id,
+    });
+    if (ok) {
+      toast.success("Frais envoyé");
+      setExpenseForm({ category: "Carburant", amount: "", description: "" });
+    }
+    setSubmitting(false);
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-3 md:grid-cols-4">
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <div className="text-xs text-gray-500">Statut client</div>
+          <div className="mt-1 text-lg font-semibold text-gray-900">
+            {profile.status}
+          </div>
+        </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <div className="text-xs text-gray-500">Contrat</div>
+          <div className="mt-1 text-lg font-semibold text-gray-900">
+            {contract?.status || "DRAFT"}
+          </div>
+        </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <div className="text-xs text-gray-500">Dernier CA déclaré</div>
+          <div className="mt-1 text-lg font-semibold text-gray-900">
+            {formatEuro(latestActivity?.declaredRevenue)}
+          </div>
+        </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <div className="text-xs text-gray-500">Dernier versement</div>
+          <div className="mt-1 text-lg font-semibold text-gray-900">
+            {formatEuro(latestPayroll?.payoutAmount)}
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+        <div className="space-y-6">
+          <section className="rounded-lg border border-gray-200 bg-white p-5">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-medium text-gray-900">
+                  Contrat et signature
+                </h3>
+                <p className="text-xs text-gray-500">
+                  Suivi manuel par l'équipe Driivo et le comptable.
+                </p>
+              </div>
+              <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600">
+                {contract?.providerLabel || "Manual"}
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {signedContractFile && (
+                <button
+                  onClick={() => onDownload(signedContractFile.key)}
+                  className="inline-flex h-8 items-center gap-1.5 rounded-md bg-gray-900 px-3 text-xs font-medium text-white"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  Contrat signé
+                </button>
+              )}
+              {!signedContractFile && unsignedContractFile && (
+                <button
+                  onClick={() => onDownload(unsignedContractFile.key)}
+                  className="inline-flex h-8 items-center gap-1.5 rounded-md border border-gray-200 px-3 text-xs font-medium text-gray-700"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  Contrat à signer
+                </button>
+              )}
+              {!signedContractFile && !unsignedContractFile && (
+                <p className="text-sm text-gray-500">
+                  Le contrat sera ajouté ici dès qu'il sera prêt.
+                </p>
+              )}
+            </div>
+          </section>
+
+          <section className="rounded-lg border border-gray-200 bg-white p-5">
+            <h3 className="mb-4 text-sm font-medium text-gray-900">
+              Déclarer l'activité mensuelle
+            </h3>
+            <form onSubmit={submitActivity} className="space-y-3">
+              <div className="grid gap-3 sm:grid-cols-3">
+                <input
+                  type="month"
+                  value={activityForm.period}
+                  onChange={(e) =>
+                    setActivityForm({ ...activityForm, period: e.target.value })
+                  }
+                  className="h-9 rounded-md border border-gray-200 px-3 text-sm"
+                  required
+                />
+                {(["uber", "bolt", "heetch", "freenow", "other"] as const).map(
+                  (key) => (
+                    <input
+                      key={key}
+                      type="number"
+                      min="0"
+                      value={activityForm[key]}
+                      onChange={(e) =>
+                        setActivityForm({
+                          ...activityForm,
+                          [key]: e.target.value,
+                        })
+                      }
+                      placeholder={key === "other" ? "Autre CA" : key}
+                      className="h-9 rounded-md border border-gray-200 px-3 text-sm capitalize"
+                    />
+                  ),
+                )}
+              </div>
+              <textarea
+                value={activityForm.notes}
+                onChange={(e) =>
+                  setActivityForm({ ...activityForm, notes: e.target.value })
+                }
+                placeholder="Notes pour l'équipe Driivo"
+                className="min-h-[76px] w-full rounded-md border border-gray-200 px-3 py-2 text-sm"
+              />
+              <button
+                type="submit"
+                disabled={submitting}
+                className="inline-flex h-9 items-center rounded-md bg-gray-900 px-4 text-sm font-medium text-white disabled:opacity-50"
+              >
+                Envoyer la déclaration
+              </button>
+            </form>
+          </section>
+
+          <section className="rounded-lg border border-gray-200 bg-white p-5">
+            <h3 className="mb-4 text-sm font-medium text-gray-900">
+              Notes de frais
+            </h3>
+            <form onSubmit={submitExpense} className="grid gap-3 sm:grid-cols-4">
+              <select
+                value={expenseForm.category}
+                onChange={(e) =>
+                  setExpenseForm({ ...expenseForm, category: e.target.value })
+                }
+                className="h-9 rounded-md border border-gray-200 px-3 text-sm"
+              >
+                <option>Carburant</option>
+                <option>Recharge</option>
+                <option>Lavage</option>
+                <option>Péage</option>
+                <option>Entretien</option>
+                <option>Autre</option>
+              </select>
+              <input
+                type="number"
+                min="0"
+                value={expenseForm.amount}
+                onChange={(e) =>
+                  setExpenseForm({ ...expenseForm, amount: e.target.value })
+                }
+                placeholder="Montant"
+                className="h-9 rounded-md border border-gray-200 px-3 text-sm"
+                required
+              />
+              <input
+                value={expenseForm.description}
+                onChange={(e) =>
+                  setExpenseForm({
+                    ...expenseForm,
+                    description: e.target.value,
+                  })
+                }
+                placeholder="Description"
+                className="h-9 rounded-md border border-gray-200 px-3 text-sm"
+              />
+              <button
+                type="submit"
+                disabled={submitting}
+                className="h-9 rounded-md bg-gray-900 px-3 text-sm font-medium text-white disabled:opacity-50"
+              >
+                Ajouter
+              </button>
+            </form>
+          </section>
+        </div>
+
+        <aside className="space-y-4">
+          <section className="rounded-lg border border-gray-200 bg-white p-4">
+            <h3 className="mb-3 text-sm font-medium text-gray-900">
+              Checklist onboarding
+            </h3>
+            <div className="space-y-2">
+              {operations.onboardingTasks.map((task) => (
+                <div key={task.id} className="flex items-center gap-2 text-sm">
+                  {task.status === "DONE" ? (
+                    <CheckCircle className="h-4 w-4 text-emerald-600" />
+                  ) : (
+                    <Clock className="h-4 w-4 text-amber-500" />
+                  )}
+                  <span
+                    className={
+                      task.status === "DONE"
+                        ? "text-gray-900"
+                        : "text-gray-500"
+                    }
+                  >
+                    {task.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="rounded-lg border border-gray-200 bg-white p-4">
+            <h3 className="mb-3 text-sm font-medium text-gray-900">
+              Timeline
+            </h3>
+            <div className="space-y-3">
+              {operations.timeline.slice(0, 6).map((event) => (
+                <div key={event.id} className="border-l border-gray-200 pl-3">
+                  <div className="text-sm font-medium text-gray-900">
+                    {event.title}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {new Date(event.createdAt).toLocaleDateString("fr-FR")}
+                  </div>
+                  {event.description && (
+                    <p className="mt-0.5 text-xs text-gray-500">
+                      {event.description}
+                    </p>
+                  )}
+                </div>
+              ))}
+              {operations.timeline.length === 0 && (
+                <p className="text-sm text-gray-500">
+                  Les prochaines actions apparaîtront ici.
+                </p>
+              )}
+            </div>
+          </section>
+        </aside>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        <OperationsList
+          title="Activités"
+          empty="Aucune activité déclarée"
+          rows={operations.monthlyActivities.map((activity) => ({
+            id: activity.id,
+            main: activity.period,
+            meta: `${formatEuro(activity.declaredRevenue)} · ${activity.status}`,
+          }))}
+        />
+        <OperationsList
+          title="Factures"
+          empty="Aucune facture suivie"
+          rows={operations.invoices.map((invoice) => ({
+            id: invoice.id,
+            main: invoice.invoiceNumber,
+            meta: `${formatEuro(invoice.amountTTC)} · ${invoice.status}`,
+          }))}
+        />
+        <OperationsList
+          title="Bulletins"
+          empty="Aucun bulletin disponible"
+          rows={operations.payrollSummaries.map((payroll) => {
+            const payslip =
+              payroll.payslipFileId &&
+              operations.filesById[payroll.payslipFileId];
+            return {
+              id: payroll.id,
+              main: payroll.period,
+              meta: `${formatEuro(payroll.payoutAmount)} · ${payroll.status}`,
+              action: payslip ? () => onDownload(payslip.key) : undefined,
+            };
+          })}
+        />
+      </div>
+
+      <OperationsList
+        title="Frais"
+        empty="Aucun frais envoyé"
+        rows={operations.expenses.map((expense) => ({
+          id: expense.id,
+          main: expense.category,
+          meta: `${formatEuro(expense.amount)} · ${expense.status}${
+            expense.reviewNotes ? ` · ${expense.reviewNotes}` : ""
+          }`,
+        }))}
+      />
+    </div>
+  );
+}
+
+function OperationsList({
+  title,
+  empty,
+  rows,
+}: {
+  title: string;
+  empty: string;
+  rows: Array<{ id: string; main: string; meta: string; action?: () => void }>;
+}) {
+  return (
+    <section className="rounded-lg border border-gray-200 bg-white p-4">
+      <h3 className="mb-3 text-sm font-medium text-gray-900">{title}</h3>
+      <div className="divide-y divide-gray-100">
+        {rows.map((row) => (
+          <div key={row.id} className="flex items-center justify-between py-2">
+            <div className="min-w-0">
+              <div className="truncate text-sm font-medium text-gray-900">
+                {row.main}
+              </div>
+              <div className="truncate text-xs text-gray-500">{row.meta}</div>
+            </div>
+            {row.action && (
+              <button
+                onClick={row.action}
+                className="ml-2 inline-flex h-7 items-center rounded-md border border-gray-200 px-2 text-xs font-medium text-gray-700"
+              >
+                Voir
+              </button>
+            )}
+          </div>
+        ))}
+        {rows.length === 0 && <p className="text-sm text-gray-500">{empty}</p>}
+      </div>
+    </section>
   );
 }
