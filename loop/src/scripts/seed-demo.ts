@@ -1,4 +1,5 @@
 import "dotenv/config";
+import { pathToFileURL } from "node:url";
 import { hash } from "bcryptjs";
 import { inArray } from "drizzle-orm";
 import { db } from "../lib/db";
@@ -220,7 +221,7 @@ function documentName(client: DemoClient, category: DocumentCategory) {
   return `${documentSlugs[category]}-${person}.pdf`;
 }
 
-async function seedDemo() {
+export async function seedDemo() {
   if (process.env.ALLOW_DEMO_SEED !== "true") {
     throw new Error("Set ALLOW_DEMO_SEED=true before running the demo seed.");
   }
@@ -633,10 +634,13 @@ async function seedDemo() {
     console.log(`- ${client.email} / ${rawPassword}`);
   }
   console.log("Demo seed complete.");
-  process.exit(0);
 }
 
-seedDemo().catch((error) => {
-  console.error("Demo seed failed:", error);
-  process.exit(1);
-});
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  seedDemo()
+    .then(() => process.exit(0))
+    .catch((error) => {
+      console.error("Demo seed failed:", error);
+      process.exit(1);
+    });
+}

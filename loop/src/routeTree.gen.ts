@@ -26,6 +26,7 @@ import { Route as ApiLeadsRouteImport } from './routes/api/leads'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiFilesRouteImport } from './routes/api/files'
 import { Route as ApiDocumentRequestsRouteImport } from './routes/api/document-requests'
+import { Route as ApiDemoSeedRouteImport } from './routes/api/demo-seed'
 import { Route as ApiApplicationsRouteImport } from './routes/api/applications'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
@@ -116,6 +117,11 @@ const ApiDocumentRequestsRoute = ApiDocumentRequestsRouteImport.update({
   path: '/api/document-requests',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiDemoSeedRoute = ApiDemoSeedRouteImport.update({
+  id: '/api/demo-seed',
+  path: '/api/demo-seed',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiApplicationsRoute = ApiApplicationsRouteImport.update({
   id: '/api/applications',
   path: '/api/applications',
@@ -150,6 +156,7 @@ export interface FileRoutesByFullPath {
   '/simulateur': typeof SimulateurRoute
   '/admin/login': typeof AdminLoginRoute
   '/api/applications': typeof ApiApplicationsRoute
+  '/api/demo-seed': typeof ApiDemoSeedRoute
   '/api/document-requests': typeof ApiDocumentRequestsRoute
   '/api/files': typeof ApiFilesRoute
   '/api/health': typeof ApiHealthRoute
@@ -173,6 +180,7 @@ export interface FileRoutesByTo {
   '/simulateur': typeof SimulateurRoute
   '/admin/login': typeof AdminLoginRoute
   '/api/applications': typeof ApiApplicationsRoute
+  '/api/demo-seed': typeof ApiDemoSeedRoute
   '/api/document-requests': typeof ApiDocumentRequestsRoute
   '/api/files': typeof ApiFilesRoute
   '/api/health': typeof ApiHealthRoute
@@ -197,6 +205,7 @@ export interface FileRoutesById {
   '/simulateur': typeof SimulateurRoute
   '/admin/login': typeof AdminLoginRoute
   '/api/applications': typeof ApiApplicationsRoute
+  '/api/demo-seed': typeof ApiDemoSeedRoute
   '/api/document-requests': typeof ApiDocumentRequestsRoute
   '/api/files': typeof ApiFilesRoute
   '/api/health': typeof ApiHealthRoute
@@ -222,6 +231,7 @@ export interface FileRouteTypes {
     | '/simulateur'
     | '/admin/login'
     | '/api/applications'
+    | '/api/demo-seed'
     | '/api/document-requests'
     | '/api/files'
     | '/api/health'
@@ -245,6 +255,7 @@ export interface FileRouteTypes {
     | '/simulateur'
     | '/admin/login'
     | '/api/applications'
+    | '/api/demo-seed'
     | '/api/document-requests'
     | '/api/files'
     | '/api/health'
@@ -268,6 +279,7 @@ export interface FileRouteTypes {
     | '/simulateur'
     | '/admin/login'
     | '/api/applications'
+    | '/api/demo-seed'
     | '/api/document-requests'
     | '/api/files'
     | '/api/health'
@@ -292,6 +304,7 @@ export interface RootRouteChildren {
   SimulateurRoute: typeof SimulateurRoute
   AdminLoginRoute: typeof AdminLoginRoute
   ApiApplicationsRoute: typeof ApiApplicationsRoute
+  ApiDemoSeedRoute: typeof ApiDemoSeedRoute
   ApiDocumentRequestsRoute: typeof ApiDocumentRequestsRoute
   ApiFilesRoute: typeof ApiFilesRoute
   ApiHealthRoute: typeof ApiHealthRoute
@@ -424,6 +437,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDocumentRequestsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/demo-seed': {
+      id: '/api/demo-seed'
+      path: '/api/demo-seed'
+      fullPath: '/api/demo-seed'
+      preLoaderRoute: typeof ApiDemoSeedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/applications': {
       id: '/api/applications'
       path: '/api/applications'
@@ -468,6 +488,7 @@ const rootRouteChildren: RootRouteChildren = {
   SimulateurRoute: SimulateurRoute,
   AdminLoginRoute: AdminLoginRoute,
   ApiApplicationsRoute: ApiApplicationsRoute,
+  ApiDemoSeedRoute: ApiDemoSeedRoute,
   ApiDocumentRequestsRoute: ApiDocumentRequestsRoute,
   ApiFilesRoute: ApiFilesRoute,
   ApiHealthRoute: ApiHealthRoute,
