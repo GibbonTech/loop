@@ -4,22 +4,30 @@ import time
 from pathlib import Path
 
 ARTIFACT_DIR = Path(
-    "/home/rick/Documents/websites/driivo/screens/fix-regression-2026-04-29"
+    os.environ.get(
+        "ARTIFACT_DIR",
+        "/home/rick/Documents/websites/driivo/screens/fix-regression-2026-04-29",
+    )
 )
-LOCAL_APP = os.environ.get("LOCAL_APP", "http://127.0.0.1:3000")
+APP_URL = os.environ.get("APP_URL") or os.environ.get("LOCAL_APP", "http://127.0.0.1:3000")
+SITE_URL = os.environ.get("SITE_URL", "https://driivo.fr")
 TEST_USER_EMAIL = os.environ["TEST_USER_EMAIL"]
 TEST_ADMIN_EMAIL = os.environ["TEST_ADMIN_EMAIL"]
 TEST_PASSWORD = os.environ["TEST_PASSWORD"]
 RUN_ID = os.environ.get("RUN_ID", str(int(time.time())))
 NEW_EMAIL = TEST_USER_EMAIL
 MEETING_EMAIL = f"codex.meeting.{RUN_ID}@example.com"
+STRICT_ACCOUNT_CREATE = os.environ.get("STRICT_ACCOUNT_CREATE", "false").lower() == "true"
+BASE_DOMAIN = APP_URL.split("//", 1)[-1].split("/", 1)[0].split(":", 1)[0]
 
 ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
 
 results = {
     "startedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
     "tool": "browser-harness",
-    "localApp": LOCAL_APP,
+    "appUrl": APP_URL,
+    "siteUrl": SITE_URL,
+    "baseDomain": BASE_DOMAIN,
     "newApplicationEmail": NEW_EMAIL,
     "meetingEmail": MEETING_EMAIL,
     "checks": [],
@@ -32,6 +40,13 @@ def add(name, ok, **details):
     results["checks"].append(item)
     print(json.dumps(item, ensure_ascii=False))
     return item
+
+
+def redact(value):
+    if not isinstance(value, str) or "@" not in value:
+        return value
+    local, domain = value.split("@", 1)
+    return f"{local[:3]}...@{domain}"
 
 
 def shot(name, full=True):
@@ -117,7 +132,8 @@ def clear_local_cookies():
     cookies = cdp("Network.getAllCookies").get("cookies", [])
     for cookie in cookies:
         domain = cookie.get("domain", "")
-        if domain in {"127.0.0.1", "localhost"}:
+        normalized = domain.lstrip(".")
+        if normalized in {BASE_DOMAIN, "127.0.0.1", "localhost"} or normalized.endswith(".driivo.fr"):
             cdp(
                 "Network.deleteCookies",
                 name=cookie.get("name"),
@@ -128,7 +144,7 @@ def clear_local_cookies():
 
 def login(email, password, expected_path, screenshot_name):
     clear_local_cookies()
-    new_tab(f"{LOCAL_APP}/")
+    new_tab(f"{APP_URL}/")
     wait_for_load(15)
     for _ in range(30):
         if js("return Boolean(document.querySelector('#email') && document.querySelector('#password'))"):
@@ -151,12 +167,28 @@ def login(email, password, expected_path, screenshot_name):
     wait(1.5)
     info = page()
     ok = submitted and expected_path in (info.get("url") or "")
-    add(f"login {email}", ok, submitted=submitted, page=info, textStart=body_text(700))
+    add(f"login {redact(email)}", ok, submitted=submitted, page=info, textStart=body_text(700))
     return ok
 
 
+def public_entry_check():
+    new_tab(SITE_URL)
+    wait_for_load(15)
+    wait(1)
+    text = body_text(1800)
+    whatsapp = js("return Boolean(document.querySelector('a[aria-label=\"Contacter Driivo sur WhatsApp\"]'))")
+    shot("00-public-entry")
+    add(
+        "public site is viewable and has WhatsApp",
+        ("Driivo" in text or "DRIIVO" in text) and whatsapp,
+        page=page(),
+        whatsapp=whatsapp,
+        textStart=text[:700],
+    )
+
+
 def create_application_flow():
-    new_tab(f"{LOCAL_APP}/inscription")
+    new_tab(f"{APP_URL}/inscription")
     wait_for_load(15)
     wait(1)
     required_probe = browser_fetch(
@@ -261,6 +293,7 @@ def create_application_flow():
         and response
         and response.get("status") == 200
         and response.get("data", {}).get("success") is True
+        and (not STRICT_ACCOUNT_CREATE or response.get("data", {}).get("hasAccount") is True)
         and bool(app_id)
         and all(vehicle_required_probe.values()),
         applicationId=app_id,
@@ -416,7 +449,7 @@ def admin_vehicle_detail_check(app_id):
     if not login(TEST_ADMIN_EMAIL, TEST_PASSWORD, "/admin", "07-admin-login"):
         add("admin vehicle detail skipped", False, reason="admin login failed")
         return
-    new_tab(f"{LOCAL_APP}/admin/applications/{app_id}")
+    new_tab(f"{APP_URL}/admin/applications/{app_id}")
     wait_for_load(15)
     wait(1)
     text = body_text(4000)
@@ -431,7 +464,7 @@ def admin_vehicle_detail_check(app_id):
         textStart=text[:1200],
     )
 
-
+public_entry_check()
 app_id = create_application_flow()
 duplicate_email_check()
 meeting_single_booking_check()

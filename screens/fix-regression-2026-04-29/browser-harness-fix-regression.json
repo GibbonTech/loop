@@ -1,10 +1,24 @@
 {
-  "startedAt": "2026-04-29T17:49:29Z",
+  "startedAt": "2026-04-29T17:57:13Z",
   "tool": "browser-harness",
-  "localApp": "http://127.0.0.1:3000",
-  "newApplicationEmail": "codex.fix.user.1777484965@example.com",
-  "meetingEmail": "codex.meeting.1777484965@example.com",
+  "appUrl": "http://127.0.0.1:3000",
+  "siteUrl": "http://127.0.0.1:3000",
+  "baseDomain": "127.0.0.1",
+  "newApplicationEmail": "codex.fix.user.1777485412@example.com",
+  "meetingEmail": "codex.meeting.1777485412@example.com",
   "checks": [
+    {
+      "name": "public site is viewable and has WhatsApp",
+      "ok": true,
+      "page": {
+        "url": "http://127.0.0.1:3000/",
+        "title": "Driivo - Devenez Entrepreneur Salarié VTC",
+        "w": 1440,
+        "h": 913
+      },
+      "whatsapp": true,
+      "textStart": "WhatsApp\nDriivo\n\nLa plateforme des\nchauffeurs VTC salariés.\n\nGérez votre dossier, suivez votre candidature et accédez à vos documents en toute sécurité.\n\n© 2026 Coopérative Driivo\n\nRetour au site\nConnexion\n\nAccédez à votre espace Driivo\n\nEmail\nMot de passe\nMot de passe oublié ?\nSe connecter\n\nPas encore inscrit ? Rejoindre Driivo"
+    },
     {
       "name": "join form exposes required fields and WhatsApp",
       "ok": true,
@@ -17,12 +31,12 @@
     {
       "name": "application submits with vehicle registration details",
       "ok": true,
-      "applicationId": "7tP25aDKwCrQGeuECevQG",
+      "applicationId": "kn5utWQxsRd8XHb4UZZ1z",
       "response": {
         "status": 200,
         "data": {
           "success": true,
-          "id": "7tP25aDKwCrQGeuECevQG",
+          "id": "kn5utWQxsRd8XHb4UZZ1z",
           "hasAccount": false
         }
       },
@@ -47,7 +61,7 @@
         "data": {
           "success": false,
           "error": "Une candidature existe déjà pour cet email.",
-          "id": "7tP25aDKwCrQGeuECevQG"
+          "id": "kn5utWQxsRd8XHb4UZZ1z"
         }
       }
     },
@@ -57,27 +71,27 @@
       "result": {
         "choice": {
           "date": "2026-04-30",
-          "slot": "10:00"
+          "slot": "09:00"
         },
         "first": {
           "status": 200,
           "data": {
             "success": true,
-            "id": "TMpiaOKZnHOHd9dE2pNkC",
+            "id": "tGbJip-a6TeHQ5uAjHMoc",
             "data": {
-              "id": "TMpiaOKZnHOHd9dE2pNkC",
+              "id": "tGbJip-a6TeHQ5uAjHMoc",
               "firstName": "Fix",
               "lastName": "Meeting",
-              "email": "codex.meeting.1777484965@example.com",
+              "email": "codex.meeting.1777485412@example.com",
               "phone": "0601020304",
               "scheduledDate": "2026-04-30T12:00:00.000Z",
-              "timeSlot": "10:00",
+              "timeSlot": "09:00",
               "duration": 15,
               "status": "SCHEDULED",
               "notes": null,
               "leadId": null,
-              "createdAt": "2026-04-29T17:49:35.393Z",
-              "updatedAt": "2026-04-29T17:49:35.393Z"
+              "createdAt": "2026-04-29T17:57:20.763Z",
+              "updatedAt": "2026-04-29T17:57:20.763Z"
             }
           }
         },
@@ -87,16 +101,16 @@
             "success": false,
             "error": "Vous avez déjà un rendez-vous programmé. Un seul créneau peut être réservé.",
             "data": {
-              "id": "TMpiaOKZnHOHd9dE2pNkC",
+              "id": "tGbJip-a6TeHQ5uAjHMoc",
               "scheduledDate": "2026-04-30T12:00:00.000Z",
-              "timeSlot": "10:00"
+              "timeSlot": "09:00"
             }
           }
         }
       }
     },
     {
-      "name": "login codex.fix.user.1777484965@example.com",
+      "name": "login cod...@example.com",
       "ok": true,
       "submitted": true,
       "page": {
@@ -105,7 +119,7 @@
         "w": 1440,
         "h": 913
       },
-      "textStart": "Driivo\nTableau de bord\nDocuments\n0/7\nRéserver un appel\nFR\nFix Regression\ncodex.fix.user.1777484965@example.com\nDéconnexion\nTableau de bord\ncodex.fix.user.1777484965@example.com\nBonjour Fix\n\nSuivez l'avancement de votre dossier.\n\nCandidature en cours de vérification\nNotre équipe examine votre dossier. Réponse sous 24h.\nProgression\n1/5\nCandidature envoyée\n29/04/2026\nDossier en cours d'examen\n3\nDocuments requis téléversés\nCompléter\n4\nEntretien téléphonique\nRéserver\n5\nValidation finale\nRéserver un appel\nPoser vos questions\nAjouter un document\n0/7 requis\nContacter le support\ncontact@driivo.fr\nProchaine étape\n\nAjoutez vos documents puis réservez un court entretien téléphonique (15 min)."
+      "textStart": "Driivo\nTableau de bord\nDocuments\n0/7\nRéserver un appel\nFR\nFix Regression\ncodex.fix.user.1777485412@example.com\nDéconnexion\nTableau de bord\ncodex.fix.user.1777485412@example.com\nBonjour Fix\n\nSuivez l'avancement de votre dossier.\n\nCandidature en cours de vérification\nNotre équipe examine votre dossier. Réponse sous 24h.\nProgression\n1/5\nCandidature envoyée\n29/04/2026\nDossier en cours d'examen\n3\nDocuments requis téléversés\nCompléter\n4\nEntretien téléphonique\nRéserver\n5\nValidation finale\nRéserver un appel\nPoser vos questions\nAjouter un document\n0/7 requis\nContacter le support\ncontact@driivo.fr\nProchaine étape\n\nAjoutez vos documents puis réservez un court entretien téléphonique (15 min)."
     },
     {
       "name": "authenticated user can delete own unapproved document",
@@ -116,18 +130,18 @@
           "data": {
             "success": true,
             "file": {
-              "id": "3s1_lSh3HfMdX2ruel7h7",
-              "key": "applications/7tP25aDKwCrQGeuECevQG/3s1_lSh3HfMdX2ruel7h7_fix-regression.pdf",
+              "id": "hb9qs5iRGVtd95PZMGC_5",
+              "key": "applications/kn5utWQxsRd8XHb4UZZ1z/hb9qs5iRGVtd95PZMGC_5_fix-regression.pdf",
               "originalName": "fix-regression.pdf",
               "mimeType": "application/pdf",
               "size": 34,
               "entityType": "APPLICATION",
-              "entityId": "7tP25aDKwCrQGeuECevQG",
-              "uploadedBy": "YwrQfT5bzjTriX5ggQM0X",
+              "entityId": "kn5utWQxsRd8XHb4UZZ1z",
+              "uploadedBy": "UfwlJD6J-yu01OIG8us5Y",
               "documentCategory": "OTHER",
               "reviewStatus": "UPLOADED",
               "reviewNotes": null,
-              "createdAt": "2026-04-29T17:49:37.622Z"
+              "createdAt": "2026-04-29T17:57:22.944Z"
             }
           }
         },
@@ -147,7 +161,7 @@
       }
     },
     {
-      "name": "login codex.fix.admin.1777484965@example.com",
+      "name": "login cod...@example.com",
       "ok": true,
       "submitted": true,
       "page": {
@@ -156,21 +170,22 @@
         "w": 1440,
         "h": 913
       },
-      "textStart": "Driivo\nAdministration\ncodex.fix.admin.1777484965@example.com\nTotal candidatures\n8\nEn attente\n3\nApprouvées\n2\nRefusées\n1\nCandidatures (8)\nLeads (6)\nRéunions (8)\nCandidatures\n8 résultats\nToutes\nEn attente\nApprouvées\nRefusées\nCandidat\tTéléphone\tCA visé\tDate\tStatut\t\n\nFR\nFix Regression\ncodex.fix.user.1777484965@example.com\n\t0601020304\t5–7k €\t29 avr. 2026\tEn attente\t\n\n\nFR\nFix Regression\ncodex.fix.user.1777484849@example.com\n\t0601020304\t5–7k €\t29 avr. 2026\tEn attente\t\n\n\nKD\nKarim Diallo\nkarim.diallo@example.com\n\t+33 6 12 34 56 12\t7–10k €\t29 avr. 2026\tEn examen\t\n\n\nNL\nNora Lefèvre\nnora.lefevre@example.com\n\t+33 6 12 34 56 13\t< 3k €\t29 avr. 2026\tRefusée\t\n\n\nAB\nAmine Benkacem\namine.benkacem@example.com\n\t+3"
+      "textStart": "Driivo\nAdministration\ncodex.fix.admin.1777485412@example.com\nTotal candidatures\n7\nEn attente\n2\nApprouvées\n2\nRefusées\n1\nCandidatures (7)\nLeads (6)\nRéunions (7)\nCandidatures\n7 résultats\nToutes\nEn attente\nApprouvées\nRefusées\nCandidat\tTéléphone\tCA visé\tDate\tStatut\t\n\nFR\nFix Regression\ncodex.fix.user.1777485412@example.com\n\t0601020304\t5–7k €\t29 avr. 2026\tEn attente\t\n\n\nSM\nSarah Meunier\nsarah.meunier@example.com\n\t+33 6 12 34 56 11\t3–5k €\t29 avr. 2026\tEn examen\t\n\n\nKD\nKarim Diallo\nkarim.diallo@example.com\n\t+33 6 12 34 56 12\t7–10k €\t29 avr. 2026\tEn examen\t\n\n\nAB\nAmine Benkacem\namine.benkacem@example.com\n\t+33 6 12 34 56 10\t5–7k €\t29 avr. 2026\tApprouvée\t\n\n\nMA\nMehdi Aouad\nmehdi.aouad@example.com\n\t+33 6 12 "
     },
     {
       "name": "admin dossier shows vehicle model, plate and carte grise holder",
       "ok": true,
       "page": {
-        "url": "http://127.0.0.1:3000/admin/applications/7tP25aDKwCrQGeuECevQG",
+        "url": "http://127.0.0.1:3000/admin/applications/kn5utWQxsRd8XHb4UZZ1z",
         "title": "Driivo - Entrepreneur Salarié VTC",
         "w": 1440,
         "h": 913
       },
-      "textStart": "Driivo\nCandidatures\nFR\nFix Regression\ncodex.fix.user.1777484965@example.com · 0601020304 · Déposée le 29 avril 2026\nEn attente\nApprouver\nRefuser\nEn examen\nContacter\nComplétude du dossier\n9 / 11 champs renseignés\n82%\nPrénom\nNom\nEmail\nTéléphone\nCarte VTC\nExpérience\nCA visé\nVéhicule\nImmatriculation\nDocs reçus\nDocs validés\nOpérations client manuelles\nContrat, activité, factures, paiements, frais et bulletins suivis par l'équipe et le comptable.\nActiver le client\nApprouvez la candidature puis activez le dossier client pour afficher le suivi opérationnel dans l'espace utilisateur.\nInformations personnelles\nEmail\tcodex.fix.user.1777484965@example.com\nTéléphone\t0601020304\nVille\tParis\nCarte VTC n°\tVTC-FIX-1777484965\nDétails véhicule\nPossède un véhicule\tOui\nMarque et modèle\tToyota Prius\nAnnée du véhicule\t2023\nImmatriculation\tAB-123-CD\nTitulaire carte grise\tFix Regression\nActivité VTC\nType d'activité\tVTC\nCarte VTC\tOui\nExpérience\t3 à 5 ans\nCA mensuel visé\t5 000 – 7 000 €\nPlateformes actuelles\tuber, bolt\nDocuments\n0/7 requis reçus · 0/7 validés\nDemander les manquants\n\nPièce d'identité\n\nManquant\n\nCarte nationale d'identité, passeport ou titre de séjour valide.\n\nEn attente du candidat\n\nPermis de "
+      "textStart": "Driivo\nCandidatures\nFR\nFix Regression\ncodex.fix.user.1777485412@example.com · 0601020304 · Déposée le 29 avril 2026\nEn attente\nApprouver\nRefuser\nEn examen\nContacter\nComplétude du dossier\n9 / 11 champs renseignés\n82%\nPrénom\nNom\nEmail\nTéléphone\nCarte VTC\nExpérience\nCA visé\nVéhicule\nImmatriculation\nDocs reçus\nDocs validés\nOpérations client manuelles\nContrat, activité, factures, paiements, frais et bulletins suivis par l'équipe et le comptable.\nActiver le client\nApprouvez la candidature puis activez le dossier client pour afficher le suivi opérationnel dans l'espace utilisateur.\nInformations personnelles\nEmail\tcodex.fix.user.1777485412@example.com\nTéléphone\t0601020304\nVille\tParis\nCarte VTC n°\tVTC-FIX-1777485412\nDétails véhicule\nPossède un véhicule\tOui\nMarque et modèle\tToyota Prius\nAnnée du véhicule\t2023\nImmatriculation\tAB-123-CD\nTitulaire carte grise\tFix Regression\nActivité VTC\nType d'activité\tVTC\nCarte VTC\tOui\nExpérience\t3 à 5 ans\nCA mensuel visé\t5 000 – 7 000 €\nPlateformes actuelles\tuber, bolt\nDocuments\n0/7 requis reçus · 0/7 validés\nDemander les manquants\n\nPièce d'identité\n\nManquant\n\nCarte nationale d'identité, passeport ou titre de séjour valide.\n\nEn attente du candidat\n\nPermis de "
     }
   ],
   "screenshots": {
+    "00-public-entry": "/home/rick/Documents/websites/driivo/screens/fix-regression-2026-04-29/00-public-entry.png",
     "01-application-step-1": "/home/rick/Documents/websites/driivo/screens/fix-regression-2026-04-29/01-application-step-1.png",
     "02-application-step-2": "/home/rick/Documents/websites/driivo/screens/fix-regression-2026-04-29/02-application-step-2.png",
     "03-application-step-3-ready": "/home/rick/Documents/websites/driivo/screens/fix-regression-2026-04-29/03-application-step-3-ready.png",
