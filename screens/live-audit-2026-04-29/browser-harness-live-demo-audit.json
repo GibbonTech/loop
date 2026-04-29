@@ -1,0 +1,218 @@
+{
+  "startedAt": "2026-04-29T16:32:05Z",
+  "tool": "browser-harness",
+  "site": "https://driivo.fr",
+  "app": "https://app.driivo.fr",
+  "checks": [
+    {
+      "name": "marketing home renders",
+      "ok": true,
+      "page": {
+        "url": "https://driivo.fr/",
+        "title": "🟢 Driivo - Devenez Entrepreneur Salarié VTC",
+        "w": 1440,
+        "h": 913
+      }
+    },
+    {
+      "name": "login mehdi.aouad@example.com",
+      "ok": true,
+      "submitted": true,
+      "page": {
+        "url": "https://app.driivo.fr/espace",
+        "title": "Driivo - Entrepreneur Salarié VTC",
+        "w": 1440,
+        "h": 913
+      },
+      "textStart": "Driivo\nTableau de bord\nOpérations\nDocuments\n7/7\nRéserver un appel\nMA\nMehdi Aouad\nmehdi.aouad@example.com\nDéconnexion\nTableau de bord\nmehdi.aouad@example.com\nBonjour Mehdi\n\nSuivez l'avancement de votre dossier.\n\nCandidature approuvée\nFélicitations ! Votre candidature a été acceptée.\nProgression\n5/5\nCandidature envoyée\n29/04/2026\nDossier en cours d'examen\nDocuments requis téléversés\nEntretien téléphonique\nValidation finale\nRéserver un appel\nPoser vos questions\nAjouter un document\n7/7 requis\nContacter le support\ncontact@driivo.fr\nProchaine étape\n\nFélicitations ! Votre candidature est approuvée. Nous vous contacterons sous peu pour la signature du contrat."
+    },
+    {
+      "name": "user dashboard shows seeded active client",
+      "ok": true,
+      "page": {
+        "url": "https://app.driivo.fr/espace",
+        "title": "Driivo - Entrepreneur Salarié VTC",
+        "w": 1440,
+        "h": 913
+      },
+      "textStart": "Driivo\nTableau de bord\nOpérations\nDocuments\n7/7\nRéserver un appel\nMA\nMehdi Aouad\nmehdi.aouad@example.com\nDéconnexion\nTableau de bord\nmehdi.aouad@example.com\nBonjour Mehdi\n\nSuivez l'avancement de votre dossier.\n\nCandidature approuvée\nFélicitations ! Votre candidature a été acceptée.\nProgression\n5/5\nCandidature envoyée\n29/04/2026\nDossier en cours d'examen\nDocuments requis téléversés\nEntretien téléphonique\nValidation finale\nRéserver un appel\nPoser vos questions\nAjouter un document\n7/7 requis\nContacter le support\ncontact@driivo.fr\nProchaine étape\n\nFélicitations ! Votre candidature est approuvée. Nous vous contacterons sous peu pour la signature du contrat."
+    },
+    {
+      "name": "user operations panel shows portage demo data",
+      "ok": true,
+      "clicked": true,
+      "textStart": "Driivo\nTableau de bord\nOpérations\nDocuments\n7/7\nRéserver un appel\nMA\nMehdi Aouad\nmehdi.aouad@example.com\nDéconnexion\nTableau de bord\nmehdi.aouad@example.com\nBonjour Mehdi\n\nSuivez l'avancement de votre dossier.\n\nCandidature approuvée\nFélicitations ! Votre candidature a été acceptée.\nStatut client\nACTIVE\nContrat\nSIGNED\nDernier CA déclaré\n7 420 €\nDernier versement\n6 716 €\nContrat et signature\n\nSuivi manuel par l'équipe Driivo et le comptable.\n\nManual demo\nContrat signé\nDéclarer l'activité mensuelle\nEnvoyer la déclaration\nNotes de frais\nCarburant\nRecharge\nLavage\nPéage\nEntretien\nAutre\nAjouter\nChecklist onboarding\nCandidature approuvée\nDocuments principaux validés\nContrat envoyé\nContrat signé\nRIB et paiement prêts\nComptable assigné\nPremier mois d'activité ouvert\nTimeline\nFrais: Recharge\n29/04/2026\n\n42 EUR - SUBMITTED\n\nDéclaration 2026-05 envoyée\n29/04/2026\n\n7 420 EUR déclarés\n\nFrais: Recharge\n29/04/2026\n\n42 EUR - SUBMITTED\n\nDéclaration 2026-05 envoyée\n29/04/2026\n\n7 420 EUR déclarés\n\nDossier "
+    },
+    {
+      "name": "user operations API returns active bundle",
+      "ok": true,
+      "response": {
+        "status": 200,
+        "success": true,
+        "profileStatus": "ACTIVE",
+        "contractStatus": "SIGNED",
+        "activities": 2,
+        "invoices": 1,
+        "expenses": 3,
+        "payrolls": 1,
+        "timeline": 7
+      }
+    },
+    {
+      "name": "user submits monthly activity",
+      "ok": true,
+      "response": {
+        "status": 200,
+        "success": true,
+        "activityCount": 2
+      }
+    },
+    {
+      "name": "user submits expense",
+      "ok": true,
+      "response": {
+        "status": 200,
+        "success": true,
+        "expenseCount": 4
+      }
+    },
+    {
+      "name": "R2 upload and signed download through app",
+      "ok": true,
+      "upload": {
+        "status": 200,
+        "success": true,
+        "file": {
+          "id": "sVoEt2wrnZlSsB190QEGO",
+          "key": "applications/demo-app-mehdi/sVoEt2wrnZlSsB190QEGO_browser-harness-r2-smoke.pdf",
+          "originalName": "browser-harness-r2-smoke.pdf",
+          "mimeType": "application/pdf",
+          "size": 38,
+          "entityType": "APPLICATION",
+          "entityId": "demo-app-mehdi",
+          "uploadedBy": "demo-user-mehdi",
+          "documentCategory": "OTHER",
+          "reviewStatus": "UPLOADED",
+          "reviewNotes": null,
+          "createdAt": "2026-04-29T16:32:15.935Z"
+        }
+      },
+      "download": {
+        "status": 200,
+        "success": true,
+        "url": "<signed-url-redacted>",
+        "key": "applications/demo-app-mehdi/sVoEt2wrnZlSsB190QEGO_browser-harness-r2-smoke.pdf",
+        "fileId": "sVoEt2wrnZlSsB190QEGO",
+        "bodyCheck": true,
+        "httpStatus": 200
+      }
+    },
+    {
+      "name": "login demo.admin@driivo.fr",
+      "ok": true,
+      "submitted": true,
+      "page": {
+        "url": "https://app.driivo.fr/admin",
+        "title": "Driivo - Entrepreneur Salarié VTC",
+        "w": 1440,
+        "h": 913
+      },
+      "textStart": "Driivo\nAdministration\ndemo.admin@driivo.fr\nTotal candidatures\n36\nEn attente\n17\nApprouvées\n14\nRefusées\n1\nCandidatures (36)\nLeads (12)\nRéunions (13)\nCandidatures\n36 résultats\nToutes\nEn attente\nApprouvées\nRefusées\nCandidat\tTéléphone\tCA visé\tDate\tStatut\t\n\nNL\nNora Lefèvre\nnora.lefevre@example.com\n\t+33 6 12 34 56 13\t< 3k €\t29 avr. 2026\tRefusée\t\n\n\nCB\nCamille Bernard\ncamille.bernard@example.com\n\t+33 6 12 34 56 15\t3–5k €\t29 avr. 2026\tApprouvée\t\n\n\nMA\nMehdi Aouad\nmehdi.aouad@example.com\n\t+33 6 12 34 56 14\t7–10k €\t29 avr. 2026\tApprouvée\t\n\n\nAB\nAmine Benkacem\namine.benkacem@example.com\n\t+33 6 12 34 56 10\t5–7k €\t29 avr. 2026\tApprouvée\t\n\n\nKD\nKarim Diallo\nkarim.diallo@example.com\n\t+33 6 12 34 56 12\t7–10k €\t29 avr. 2026\tEn examen\t\n\n\nSM\nSarah Meunier\nsarah.meunier@example.com\n\t+33 6 12 34 56 11\t3–5k €\t29 avr. 2026\tEn examen\t\n\n\nCA\nCodex Audit\ncodex.audit.1777474690@example.com\n\t0612345678\t3–5k €\t29 avr. 202"
+    },
+    {
+      "name": "admin dashboard shows seeded candidates",
+      "ok": true,
+      "page": {
+        "url": "https://app.driivo.fr/admin",
+        "title": "Driivo - Entrepreneur Salarié VTC",
+        "w": 1440,
+        "h": 913
+      },
+      "textStart": "Driivo\nAdministration\ndemo.admin@driivo.fr\nTotal candidatures\n36\nEn attente\n17\nApprouvées\n14\nRefusées\n1\nCandidatures (36)\nLeads (12)\nRéunions (13)\nCandidatures\n36 résultats\nToutes\nEn attente\nApprouvées\nRefusées\nCandidat\tTéléphone\tCA visé\tDate\tStatut\t\n\nNL\nNora Lefèvre\nnora.lefevre@example.com\n\t+33 6 12 34 56 13\t< 3k €\t29 avr. 2026\tRefusée\t\n\n\nCB\nCamille Bernard\ncamille.bernard@example.com\n\t+33 6 12 34 56 15\t3–5k €\t29 avr. 2026\tApprouvée\t\n\n\nMA\nMehdi Aouad\nmehdi.aouad@example.com\n\t+33 6 12 34 56 14\t7–10k €\t29 avr. 2026\tApprouvée\t\n\n\nAB\nAmine Benkacem\namine.benkacem@example.com\n\t+33 6 12 34 56 10\t5–7k €\t29 avr. 2026\tApprouvée\t\n\n\nKD\nKarim Diallo\nkarim.diallo@example.com\n\t+33 6 12 34 56 12\t7–10k €\t29 avr. 2026\tEn examen\t\n\n\nSM\nSarah Meunier\nsarah.meunier@example.com\n\t+33 6 12 34 56 11\t3–5k €\t29 avr. 2026\tEn examen\t\n\n\nCA\nCodex Audit\ncodex.audit.1777474690@example.com\n\t0612345678\t3–5k €\t29 avr. 2026\tEn attente\t\n\n\nAC\nAudit Codex\ncodex.audit.1777474433318@example.com\n\t0612345678\t3–5k €\t29 avr. 2026"
+    },
+    {
+      "name": "admin R2 integration smoke check",
+      "ok": true,
+      "response": {
+        "configured": true,
+        "ok": true,
+        "status": 200,
+        "keyDeleted": true
+      }
+    },
+    {
+      "name": "admin Resend API reachable",
+      "ok": true,
+      "response": {
+        "configured": true,
+        "ok": true,
+        "status": 200,
+        "domains": [
+          {
+            "name": "driivo.fr",
+            "status": "failed",
+            "region": "eu-west-1"
+          },
+          {
+            "name": "siratscolaire.fr",
+            "status": "verified",
+            "region": "eu-west-1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "admin Resend driivo.fr domain verified",
+      "ok": false,
+      "response": {
+        "name": "driivo.fr",
+        "status": "failed",
+        "region": "eu-west-1"
+      }
+    },
+    {
+      "name": "admin sees active operations modules",
+      "ok": true,
+      "page": {
+        "url": "https://app.driivo.fr/admin/applications/demo-app-mehdi",
+        "title": "Driivo - Entrepreneur Salarié VTC",
+        "w": 1440,
+        "h": 913
+      },
+      "textStart": "Driivo\nCandidatures\nMA\nMehdi Aouad\nmehdi.aouad@example.com · +33 6 12 34 56 14 · Déposée le 29 avril 2026\nApprouvée\nRefuser\nEn examen\nContacter\nComplétude du dossier\n10 / 10 champs renseignés\n100%\nPrénom\nNom\nEmail\nTéléphone\nCarte VTC\nExpérience\nCA visé\nVéhicule\nDocs reçus\nDocs validés\nOpérations client manuelles\nContrat, activité, factures, paiements, frais et bulletins suivis par l'équipe et le comptable.\nACTIVE\nContrat\nSIGNED\nActivités\n2\nFactures\n1\nDernier payout\n6 716 €\nUpload contrat\nUpload signé\nOuvrir/valider mois\nCréer facture\nUpload facture\nSynthèse paie\nUpload bulletin\nExport compta CSV\nChecklist onboarding\nCandidature approuvée\nDONE\nDocuments principaux validés\nDONE\nContrat envoyé\nDONE\nContrat signé\nDONE\nRIB et paiement prêts\nDONE\nComptable assigné\nDONE\nPremier mois d'activité ouvert\nDONE\nActivité mensuelle\n2026-05\n7 420 € · SUBMITTED\n2026-04\n8 600 € · VALIDATED\nFactures et paiements\nDRIIVO-202604-MEHDI\nPlateformes VTC · 8 600 € · PAID\nFrais\nRecharge\n42 € · SUBMITTED\nAction\nRecharge\n42 € · SUBMITTED\nAction\nRecharge\n42 € · SUBMITTED\nAction\nRecharge\n180 € · APPROVED · Validé par le comptable.\nPaie / bulletins\n2026-04\n6 716 € · PAID\nAction\nTimeline\nFrais: Recharge\n29/04/2026"
+    },
+    {
+      "name": "admin accounting CSV export",
+      "ok": true,
+      "response": {
+        "status": 200,
+        "bodyStart": "\"period\",\"driver_email\",\"profile_status\",\"activity_status\",\"declared_revenue\",\"invoice_total_ttc\",\"paid_total_ttc\",\"net_salary\",\"payout_amount\",\"payroll_status\"\n\"2026-05\",\"amine.benkacem@example.com\",\"CONTRACT_SENT\",\"NO_ACTIVITY\",\"0\",\"0\",\"0\",\"0\",\"0\",\"NO_PAYROLL\"\n\"2026-05\",\"camille.bernard@example.com\",\"PENDING_CONTRACT\",\"NO_ACTIVITY\",\"0\",\"0\",\"0\",\"0\",\"0\",\"NO_PAYROLL\"\n\"2026-05\",\"mehdi.aouad@example.com\",\"ACTIVE\",\"SUBMITTED\",\"7420\",\"8600\",\"8600\",\"0\",\"0\",\"NO_PAYROLL\"",
+        "hasMehdi": true
+      }
+    },
+    {
+      "name": "admin approves and activates a demo candidate",
+      "ok": true,
+      "response": {
+        "patchStatus": 200,
+        "patchSuccess": true,
+        "activateStatus": 200,
+        "activateSuccess": true,
+        "profileStatus": "PENDING_CONTRACT",
+        "taskCount": 7
+      }
+    }
+  ],
+  "screenshots": {
+    "marketing-home-desktop": "/home/rick/Documents/websites/driivo/screens/live-audit-2026-04-29/marketing-home-desktop.png",
+    "login-filled-mehdi.aouad": "/home/rick/Documents/websites/driivo/screens/live-audit-2026-04-29/login-filled-mehdi.aouad.png",
+    "user-mehdi-dashboard": "/home/rick/Documents/websites/driivo/screens/live-audit-2026-04-29/user-mehdi-dashboard.png",
+    "user-mehdi-operations": "/home/rick/Documents/websites/driivo/screens/live-audit-2026-04-29/user-mehdi-operations.png",
+    "user-mehdi-documents-after-r2-upload": "/home/rick/Documents/websites/driivo/screens/live-audit-2026-04-29/user-mehdi-documents-after-r2-upload.png",
+    "login-filled-demo.admin": "/home/rick/Documents/websites/driivo/screens/live-audit-2026-04-29/login-filled-demo.admin.png",
+    "admin-dashboard": "/home/rick/Documents/websites/driivo/screens/live-audit-2026-04-29/admin-dashboard.png",
+    "admin-mehdi-operations": "/home/rick/Documents/websites/driivo/screens/live-audit-2026-04-29/admin-mehdi-operations.png",
+    "admin-camille-activated": "/home/rick/Documents/websites/driivo/screens/live-audit-2026-04-29/admin-camille-activated.png"
+  },
+  "finishedAt": "2026-04-29T16:32:31Z"
+}

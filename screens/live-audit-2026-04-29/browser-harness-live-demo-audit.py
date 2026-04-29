@@ -85,13 +85,19 @@ def set_field(selector, value):
 
 
 def app_logout_if_needed():
+    cookies = cdp("Network.getAllCookies").get("cookies", [])
+    for cookie in cookies:
+        domain = cookie.get("domain", "")
+        if domain == "driivo.fr" or domain.endswith(".driivo.fr"):
+            cdp(
+                "Network.deleteCookies",
+                name=cookie.get("name"),
+                domain=domain,
+                path=cookie.get("path", "/"),
+            )
     new_tab(APP)
     wait_for_load(15)
     wait(1)
-    if "Déconnexion" in text():
-        click_text("Déconnexion")
-        wait_for_load(10)
-        wait(1)
 
 
 def login(email, password, expected_path):
@@ -242,7 +248,12 @@ if login(USER_EMAIL, USER_PASSWORD, "/espace"):
         "R2 upload and signed download through app",
         r2_upload.get("status") == 200 and r2_upload.get("success") and r2_upload.get("download", {}).get("success") and r2_download_ok,
         upload={k: v for k, v in r2_upload.items() if k != "download"},
-        download={**(r2_upload.get("download") or {}), "bodyCheck": r2_download_ok, "httpStatus": r2_download_status},
+        download={
+            **(r2_upload.get("download") or {}),
+            "url": "<signed-url-redacted>",
+            "bodyCheck": r2_download_ok,
+            "httpStatus": r2_download_status,
+        },
     )
 
     goto_url(f"{APP}/espace")
@@ -270,14 +281,31 @@ if login(ADMIN_EMAIL, ADMIN_PASSWORD, "/admin"):
         };
         """
     )
+    resend = integration.get("resend", {})
+    r2 = integration.get("r2", {})
+    resend_domains = resend.get("domains") or []
+    driivo_domain = next(
+        (domain for domain in resend_domains if domain.get("name") == "driivo.fr"),
+        None,
+    )
     add(
-        "admin integration smoke checks Resend and R2",
+        "admin R2 integration smoke check",
         integration.get("status") == 200
-        and integration.get("serviceStatus") in ["ok", "degraded"]
-        and integration.get("resend", {}).get("configured") is True
-        and integration.get("r2", {}).get("configured") is True
-        and integration.get("r2", {}).get("status") == "ok",
-        response=integration,
+        and r2.get("configured") is True
+        and r2.get("ok") is True,
+        response=r2,
+    )
+    add(
+        "admin Resend API reachable",
+        integration.get("status") == 200
+        and resend.get("configured") is True
+        and resend.get("ok") is True,
+        response=resend,
+    )
+    add(
+        "admin Resend driivo.fr domain verified",
+        bool(driivo_domain) and driivo_domain.get("status") == "verified",
+        response=driivo_domain,
     )
 
     goto_url(f"{APP}/admin/applications/demo-app-mehdi")
