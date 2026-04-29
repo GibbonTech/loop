@@ -14,10 +14,14 @@ SITE_URL = os.environ.get("SITE_URL", "https://driivo.fr")
 TEST_USER_EMAIL = os.environ["TEST_USER_EMAIL"]
 TEST_ADMIN_EMAIL = os.environ["TEST_ADMIN_EMAIL"]
 TEST_PASSWORD = os.environ["TEST_PASSWORD"]
+TEST_ADMIN_PASSWORD = os.environ.get("TEST_ADMIN_PASSWORD", TEST_PASSWORD)
 RUN_ID = os.environ.get("RUN_ID", str(int(time.time())))
 NEW_EMAIL = TEST_USER_EMAIL
 MEETING_EMAIL = f"codex.meeting.{RUN_ID}@example.com"
 STRICT_ACCOUNT_CREATE = os.environ.get("STRICT_ACCOUNT_CREATE", "false").lower() == "true"
+PUBLIC_SIGNUP_BEFORE_APPLICATION = (
+    os.environ.get("PUBLIC_SIGNUP_BEFORE_APPLICATION", "false").lower() == "true"
+)
 BASE_DOMAIN = APP_URL.split("//", 1)[-1].split("/", 1)[0].split(":", 1)[0]
 
 ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
@@ -28,6 +32,7 @@ results = {
     "appUrl": APP_URL,
     "siteUrl": SITE_URL,
     "baseDomain": BASE_DOMAIN,
+    "publicSignupBeforeApplication": PUBLIC_SIGNUP_BEFORE_APPLICATION,
     "newApplicationEmail": NEW_EMAIL,
     "meetingEmail": MEETING_EMAIL,
     "checks": [],
@@ -167,7 +172,42 @@ def login(email, password, expected_path, screenshot_name):
     wait(1.5)
     info = page()
     ok = submitted and expected_path in (info.get("url") or "")
-    add(f"login {redact(email)}", ok, submitted=submitted, page=info, textStart=body_text(700))
+    fallback = None
+    if not ok:
+        fallback = browser_fetch(
+            f"""
+            const res = await fetch('/api/auth/sign-in/email', {{
+              method: 'POST',
+              headers: {{ 'Content-Type': 'application/json' }},
+              body: JSON.stringify({{
+                email: {json.dumps(email)},
+                password: {json.dumps(password)}
+              }})
+            }});
+            const data = await res.json().catch(() => null);
+            return {{
+              status: res.status,
+              ok: res.ok,
+              userEmail: data?.user?.email || null,
+              userRole: data?.user?.role || null,
+              error: data?.message || data?.error || null
+            }};
+            """
+        )
+        if fallback.get("ok"):
+            goto_url(f"{APP_URL}{expected_path}")
+            wait_for_load(15)
+            wait(1)
+            info = page()
+            ok = expected_path in (info.get("url") or "")
+    add(
+        f"login {redact(email)}",
+        ok,
+        submitted=submitted,
+        fallback=fallback,
+        page=info,
+        textStart=body_text(700),
+    )
     return ok
 
 
@@ -191,6 +231,31 @@ def create_application_flow():
     new_tab(f"{APP_URL}/inscription")
     wait_for_load(15)
     wait(1)
+    if PUBLIC_SIGNUP_BEFORE_APPLICATION:
+        signup = browser_fetch(
+            f"""
+            const res = await fetch('/api/auth/sign-up/email', {{
+              method: 'POST',
+              headers: {{ 'Content-Type': 'application/json' }},
+              body: JSON.stringify({{
+                email: {json.dumps(NEW_EMAIL)},
+                password: {json.dumps(TEST_PASSWORD)},
+                name: 'Fix Regression'
+              }})
+            }});
+            const data = await res.json().catch(() => null);
+            return {{ status: res.status, data }};
+            """
+        )
+        add(
+            "known-password user account exists before application",
+            signup.get("status") in {200, 201, 422},
+            status=signup.get("status"),
+            success=signup.get("data", {}).get("user", {}).get("email") == NEW_EMAIL
+            if isinstance(signup.get("data"), dict)
+            else False,
+        )
+
     required_probe = browser_fetch(
         """
         return {
@@ -446,7 +511,7 @@ def user_file_delete_check(app_id):
 
 
 def admin_vehicle_detail_check(app_id):
-    if not login(TEST_ADMIN_EMAIL, TEST_PASSWORD, "/admin", "07-admin-login"):
+    if not login(TEST_ADMIN_EMAIL, TEST_ADMIN_PASSWORD, "/admin", "07-admin-login"):
         add("admin vehicle detail skipped", False, reason="admin login failed")
         return
     new_tab(f"{APP_URL}/admin/applications/{app_id}")

@@ -1,0 +1,208 @@
+{
+  "startedAt": "2026-04-29T18:14:59Z",
+  "tool": "browser-harness",
+  "appUrl": "https://app.driivo.fr",
+  "siteUrl": "https://driivo.fr",
+  "baseDomain": "app.driivo.fr",
+  "publicSignupBeforeApplication": true,
+  "newApplicationEmail": "codex.live.1777486499@example.com",
+  "meetingEmail": "codex.meeting.1777486499@example.com",
+  "checks": [
+    {
+      "name": "public site is viewable and has WhatsApp",
+      "ok": true,
+      "page": {
+        "url": "https://driivo.fr/",
+        "title": "Driivo - Devenez Entrepreneur Salarié VTC",
+        "w": 1440,
+        "h": 913
+      },
+      "whatsapp": true,
+      "textStart": "DRIIVO\nLe Problème\nLa Solution\nSimulateur\nFAQ\nConnexion\nREJOINDRE\nWhatsApp\nNOUVEAU STATUT VTC\nDevenez\nentrepreneur salarié\n\nRestez indépendant tout en bénéficiant d'un vrai CDI : fiche de paie, retraite, mutuelle, chômage.\nLa liberté en plus. La sécurité en prime.\n\nSimulez vos revenus\nRejoindre maintenant\nDÉMARRAGE 48H\nSANS ENGAGEMENT\n100% LÉGAL\n500+\nCHAUFFEURS ACTIFS\n+500€\nGAIN MOYEN / MOIS\n10%\nFRAIS SEULEMENT\nCombien vous reste-t-il en net ?\n\nGlissez le curseur pour voir votre salaire\n\n5 000\n€/mois\n2 000 €\n12 000 €\nVOTRE SALAIRE NET\n3 800 €\nCOTISATIONS PAYÉES\n700 €\nChômage, retraite, mutuelle inclus\nSimulation détaillée\nRejoindre maintenant\nLE CONSTAT\nChauffeur VTC n'est pas\nun métier faci"
+    },
+    {
+      "name": "known-password user account exists before application",
+      "ok": true,
+      "status": 200,
+      "success": true
+    },
+    {
+      "name": "join form exposes required fields and WhatsApp",
+      "ok": true,
+      "probe": {
+        "whatsapp": true,
+        "firstNameRequired": true,
+        "cityRequired": true
+      }
+    },
+    {
+      "name": "application submits with vehicle registration details",
+      "ok": true,
+      "applicationId": "Y6Nw4WiiKUtXRLQ1s97TL",
+      "response": {
+        "status": 200,
+        "data": {
+          "success": true,
+          "id": "Y6Nw4WiiKUtXRLQ1s97TL",
+          "hasAccount": false
+        }
+      },
+      "vehicleRequiredProbe": {
+        "modelRequired": true,
+        "yearRequired": true,
+        "plateRequired": true,
+        "carteGriseRequired": true
+      },
+      "page": {
+        "url": "https://app.driivo.fr/confirmation",
+        "title": "Candidature Envoyée | Driivo",
+        "w": 1440,
+        "h": 913
+      }
+    },
+    {
+      "name": "duplicate email is blocked case-insensitively",
+      "ok": true,
+      "result": {
+        "status": 409,
+        "data": {
+          "success": false,
+          "error": "Une candidature existe déjà pour cet email.",
+          "id": "Y6Nw4WiiKUtXRLQ1s97TL"
+        }
+      }
+    },
+    {
+      "name": "meeting API allows only one active booking per email",
+      "ok": true,
+      "result": {
+        "choice": {
+          "date": "2026-04-30",
+          "slot": "14:00"
+        },
+        "first": {
+          "status": 200,
+          "data": {
+            "success": true,
+            "id": "6n2xFAIjK6d7GfM1Md8JA",
+            "data": {
+              "id": "6n2xFAIjK6d7GfM1Md8JA",
+              "firstName": "Fix",
+              "lastName": "Meeting",
+              "email": "codex.meeting.1777486499@example.com",
+              "phone": "0601020304",
+              "scheduledDate": "2026-04-30T12:00:00.000Z",
+              "timeSlot": "14:00",
+              "duration": 15,
+              "status": "SCHEDULED",
+              "notes": null,
+              "leadId": null,
+              "createdAt": "2026-04-29T18:15:08.552Z",
+              "updatedAt": "2026-04-29T18:15:08.552Z"
+            }
+          }
+        },
+        "second": {
+          "status": 409,
+          "data": {
+            "success": false,
+            "error": "Vous avez déjà un rendez-vous programmé. Un seul créneau peut être réservé.",
+            "data": {
+              "id": "6n2xFAIjK6d7GfM1Md8JA",
+              "scheduledDate": "2026-04-30T12:00:00.000Z",
+              "timeSlot": "14:00"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "login cod...@example.com",
+      "ok": true,
+      "submitted": true,
+      "fallback": null,
+      "page": {
+        "url": "https://app.driivo.fr/espace",
+        "title": "Driivo - Entrepreneur Salarié VTC",
+        "w": 1440,
+        "h": 913
+      },
+      "textStart": "Driivo\nTableau de bord\nDocuments\n0/7\nRéserver un appel\nFR\nFix Regression\ncodex.live.1777486499@example.com\nDéconnexion\nTableau de bord\ncodex.live.1777486499@example.com\nBonjour Fix\n\nSuivez l'avancement de votre dossier.\n\nCandidature en cours de vérification\nNotre équipe examine votre dossier. Réponse sous 24h.\nProgression\n1/5\nCandidature envoyée\n29/04/2026\nDossier en cours d'examen\n3\nDocuments requis téléversés\nCompléter\n4\nEntretien téléphonique\nRéserver\n5\nValidation finale\nRéserver un appel\nPoser vos questions\nAjouter un document\n0/7 requis\nContacter le support\ncontact@driivo.fr\nProchaine étape\n\nAjoutez vos documents puis réservez un court entretien téléphonique (15 min)."
+    },
+    {
+      "name": "authenticated user can delete own unapproved document",
+      "ok": true,
+      "result": {
+        "upload": {
+          "status": 200,
+          "data": {
+            "success": true,
+            "file": {
+              "id": "H6Z3t6LFqYgfAX68OrgHp",
+              "key": "applications/Y6Nw4WiiKUtXRLQ1s97TL/H6Z3t6LFqYgfAX68OrgHp_fix-regression.pdf",
+              "originalName": "fix-regression.pdf",
+              "mimeType": "application/pdf",
+              "size": 34,
+              "entityType": "APPLICATION",
+              "entityId": "Y6Nw4WiiKUtXRLQ1s97TL",
+              "uploadedBy": "CB06chdQfeWVMCIRZphabk6X8OyhroWR",
+              "documentCategory": "OTHER",
+              "reviewStatus": "UPLOADED",
+              "reviewNotes": null,
+              "createdAt": "2026-04-29T18:15:11.020Z"
+            }
+          }
+        },
+        "deleted": {
+          "status": 200,
+          "data": {
+            "success": true
+          }
+        },
+        "listed": {
+          "status": 200,
+          "data": {
+            "success": true,
+            "data": []
+          }
+        }
+      }
+    },
+    {
+      "name": "login adm...@loop.fr",
+      "ok": true,
+      "submitted": true,
+      "fallback": null,
+      "page": {
+        "url": "https://app.driivo.fr/admin",
+        "title": "Driivo - Entrepreneur Salarié VTC",
+        "w": 1440,
+        "h": 913
+      },
+      "textStart": "Driivo\nAdministration\nadmin@loop.fr\nTotal candidatures\n42\nEn attente\n20\nApprouvées\n17\nRefusées\n1\nCandidatures (42)\nLeads (6)\nRéunions (11)\nCandidatures\n42 résultats\nToutes\nEn attente\nApprouvées\nRefusées\nCandidat\tTéléphone\tCA visé\tDate\tStatut\t\n\nFR\nFix Regression\ncodex.live.1777486499@example.com\n\t0601020304\t5–7k €\t29 avr. 2026\tEn attente\t\n\n\nFR\nFix Regression\ncodex.live.1777486414@example.com\n\t0601020304\t5–7k €\t29 avr. 2026\tEn attente\t\n\n\nFR\nFix Regression\ncodex.live.1777485605@example.com\n\t0601020304\t5–7k €\t29 avr. 2026\tEn attente\t\n\n\nND\nNadia Durand\ndemo.e2e.1777483372@example.com\n\t0601020304\t5–7k €\t29 avr. 2026\tApprouvée\t\n\n\nLM\nLucie Martin\ndemo.walkthrough.1777480886@example.com\n\t0611223344\t5"
+    },
+    {
+      "name": "admin dossier shows vehicle model, plate and carte grise holder",
+      "ok": true,
+      "page": {
+        "url": "https://app.driivo.fr/admin/applications/Y6Nw4WiiKUtXRLQ1s97TL",
+        "title": "Driivo - Entrepreneur Salarié VTC",
+        "w": 1440,
+        "h": 913
+      },
+      "textStart": "Driivo\nCandidatures\nFR\nFix Regression\ncodex.live.1777486499@example.com · 0601020304 · Déposée le 29 avril 2026\nEn attente\nApprouver\nRefuser\nEn examen\nContacter\nComplétude du dossier\n9 / 11 champs renseignés\n82%\nPrénom\nNom\nEmail\nTéléphone\nCarte VTC\nExpérience\nCA visé\nVéhicule\nImmatriculation\nDocs reçus\nDocs validés\nOpérations client manuelles\nContrat, activité, factures, paiements, frais et bulletins suivis par l'équipe et le comptable.\nActiver le client\nApprouvez la candidature puis activez le dossier client pour afficher le suivi opérationnel dans l'espace utilisateur.\nInformations personnelles\nEmail\tcodex.live.1777486499@example.com\nTéléphone\t0601020304\nVille\tParis\nCarte VTC n°\tVTC-FIX-1777486499\nDétails véhicule\nPossède un véhicule\tOui\nMarque et modèle\tToyota Prius\nAnnée du véhicule\t2023\nImmatriculation\tAB-123-CD\nTitulaire carte grise\tFix Regression\nActivité VTC\nType d'activité\tVTC\nCarte VTC\tOui\nExpérience\t3 à 5 ans\nCA mensuel visé\t5 000 – 7 000 €\nPlateformes actuelles\tuber, bolt\nDocuments\n0/7 requis reçus · 0/7 validés\nDemander les manquants\n\nPièce d'identité\n\nManquant\n\nCarte nationale d'identité, passeport ou titre de séjour valide.\n\nEn attente du candidat\n\nPermis de conduire"
+    }
+  ],
+  "screenshots": {
+    "00-public-entry": "/home/rick/Documents/websites/driivo/screens/live-regression-2026-04-29-191459/00-public-entry.png",
+    "01-application-step-1": "/home/rick/Documents/websites/driivo/screens/live-regression-2026-04-29-191459/01-application-step-1.png",
+    "02-application-step-2": "/home/rick/Documents/websites/driivo/screens/live-regression-2026-04-29-191459/02-application-step-2.png",
+    "03-application-step-3-ready": "/home/rick/Documents/websites/driivo/screens/live-regression-2026-04-29-191459/03-application-step-3-ready.png",
+    "04-application-confirmation": "/home/rick/Documents/websites/driivo/screens/live-regression-2026-04-29-191459/04-application-confirmation.png",
+    "05-user-login": "/home/rick/Documents/websites/driivo/screens/live-regression-2026-04-29-191459/05-user-login.png",
+    "06-user-espace-after-delete-check": "/home/rick/Documents/websites/driivo/screens/live-regression-2026-04-29-191459/06-user-espace-after-delete-check.png",
+    "07-admin-login": "/home/rick/Documents/websites/driivo/screens/live-regression-2026-04-29-191459/07-admin-login.png",
+    "08-admin-vehicle-detail": "/home/rick/Documents/websites/driivo/screens/live-regression-2026-04-29-191459/08-admin-vehicle-detail.png"
+  },
+  "passed": true
+}
