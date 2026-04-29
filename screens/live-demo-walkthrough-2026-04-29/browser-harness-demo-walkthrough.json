@@ -1,0 +1,227 @@
+{
+  "startedAt": "2026-04-29T16:41:26Z",
+  "tool": "browser-harness",
+  "site": "https://driivo.fr",
+  "app": "https://app.driivo.fr",
+  "newApplicationEmail": "demo.walkthrough.1777480886@example.com",
+  "checks": [
+    {
+      "name": "public landing page renders and has primary CTAs",
+      "ok": true,
+      "page": {
+        "url": "https://driivo.fr/",
+        "title": "Driivo - Devenez Entrepreneur Salarié VTC",
+        "w": 1440,
+        "h": 913
+      }
+    },
+    {
+      "name": "simulator page opens from landing CTA",
+      "ok": true,
+      "page": {
+        "url": "https://driivo.fr/simulateur",
+        "title": "Simulateur de Revenus | Driivo",
+        "w": 1440,
+        "h": 913
+      }
+    },
+    {
+      "name": "new candidature submitted from UI and account auto-created",
+      "ok": true,
+      "clickedStep1": true,
+      "clickedStep2": true,
+      "response": {
+        "status": 200,
+        "data": {
+          "success": true,
+          "id": "E5VR9XLVMyPmb7KKhUjl7",
+          "hasAccount": true
+        }
+      }
+    },
+    {
+      "name": "login mehdi.aouad@example.com",
+      "ok": true,
+      "submitted": true,
+      "page": {
+        "url": "https://app.driivo.fr/espace",
+        "title": "Driivo - Entrepreneur Salarié VTC",
+        "w": 1440,
+        "h": 913
+      },
+      "textStart": "Driivo\nTableau de bord\nOpérations\nDocuments\n7/7\nRéserver un appel\nMA\nMehdi Aouad\nmehdi.aouad@example.com\nDéconnexion\nTableau de bord\nmehdi.aouad@example.com\nBonjour Mehdi\n\nSuivez l'avancement de votre dossier.\n\nCandidature approuvée\nFélicitations ! Votre candidature a été acceptée.\nProgression\n5/5\nCandidature envoyée\n29/04/2026\nDossier en cours d'examen\nDocuments requis téléversés\nEntretien téléphonique\nValidation finale\nRéserver un appel\nPoser vos questions\nAjouter un document\n7/7 requis\nContacter le support\ncontact@driivo.fr\nProchaine étape\n\nFélicitations ! Votre candidature est approuvée. Nous vous contacterons sous peu pour la signature du contrat."
+    },
+    {
+      "name": "seeded user dashboard is viewable",
+      "ok": true,
+      "page": {
+        "url": "https://app.driivo.fr/espace",
+        "title": "Driivo - Entrepreneur Salarié VTC",
+        "w": 1440,
+        "h": 913
+      }
+    },
+    {
+      "name": "seeded user post-approval operations are clickable/viewable",
+      "ok": true,
+      "textStart": "Driivo\nTableau de bord\nOpérations\nDocuments\n7/7\nRéserver un appel\nMA\nMehdi Aouad\nmehdi.aouad@example.com\nDéconnexion\nTableau de bord\nmehdi.aouad@example.com\nBonjour Mehdi\n\nSuivez l'avancement de votre dossier.\n\nCandidature approuvée\nFélicitations ! Votre candidature a été acceptée.\nStatut client\nACTIVE\nContrat\nSIGNED\nDernier CA déclaré\n7 420 €\nDernier versement\n6 716 €\nContrat et signature\n\nSuivi manuel par l'équipe Driivo et le comptable.\n\nManual demo\nContrat signé\nDéclarer l'activité mensuelle\nEnvoyer la déclaration\nNotes de frais\nCarburant\nRecharge\nLavage\nPéage\nEntretien\nAutre\nAjouter\nChecklist onboarding\nCandidature approuvée\nDocuments principaux validés\nContrat envoyé\nContrat signé\nRIB et paiement prêts\nComptable assigné\nPremier mois d'activité ouvert\nTimeline\nFrais: Recharge\n29/04/2026\n\n42 EUR - SUBMITTED\n\nDéclaration 2026-05 envoyée\n29/04/2026\n\n7 420 EUR déclarés\n\nFrais: Recharge\n29/04/2026\n\n42 EUR - SUBMITTED\n\nDéclaration 2026-05 envoyée\n29/04/2026\n\n7 420 EUR déclarés\n\nFrais: R"
+    },
+    {
+      "name": "user can submit monthly activity declaration",
+      "ok": true,
+      "response": {
+        "status": 200,
+        "success": true,
+        "activityCount": 2
+      }
+    },
+    {
+      "name": "user can submit expense",
+      "ok": true,
+      "response": {
+        "status": 200,
+        "success": true,
+        "expenseCount": 6
+      }
+    },
+    {
+      "name": "R2 document upload and signed download work",
+      "ok": true,
+      "upload": {
+        "status": 200,
+        "success": true,
+        "file": {
+          "id": "-IO7dOqSf548Pxla4ryfG",
+          "key": "applications/demo-app-mehdi/-IO7dOqSf548Pxla4ryfG_walkthrough-r2-smoke.pdf",
+          "originalName": "walkthrough-r2-smoke.pdf",
+          "mimeType": "application/pdf",
+          "size": 34,
+          "entityType": "APPLICATION",
+          "entityId": "demo-app-mehdi",
+          "uploadedBy": "demo-user-mehdi",
+          "documentCategory": "OTHER",
+          "reviewStatus": "UPLOADED",
+          "reviewNotes": null,
+          "createdAt": "2026-04-29T16:41:42.259Z"
+        }
+      },
+      "download": {
+        "status": 200,
+        "success": true,
+        "url": "<signed-url-redacted>",
+        "key": "applications/demo-app-mehdi/-IO7dOqSf548Pxla4ryfG_walkthrough-r2-smoke.pdf",
+        "fileId": "-IO7dOqSf548Pxla4ryfG",
+        "bodyCheck": true,
+        "httpStatus": 200
+      }
+    },
+    {
+      "name": "login demo.admin@driivo.fr",
+      "ok": true,
+      "submitted": true,
+      "page": {
+        "url": "https://app.driivo.fr/admin",
+        "title": "Driivo - Entrepreneur Salarié VTC",
+        "w": 1440,
+        "h": 913
+      },
+      "textStart": "Driivo\nAdministration\ndemo.admin@driivo.fr\nTotal candidatures\n38\nEn attente\n18\nApprouvées\n15\nRefusées\n1\nCandidatures (38)\nLeads (12)\nRéunions (13)\nCandidatures\n38 résultats\nToutes\nEn attente\nApprouvées\nRefusées\nCandidat\tTéléphone\tCA visé\tDate\tStatut\t\n\nLM\nLucie Martin\ndemo.walkthrough.1777480886@example.com\n\t0611223344\t5–7k €\t29 avr. 2026\tEn attente\t\n\n\nLM\nLucie Martin\ndemo.walkthrough.1777480826@example.com\n\t0611223344\t5–7k €\t29 avr. 2026\tApprouvée\t\n\n\nMA\nMehdi Aouad\nmehdi.aouad@example.com\n\t+33 6 12 34 56 14\t7–10k €\t29 avr. 2026\tApprouvée\t\n\n\nNL\nNora Lefèvre\nnora.lefevre@example.com\n\t+33 6 12 34 56 13\t< 3k €\t29 avr. 2026\tRefusée\t\n\n\nKD\nKarim Diallo\nkarim.diallo@example.com\n\t+33 6 12 34 56 12\t7–10k €\t29 avr. 2026\tEn examen\t\n\n\nAB\nAmine Benkacem\namine.benkacem@example.com\n\t+33 6 12 34 56 10\t5–7k €\t29 avr. 2026\tApprouvée\t\n\n\nSM\nSarah Meunier\nsarah.meunier@example.com\n\t+33 6 12 34 56 11\t3–5k €\t29"
+    },
+    {
+      "name": "admin dashboard is viewable with seeded and new candidates",
+      "ok": true,
+      "textStart": "Driivo\nAdministration\ndemo.admin@driivo.fr\nTotal candidatures\n38\nEn attente\n18\nApprouvées\n15\nRefusées\n1\nCandidatures (38)\nLeads (12)\nRéunions (13)\nCandidatures\n38 résultats\nToutes\nEn attente\nApprouvées\nRefusées\nCandidat\tTéléphone\tCA visé\tDate\tStatut\t\n\nLM\nLucie Martin\ndemo.walkthrough.1777480886@example.com\n\t0611223344\t5–7k €\t29 avr. 2026\tEn attente\t\n\n\nLM\nLucie Martin\ndemo.walkthrough.1777480826@example.com\n\t0611223344\t5–7k €\t29 avr. 2026\tApprouvée\t\n\n\nMA\nMehdi Aouad\nmehdi.aouad@example.com\n\t+33 6 12 34 56 14\t7–10k €\t29 avr. 2026\tApprouvée\t\n\n\nNL\nNora Lefèvre\nnora.lefevre@example.com\n\t+33 6 12 34 56 13\t< 3k €\t29 avr. 2026\tRefusée\t\n\n\nKD\nKarim Diallo\nkarim.diallo@example.com\n\t+33 6 12 34 56 12\t7–10k €\t29 avr. 2026\tEn examen\t\n\n\nAB\nAmine Benkacem\namine.benkacem@example.com\n\t+33 6 12 34 56 10\t5–7k €\t29 avr. 2026\tApprouvée\t\n\n\nSM\nSarah Meunier\nsarah.meunier@example.com\n\t+33 6 12 34 56 11\t3–5k €\t29 avr. 2026\tEn examen\t\n\n\nCB\nCamille Bernard\ncamille.bernard@example.com\n\t+33 6 12 34 56 15\t3–5k €\t29 "
+    },
+    {
+      "name": "admin can open new application detail",
+      "ok": true,
+      "applicationId": "E5VR9XLVMyPmb7KKhUjl7",
+      "textStart": "Driivo\nCandidatures\nLM\nLucie Martin\ndemo.walkthrough.1777480886@example.com · 0611223344 · Déposée le 29 avril 2026\nEn attente\nApprouver\nRefuser\nEn examen\nContacter\nComplétude du dossier\n8 / 10 champs renseignés\n80%\nPrénom\nNom\nEmail\nTéléphone\nCarte VTC\nExpérience\nCA visé\nVéhicule\nDocs reçus\nDocs validés\nOpérations client manuelles\nContrat, activité, factures, paiements, frais et bulletins suivis par l'équipe et le comptable.\nActiver le client\nApprouvez la candidature puis activez le dossier client pour afficher le suivi opérationnel dans l'espace utilisateur.\nInformations personnelles\nEmail\tdemo.walkthrough.1777480886@example.com\nTéléphone\t0611223344\nVille\tParis\nCarte VTC n°\tVTC-DEMO-2026\nVéhicule\nPossède un véhicule\tOui\nType de véhicule\tTesla Model 3\nActivité VTC\nType d'activité\tVTC\nCarte VTC\tOui\nExpérience\t3 à 5 ans\nCA mensuel visé\t5 000 – 7 000 €\nPlateformes actuelles\tuber, bolt\nDocuments\n0/7 requis reçus · 0/7 validés\nDemander les manquants\n\nPièce d'identité\n\nManquant\n\nCarte nation"
+    },
+    {
+      "name": "admin can approve and activate new account/application",
+      "ok": true,
+      "response": {
+        "patchStatus": 200,
+        "patchSuccess": true,
+        "activateStatus": 200,
+        "activateSuccess": true,
+        "profileStatus": "PENDING_CONTRACT",
+        "taskCount": 7
+      }
+    },
+    {
+      "name": "admin/accountant can view active client operations",
+      "ok": true,
+      "textStart": "Driivo\nCandidatures\nMA\nMehdi Aouad\nmehdi.aouad@example.com · +33 6 12 34 56 14 · Déposée le 29 avril 2026\nApprouvée\nRefuser\nEn examen\nContacter\nComplétude du dossier\n10 / 10 champs renseignés\n100%\nPrénom\nNom\nEmail\nTéléphone\nCarte VTC\nExpérience\nCA visé\nVéhicule\nDocs reçus\nDocs validés\nOpérations client manuelles\nContrat, activité, factures, paiements, frais et bulletins suivis par l'équipe et le comptable.\nACTIVE\nContrat\nSIGNED\nActivités\n2\nFactures\n1\nDernier payout\n6 716 €\nUpload contrat\nUpload signé\nOuvrir/valider mois\nCréer facture\nUpload facture\nSynthèse paie\nUpload bulletin\nExport compta CSV\nChecklist onboarding\nCandidature approuvée\nDONE\nDocuments principaux validés\nDONE\nContrat envoyé\nDONE\nContrat signé\nDONE\nRIB et paiement prêts\nDONE\nComptable assigné\nDONE\nPremier mois d'activité ouvert\nDONE\nActivité mensuelle\n2026-05\n7 420 € · SUBMITTED\n2026-04\n8 600 € · VALIDATED\nFactures et paiements\nDRIIVO-202604-MEHDI\nPlateformes VTC · 8 600 € · PAID\nFrais\nRecharge\n42 € · SUBMITTED\nAction\nRecharge\n42 € · SUBMITTED\nAction\nRecharge\n42 € · SUBMITTED\nAction\nRecharge\n42 € · SUBMITTED\nAction\nRecharge\n42 € · SUBMITTED\nAction\nRecharge\n180 € · APPROVED · Validé par le comptable.\nPaie / bulletins"
+    },
+    {
+      "name": "admin/accountant accounting CSV export works",
+      "ok": true,
+      "response": {
+        "status": 200,
+        "hasHeader": true,
+        "hasMehdi": true,
+        "bodyStart": "\"period\",\"driver_email\",\"profile_status\",\"activity_status\",\"declared_revenue\",\"invoice_total_ttc\",\"paid_total_ttc\",\"net_salary\",\"payout_amount\",\"payroll_status\"\n\"2026-05\",\"amine.benkacem@example.com\",\"CONTRACT_SENT\",\"NO_ACTIVITY\",\"0\",\"0\",\"0\",\"0\",\"0\",\"NO_PAYROLL\"\n\"2026-05\",\"camille.bernard@example.com\",\"PENDING_CONTRACT\",\"NO_ACTIVITY\",\"0\",\"0\",\"0\",\"0\",\"0\",\"NO_PAYROLL\"\n\"2026-05\",\"demo.walkthrough.1777480826@example.com\",\"PENDING_CONTRACT\",\"NO_ACTIVITY\",\"0\",\"0\",\"0\",\"0\",\"0\",\"NO_PAYROLL\"\n\"2026-05\",\"de"
+      }
+    },
+    {
+      "name": "R2 integration health check passes",
+      "ok": true,
+      "response": {
+        "configured": true,
+        "ok": true,
+        "status": 200,
+        "keyDeleted": true
+      }
+    },
+    {
+      "name": "Resend API is reachable",
+      "ok": true,
+      "response": {
+        "configured": true,
+        "ok": true,
+        "status": 200,
+        "domains": [
+          {
+            "name": "driivo.fr",
+            "status": "failed",
+            "region": "eu-west-1"
+          },
+          {
+            "name": "siratscolaire.fr",
+            "status": "verified",
+            "region": "eu-west-1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Resend driivo.fr sending domain is verified",
+      "ok": false,
+      "response": {
+        "name": "driivo.fr",
+        "status": "failed",
+        "region": "eu-west-1"
+      }
+    }
+  ],
+  "screenshots": {
+    "01-public-home": "/home/rick/Documents/websites/driivo/screens/live-demo-walkthrough-2026-04-29/01-public-home.png",
+    "02-simulator": "/home/rick/Documents/websites/driivo/screens/live-demo-walkthrough-2026-04-29/02-simulator.png",
+    "03-application-step-1-filled": "/home/rick/Documents/websites/driivo/screens/live-demo-walkthrough-2026-04-29/03-application-step-1-filled.png",
+    "04-application-step-2-filled": "/home/rick/Documents/websites/driivo/screens/live-demo-walkthrough-2026-04-29/04-application-step-2-filled.png",
+    "05-application-step-3-ready": "/home/rick/Documents/websites/driivo/screens/live-demo-walkthrough-2026-04-29/05-application-step-3-ready.png",
+    "06-application-confirmation": "/home/rick/Documents/websites/driivo/screens/live-demo-walkthrough-2026-04-29/06-application-confirmation.png",
+    "07-user-login-filled": "/home/rick/Documents/websites/driivo/screens/live-demo-walkthrough-2026-04-29/07-user-login-filled.png",
+    "08-user-dashboard": "/home/rick/Documents/websites/driivo/screens/live-demo-walkthrough-2026-04-29/08-user-dashboard.png",
+    "09-user-operations": "/home/rick/Documents/websites/driivo/screens/live-demo-walkthrough-2026-04-29/09-user-operations.png",
+    "10-user-documents-after-upload": "/home/rick/Documents/websites/driivo/screens/live-demo-walkthrough-2026-04-29/10-user-documents-after-upload.png",
+    "11-admin-login-filled": "/home/rick/Documents/websites/driivo/screens/live-demo-walkthrough-2026-04-29/11-admin-login-filled.png",
+    "12-admin-dashboard": "/home/rick/Documents/websites/driivo/screens/live-demo-walkthrough-2026-04-29/12-admin-dashboard.png",
+    "13-admin-new-application-detail": "/home/rick/Documents/websites/driivo/screens/live-demo-walkthrough-2026-04-29/13-admin-new-application-detail.png",
+    "14-admin-new-application-activated": "/home/rick/Documents/websites/driivo/screens/live-demo-walkthrough-2026-04-29/14-admin-new-application-activated.png",
+    "15-admin-mehdi-operations": "/home/rick/Documents/websites/driivo/screens/live-demo-walkthrough-2026-04-29/15-admin-mehdi-operations.png"
+  },
+  "finishedAt": "2026-04-29T16:41:59Z"
+}
