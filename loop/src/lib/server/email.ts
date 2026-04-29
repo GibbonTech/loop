@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { getDocumentLabel, type DocumentReviewStatus } from "~/lib/documents";
 
 // Lazy-initialize Resend at runtime (not build time)
 // CRITICAL: Must read process.env directly at runtime, NOT through t3-env
@@ -18,10 +19,18 @@ function getResendClient(): Resend | null {
   return _resend;
 }
 
-const APP_URL = "https://app.driivo.fr";
-// Using verified siratscolaire.fr domain on Resend
-const FROM_EMAIL = "Driivo <noreply@siratscolaire.fr>";
+const APP_URL = process["env"]["VITE_BASE_URL"] || "https://app.driivo.fr";
+const FROM_EMAIL = process["env"]["FROM_EMAIL"] || "Driivo <noreply@driivo.fr>";
 const DRIIVO_PRIMARY = "#f97316"; // orange-500
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 
 /**
  * Base email template
@@ -209,7 +218,8 @@ export async function sendNewApplicationAdminEmail(data: {
 }) {
   const { firstName, lastName, email: applicantEmail, applicationId } = data;
 
-  const adminEmail = process["env"]["ADMIN_NOTIFICATION_EMAIL"] || "admin@driivo.fr";
+  const adminEmail =
+    process["env"]["ADMIN_NOTIFICATION_EMAIL"] || "admin@driivo.fr";
 
   const html = emailTemplate(`
     <p>Nouvelle candidature reçue :</p>
@@ -225,6 +235,86 @@ export async function sendNewApplicationAdminEmail(data: {
   return sendEmail({
     to: adminEmail,
     subject: `Nouvelle candidature : ${firstName} ${lastName}`,
+    html,
+  });
+}
+
+export async function sendDocumentRequestEmail(data: {
+  email: string;
+  firstName: string;
+  categories: string[];
+  message?: string;
+}) {
+  const { email, firstName, categories, message } = data;
+  const categoryList = categories
+    .map((category) => `<li>${escapeHtml(getDocumentLabel(category))}</li>`)
+    .join("");
+
+  const html = emailTemplate(`
+    <p>Bonjour ${escapeHtml(firstName)},</p>
+    <p>L'équipe Driivo a besoin de documents complémentaires pour finaliser votre dossier.</p>
+    <div style="margin: 20px 0; padding: 16px; background: #f9fafb; border-radius: 8px;">
+      <p style="margin: 0 0 8px 0;"><strong>Documents demandés :</strong></p>
+      <ul style="margin: 0; padding-left: 20px;">${categoryList}</ul>
+    </div>
+    ${
+      message
+        ? `<div style="margin: 16px 0; padding: 16px; background: #fff7ed; border-left: 4px solid ${DRIIVO_PRIMARY}; border-radius: 4px;"><p style="margin: 0;">${escapeHtml(message)}</p></div>`
+        : ""
+    }
+    <p style="margin: 24px 0;">
+      <a href="${APP_URL}/espace" style="display: inline-block; background: ${DRIIVO_PRIMARY}; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none;">Ajouter mes documents</a>
+    </p>
+  `);
+
+  return sendEmail({
+    to: email,
+    subject: "Documents complémentaires demandés - Driivo",
+    html,
+  });
+}
+
+export async function sendDocumentReviewEmail(data: {
+  email: string;
+  firstName: string;
+  documentCategory: string;
+  status: DocumentReviewStatus;
+  notes?: string;
+}) {
+  const { email, firstName, documentCategory, status, notes } = data;
+
+  if (status === "UPLOADED") {
+    return {
+      success: true,
+      message: "No notification needed for uploaded status",
+    };
+  }
+
+  const approved = status === "APPROVED";
+  const documentLabel = getDocumentLabel(documentCategory);
+
+  const html = emailTemplate(`
+    <p>Bonjour ${escapeHtml(firstName)},</p>
+    <p>Le document <strong>${escapeHtml(documentLabel)}</strong> a été ${
+      approved
+        ? '<strong style="color: #16a34a;">validé</strong>'
+        : '<strong style="color: #dc2626;">à corriger</strong>'
+    }.</p>
+    ${
+      notes
+        ? `<div style="margin: 16px 0; padding: 16px; background: ${approved ? "#f0fdf4" : "#fef2f2"}; border-left: 4px solid ${approved ? "#16a34a" : "#dc2626"}; border-radius: 4px;"><p style="margin: 0;">${escapeHtml(notes)}</p></div>`
+        : ""
+    }
+    <p style="margin: 24px 0;">
+      <a href="${APP_URL}/espace" style="display: inline-block; background: ${DRIIVO_PRIMARY}; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none;">Voir mon dossier</a>
+    </p>
+  `);
+
+  return sendEmail({
+    to: email,
+    subject: approved
+      ? `Document validé : ${documentLabel}`
+      : `Document à corriger : ${documentLabel}`,
     html,
   });
 }
@@ -256,7 +346,10 @@ async function sendEmail(options: {
     });
 
     if (error) {
-      console.error("[Email] Resend API error:", JSON.stringify(error, null, 2));
+      console.error(
+        "[Email] Resend API error:",
+        JSON.stringify(error, null, 2),
+      );
       return { success: false, message: error.message };
     }
 

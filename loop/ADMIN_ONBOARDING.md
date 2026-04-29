@@ -22,16 +22,16 @@
 ### Production Login Credentials
 
 **URL:** https://app.driivo.fr  
-**Email:** `admin@loop.fr`  
-**Password:** `admin123`
+**Email:** configured with `ADMIN_EMAIL` during seeding
+**Password:** configured with `ADMIN_PASSWORD` during seeding
 
-> ⚠️ **IMPORTANT:** Change this password after first login or contact the technical team to reset it.
+> ⚠️ **IMPORTANT:** There is no default production admin password. Set a strong one with `ADMIN_PASSWORD`.
 
 ### First Time Login
 
 1. Navigate to https://app.driivo.fr
-2. Enter email: `admin@loop.fr`
-3. Enter password: `admin123`
+2. Enter the configured `ADMIN_EMAIL`
+3. Enter the configured `ADMIN_PASSWORD`
 4. Click **Se connecter**
 5. You'll be automatically redirected to `/admin` dashboard
 
@@ -41,10 +41,10 @@ If you forget your password or need to reset it, contact the technical team. The
 
 ```bash
 cd /home/rick/Documents/websites/driivo/loop
-node reset-admin.cjs
+ADMIN_EMAIL=admin@driivo.fr ADMIN_PASSWORD='replace-with-a-long-secret' node reset-admin.cjs
 ```
 
-This will reset the password back to `admin123`.
+This sets the password to the explicit `ADMIN_PASSWORD` value.
 
 ---
 
@@ -270,7 +270,7 @@ When you click **En examen:**
 ### Email Provider
 
 **Service:** Resend (https://resend.com)  
-**Sending Domain:** `noreply@siratscolaire.fr` (verified)  
+**Sending Domain:** configured through `FROM_EMAIL`
 **API Key:** Configured in Coolify environment variables
 
 **Email Logs:**

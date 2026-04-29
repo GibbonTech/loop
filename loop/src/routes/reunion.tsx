@@ -1,9 +1,10 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { MessageCircle, Calculator, Rocket, ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { toast } from "sonner";
 import { PageLayout } from "~/components/layout";
 import { reunionFormSchema, validateForm } from "~/lib/validations";
+import { useSession } from "~/lib/auth/auth-client";
 
 export const Route = createFileRoute("/reunion")({
   component: ReunionPage,
@@ -16,7 +17,7 @@ export const Route = createFileRoute("/reunion")({
 });
 
 function ReunionPage() {
-  const navigate = useNavigate();
+  const { data: session } = useSession();
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [currentWeekOffset, setCurrentWeekOffset] = useState(0);
@@ -32,6 +33,22 @@ function ReunionPage() {
   const slots = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00"];
   const dayNames = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
 
+  const formatDateKey = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  useEffect(() => {
+    if (!session?.user) return;
+    setContactInfo((prev) => ({
+      name: prev.name || session.user.name || "",
+      email: prev.email || session.user.email || "",
+      phone: prev.phone,
+    }));
+  }, [session]);
+
   // Fetch real availability from database
   useEffect(() => {
     const fetchAvailability = async () => {
@@ -39,11 +56,11 @@ function ReunionPage() {
       try {
         const today = new Date();
         today.setDate(today.getDate() + currentWeekOffset * 7);
-        const start = today.toISOString().split("T")[0];
+        const start = formatDateKey(today);
         
         const endDate = new Date(today);
         endDate.setDate(endDate.getDate() + 14);
-        const end = endDate.toISOString().split("T")[0];
+        const end = formatDateKey(endDate);
 
         const res = await fetch(`/api/meetings?mode=availability&start=${start}&end=${end}`);
         const result = await res.json();
@@ -67,14 +84,14 @@ function ReunionPage() {
 
     for (let i = 0; i < 14; i++) {
       const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      const dayOfWeek = date.getDay();
-      if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-        days.push({
-          date: date.toISOString(),
-          dayName: dayNames[dayOfWeek],
-          dayNum: date.getDate(),
-        });
+          date.setDate(today.getDate() + i);
+          const dayOfWeek = date.getDay();
+          if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+            days.push({
+              date: formatDateKey(date),
+              dayName: dayNames[dayOfWeek],
+              dayNum: date.getDate(),
+            });
       }
       if (days.length >= 5) break;
     }
@@ -124,7 +141,7 @@ function ReunionPage() {
       toast.success("Créneau réservé ! Vous recevrez un email de confirmation.");
       // Redirect to espace after short delay
       setTimeout(() => {
-        navigate({ to: "/espace" });
+        window.location.href = session?.user ? "/espace" : "/confirmation";
       }, 1500);
     } catch (error) {
       console.error("Error booking meeting:", error);
@@ -257,7 +274,7 @@ function ReunionPage() {
               {selectedDay && (
                 <div className="grid grid-cols-3 gap-2">
                   {slots.map((slot) => {
-                    const dateKey = new Date(selectedDay).toISOString().split("T")[0];
+                    const dateKey = selectedDay;
                     const isBooked = bookedSlots[dateKey]?.includes(slot) || false;
                     const available = !isBooked;
                     return (

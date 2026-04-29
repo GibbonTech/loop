@@ -9,8 +9,11 @@ export const getHostname = createServerFn({ method: "GET" }).handler(
   async () => {
     const request = getRequest();
     const host = request.headers.get("host") || "";
+    const hostname = host.split(":")[0] || "";
+    const localHosts = new Set(["localhost", "127.0.0.1", "0.0.0.0"]);
     return {
-      isAppDomain: host === "app.driivo.fr" || host.startsWith("app."),
+      isAppDomain:
+        localHosts.has(hostname) || host === "app.driivo.fr" || host.startsWith("app."),
     };
   }
 );

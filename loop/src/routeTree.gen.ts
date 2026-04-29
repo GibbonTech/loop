@@ -24,6 +24,7 @@ import { Route as ApiMeetingsRouteImport } from './routes/api/meetings'
 import { Route as ApiLeadsRouteImport } from './routes/api/leads'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiFilesRouteImport } from './routes/api/files'
+import { Route as ApiDocumentRequestsRouteImport } from './routes/api/document-requests'
 import { Route as ApiApplicationsRouteImport } from './routes/api/applications'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
@@ -104,6 +105,11 @@ const ApiFilesRoute = ApiFilesRouteImport.update({
   path: '/api/files',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiDocumentRequestsRoute = ApiDocumentRequestsRouteImport.update({
+  id: '/api/document-requests',
+  path: '/api/document-requests',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiApplicationsRoute = ApiApplicationsRouteImport.update({
   id: '/api/applications',
   path: '/api/applications',
@@ -138,6 +144,7 @@ export interface FileRoutesByFullPath {
   '/simulateur': typeof SimulateurRoute
   '/admin/login': typeof AdminLoginRoute
   '/api/applications': typeof ApiApplicationsRoute
+  '/api/document-requests': typeof ApiDocumentRequestsRoute
   '/api/files': typeof ApiFilesRoute
   '/api/health': typeof ApiHealthRoute
   '/api/leads': typeof ApiLeadsRoute
@@ -159,6 +166,7 @@ export interface FileRoutesByTo {
   '/simulateur': typeof SimulateurRoute
   '/admin/login': typeof AdminLoginRoute
   '/api/applications': typeof ApiApplicationsRoute
+  '/api/document-requests': typeof ApiDocumentRequestsRoute
   '/api/files': typeof ApiFilesRoute
   '/api/health': typeof ApiHealthRoute
   '/api/leads': typeof ApiLeadsRoute
@@ -181,6 +189,7 @@ export interface FileRoutesById {
   '/simulateur': typeof SimulateurRoute
   '/admin/login': typeof AdminLoginRoute
   '/api/applications': typeof ApiApplicationsRoute
+  '/api/document-requests': typeof ApiDocumentRequestsRoute
   '/api/files': typeof ApiFilesRoute
   '/api/health': typeof ApiHealthRoute
   '/api/leads': typeof ApiLeadsRoute
@@ -204,6 +213,7 @@ export interface FileRouteTypes {
     | '/simulateur'
     | '/admin/login'
     | '/api/applications'
+    | '/api/document-requests'
     | '/api/files'
     | '/api/health'
     | '/api/leads'
@@ -225,6 +235,7 @@ export interface FileRouteTypes {
     | '/simulateur'
     | '/admin/login'
     | '/api/applications'
+    | '/api/document-requests'
     | '/api/files'
     | '/api/health'
     | '/api/leads'
@@ -246,6 +257,7 @@ export interface FileRouteTypes {
     | '/simulateur'
     | '/admin/login'
     | '/api/applications'
+    | '/api/document-requests'
     | '/api/files'
     | '/api/health'
     | '/api/leads'
@@ -268,6 +280,7 @@ export interface RootRouteChildren {
   SimulateurRoute: typeof SimulateurRoute
   AdminLoginRoute: typeof AdminLoginRoute
   ApiApplicationsRoute: typeof ApiApplicationsRoute
+  ApiDocumentRequestsRoute: typeof ApiDocumentRequestsRoute
   ApiFilesRoute: typeof ApiFilesRoute
   ApiHealthRoute: typeof ApiHealthRoute
   ApiLeadsRoute: typeof ApiLeadsRoute
@@ -384,6 +397,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiFilesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/document-requests': {
+      id: '/api/document-requests'
+      path: '/api/document-requests'
+      fullPath: '/api/document-requests'
+      preLoaderRoute: typeof ApiDocumentRequestsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/applications': {
       id: '/api/applications'
       path: '/api/applications'
@@ -428,6 +448,7 @@ const rootRouteChildren: RootRouteChildren = {
   SimulateurRoute: SimulateurRoute,
   AdminLoginRoute: AdminLoginRoute,
   ApiApplicationsRoute: ApiApplicationsRoute,
+  ApiDocumentRequestsRoute: ApiDocumentRequestsRoute,
   ApiFilesRoute: ApiFilesRoute,
   ApiHealthRoute: ApiHealthRoute,
   ApiLeadsRoute: ApiLeadsRoute,

@@ -3,36 +3,81 @@ import { json } from "@tanstack/react-start";
 import { db } from "~/lib/db";
 import { application } from "~/lib/db/schema";
 import { nanoid } from "nanoid";
-import { eq, desc } from "drizzle-orm";
+import { and, desc, eq, ne } from "drizzle-orm";
 import { auth } from "~/lib/auth/auth";
 import { sendApplicationConfirmationEmail, sendApplicationStatusEmail, sendNewApplicationAdminEmail } from "~/lib/server/email";
 import crypto from "crypto";
+import { enforceRateLimit, requireAdmin, requireAuth, validationError } from "~/lib/server/api-guards";
+import { adminApplicationPatchSchema, applicationCreateSchema } from "~/lib/server/api-validation";
 
 export const Route = createFileRoute("/api/applications")({
   server: {
     handlers: {
       POST: async ({ request }) => {
         try {
+          const limited = enforceRateLimit(request, "applications:create", {
+            limit: 5,
+            windowMs: 10 * 60 * 1000,
+          });
+          if (limited) return limited;
+
           const body = await request.json();
+          const parsed = applicationCreateSchema.safeParse(body);
+
+          if (!parsed.success) {
+            return validationError(parsed.error.issues[0]?.message);
+          }
+
+          const data = parsed.data;
+          const [existingApplication] = await db
+            .select()
+            .from(application)
+            .where(
+              and(
+                eq(application.email, data.email),
+                ne(application.status, "REJECTED"),
+              ),
+            )
+            .orderBy(desc(application.createdAt))
+            .limit(1);
+
+          if (existingApplication) {
+            return json(
+              {
+                success: false,
+                error: "Une candidature existe déjà pour cet email.",
+                id: existingApplication.id,
+              },
+              { status: 409 },
+            );
+          }
+
+          const formData = {
+            ...body,
+            city: data.city,
+            vtcCardNumber: data.vtcCardNumber,
+            consentAccepted: data.consentAccepted,
+            consentAcceptedAt:
+              data.consentAcceptedAt ??
+              (data.consentAccepted ? new Date().toISOString() : null),
+          };
 
           const newApplication = await db.insert(application).values({
             id: nanoid(),
-            activityType: body.activityType,
-            isAlone: body.isAlone,
-            firstName: body.firstName,
-            lastName: body.lastName,
-            email: body.email,
-            phone: body.phone,
-            hasVtcLicense: body.hasVtcLicense,
-            yearsExperience: body.yearsExperience,
-            currentPlatforms: Array.isArray(body.currentPlatforms)
-              ? body.currentPlatforms.join(",")
-              : body.currentPlatforms || "",
-            hasVehicle: body.hasVehicle,
-            vehicleType: body.vehicleType,
-            monthlyRevenue: body.monthlyRevenue,
-            expectedStartDate: body.expectedStartDate,
-            formData: body,
+            activityType: data.activityType,
+            isAlone: data.isAlone,
+            firstName: data.firstName,
+            lastName: data.lastName,
+            email: data.email,
+            phone: data.phone,
+            hasVtcLicense: data.hasVtcLicense,
+            yearsExperience: data.yearsExperience,
+            currentPlatforms: data.currentPlatforms.join(","),
+            hasVehicle: data.hasVehicle,
+            vehicleType: data.vehicleType,
+            monthlyRevenue: data.monthlyRevenue,
+            expectedStartDate: data.expectedStartDate,
+            formData,
             status: "SUBMITTED",
             submittedAt: new Date(),
           }).returning();
@@ -53,21 +98,21 @@ export const Route = createFileRoute("/api/applications")({
               });
               accountCreated = true;
               console.log("[Auth] User account created for:", app.email);
-
-              // Trigger password reset so user can set their own password
-              try {
-                await auth.api.requestPasswordReset({
-                  body: {
-                    email: app.email,
-                    redirectTo: "https://app.driivo.fr/set-password",
-                  },
-                });
-                console.log("[Auth] Set-password email triggered for:", app.email);
-              } catch (resetErr: any) {
-                console.error("[Auth] Password reset trigger failed:", resetErr?.message || resetErr);
-              }
             } catch (e: any) {
               console.warn("[Auth] Could not create user:", e?.message || e);
+            }
+
+            // Trigger password reset even if the account already existed.
+            try {
+              await auth.api.requestPasswordReset({
+                body: {
+                  email: app.email,
+                  redirectTo: `${process.env.VITE_BASE_URL || "https://app.driivo.fr"}/set-password`,
+                },
+              });
+              console.log("[Auth] Set-password email triggered for:", app.email);
+            } catch (resetErr: any) {
+              console.error("[Auth] Password reset trigger failed:", resetErr?.message || resetErr);
             }
           }
 
@@ -95,15 +140,11 @@ export const Route = createFileRoute("/api/applications")({
       GET: async ({ request }) => {
         try {
           // Auth check - require valid session to read applications
-          const session = await auth.api.getSession({ headers: request.headers });
-          if (!session?.user) {
-            return json({ success: false, error: "Unauthorized" }, { status: 401 });
-          }
+          const authContext = await requireAuth(request);
+          if (authContext instanceof Response) return authContext;
 
           const url = new URL(request.url);
           const id = url.searchParams.get("id");
-
-          const userRole = (session.user as { role?: string }).role;
 
           if (id) {
             // Get single application by ID
@@ -112,15 +153,15 @@ export const Route = createFileRoute("/api/applications")({
               return json({ success: false, error: "Application not found" }, { status: 404 });
             }
             // Non-admin users can only view their own applications
-            if (userRole !== "ADMIN" && app.email !== session.user.email) {
+            if (!authContext.isAdmin && app.email !== authContext.user.email) {
               return json({ success: false, error: "Unauthorized" }, { status: 403 });
             }
             return json({ success: true, data: app });
           }
 
           // Regular users: return only their own applications (by email)
-          if (userRole !== "ADMIN") {
-            const userEmail = session.user.email;
+          if (!authContext.isAdmin) {
+            const userEmail = authContext.user.email;
             const userApps = await db.select().from(application)
               .where(eq(application.email, userEmail))
               .orderBy(desc(application.createdAt));
@@ -137,27 +178,36 @@ export const Route = createFileRoute("/api/applications")({
       },
       PATCH: async ({ request }) => {
         try {
-          const session = await auth.api.getSession({ headers: request.headers });
-          if (!session?.user) {
-            return json({ success: false, error: "Unauthorized" }, { status: 401 });
-          }
-          const userRole = (session.user as { role?: string }).role;
-          if (userRole !== "ADMIN") {
-            return json({ success: false, error: "Admin access required" }, { status: 403 });
-          }
+          const authContext = await requireAdmin(request);
+          if (authContext instanceof Response) return authContext;
 
           const body = await request.json();
-          const { id, status, notes } = body;
+          const parsed = adminApplicationPatchSchema.safeParse(body);
 
-          if (!id || !status) {
-            return json({ success: false, error: "ID and status required" }, { status: 400 });
+          if (!parsed.success) {
+            return validationError(parsed.error.issues[0]?.message);
           }
 
-          const updateData: Record<string, any> = {
-            status,
+          const { id, status, notes } = parsed.data;
+          const [current] = await db
+            .select()
+            .from(application)
+            .where(eq(application.id, id))
+            .limit(1);
+
+          if (!current) {
+            return json({ success: false, error: "Application not found" }, { status: 404 });
+          }
+
+          const updateData: Partial<typeof application.$inferInsert> = {
             reviewedAt: new Date(),
-            reviewedBy: session.user.id,
+            reviewedBy: authContext.user.id,
           };
+
+          if (status) {
+            updateData.status = status;
+          }
+
           if (notes !== undefined) {
             updateData.notes = notes;
           }
@@ -168,12 +218,8 @@ export const Route = createFileRoute("/api/applications")({
             .where(eq(application.id, id))
             .returning();
 
-          if (!updated) {
-            return json({ success: false, error: "Application not found" }, { status: 404 });
-          }
-
           // Send status notification email
-          if (updated.email && updated.firstName && ["APPROVED", "REJECTED", "UNDER_REVIEW"].includes(status)) {
+          if (status && status !== current.status && updated.email && updated.firstName && ["APPROVED", "REJECTED", "UNDER_REVIEW"].includes(status)) {
             sendApplicationStatusEmail({
               email: updated.email,
               firstName: updated.firstName,

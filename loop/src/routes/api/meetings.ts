@@ -1,61 +1,100 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { json } from "@tanstack/react-start";
 import { db } from "~/lib/db";
 import { meetingBooking } from "~/lib/db/schema";
 import { nanoid } from "nanoid";
 import { desc, and, gte, lte, eq } from "drizzle-orm";
 import { sendMeetingConfirmationEmail } from "~/lib/server/email";
+import { enforceRateLimit, requireAdmin, requireAuth, validationError } from "~/lib/server/api-guards";
+import { adminMeetingPatchSchema, dateKeyFromInput, isBookableDate, meetingCreateSchema, utcDayRange } from "~/lib/server/api-validation";
 
 export const Route = createFileRoute("/api/meetings")({
   server: {
     handlers: {
       POST: async ({ request }) => {
         try {
-          const body = await request.json();
+          const limited = enforceRateLimit(request, "meetings:create", {
+            limit: 8,
+            windowMs: 10 * 60 * 1000,
+          });
+          if (limited) return limited;
 
-          // Handle both field naming conventions (form sends name/date/time, API also accepts firstName/scheduledDate/timeSlot)
-          const firstName = body.name || body.firstName || "";
-          const scheduledDate = body.date || body.scheduledDate;
-          const timeSlot = body.time || body.timeSlot;
+          const body = await request.json();
+          const parsed = meetingCreateSchema.safeParse(body);
+
+          if (!parsed.success) {
+            return validationError(parsed.error.issues[0]?.message);
+          }
+
+          const data = parsed.data;
+          const dateKey = dateKeyFromInput(data.scheduledDate);
+
+          if (!dateKey || !isBookableDate(dateKey)) {
+            return json(
+              { success: false, error: "Date non disponible" },
+              { status: 400 },
+            );
+          }
+
+          const { start, end } = utcDayRange(dateKey);
+          const [existingSlot] = await db
+            .select({ id: meetingBooking.id })
+            .from(meetingBooking)
+            .where(
+              and(
+                gte(meetingBooking.scheduledDate, start),
+                lte(meetingBooking.scheduledDate, end),
+                eq(meetingBooking.timeSlot, data.timeSlot),
+                eq(meetingBooking.status, "SCHEDULED"),
+              ),
+            )
+            .limit(1);
+
+          if (existingSlot) {
+            return json(
+              { success: false, error: "Ce créneau vient d'être réservé." },
+              { status: 409 },
+            );
+          }
+
+          const nameParts = data.firstName.split(/\s+/).filter(Boolean);
+          const firstName = nameParts[0] || data.firstName;
+          const lastName = data.lastName ?? (nameParts.length > 1 ? nameParts.slice(1).join(" ") : null);
 
           const newMeeting = await db
             .insert(meetingBooking)
             .values({
               id: nanoid(),
-              firstName: firstName,
-              lastName: body.lastName || null,
-              email: body.email,
-              phone: body.phone || null,
-              scheduledDate: new Date(scheduledDate),
-              timeSlot: timeSlot,
-              duration: body.duration || 15,
-              leadId: body.leadId || null,
+              firstName,
+              lastName,
+              email: data.email,
+              phone: data.phone,
+              scheduledDate: new Date(`${dateKey}T12:00:00.000Z`),
+              timeSlot: data.timeSlot,
+              duration: data.duration,
+              leadId: data.leadId,
             })
             .returning();
 
           // Send confirmation email
           const meeting = newMeeting[0];
           if (meeting.email) {
-            const dateStr = new Date(scheduledDate).toLocaleDateString("fr-FR", {
+            const dateStr = new Date(`${dateKey}T12:00:00.000Z`).toLocaleDateString("fr-FR", {
               weekday: "long", day: "numeric", month: "long", year: "numeric",
+              timeZone: "UTC",
             });
             sendMeetingConfirmationEmail({
               email: meeting.email,
               firstName: firstName || "Candidat",
               date: dateStr,
-              timeSlot: timeSlot,
+              timeSlot: data.timeSlot,
             }).catch((e) => console.error("[Email] Meeting confirmation error:", e));
           }
 
-          return new Response(
-            JSON.stringify({ success: true, id: meeting.id, data: meeting }),
-            { headers: { "Content-Type": "application/json" } }
-          );
+          return json({ success: true, id: meeting.id, data: meeting });
         } catch (error) {
           console.error("Error creating meeting:", error);
-          return new Response(
-            JSON.stringify({ success: false, error: "Failed to create meeting" }),
-            { status: 500, headers: { "Content-Type": "application/json" } }
-          );
+          return json({ success: false, error: "Failed to create meeting" }, { status: 500 });
         }
       },
       GET: async ({ request }) => {
@@ -69,12 +108,18 @@ export const Route = createFileRoute("/api/meetings")({
             const endDate = url.searchParams.get("end");
             
             if (!startDate || !endDate) {
-              return new Response(
-                JSON.stringify({ success: false, error: "start and end dates required" }),
-                { status: 400, headers: { "Content-Type": "application/json" } }
-              );
+              return json({ success: false, error: "start and end dates required" }, { status: 400 });
             }
 
+            const startKey = dateKeyFromInput(startDate);
+            const endKey = dateKeyFromInput(endDate);
+
+            if (!startKey || !endKey) {
+              return json({ success: false, error: "Invalid date range" }, { status: 400 });
+            }
+
+            const startRange = utcDayRange(startKey);
+            const endRange = utcDayRange(endKey);
             const bookedSlots = await db
               .select({
                 date: meetingBooking.scheduledDate,
@@ -83,8 +128,8 @@ export const Route = createFileRoute("/api/meetings")({
               .from(meetingBooking)
               .where(
                 and(
-                  gte(meetingBooking.scheduledDate, new Date(startDate)),
-                  lte(meetingBooking.scheduledDate, new Date(endDate)),
+                  gte(meetingBooking.scheduledDate, startRange.start),
+                  lte(meetingBooking.scheduledDate, endRange.end),
                   eq(meetingBooking.status, "SCHEDULED")
                 )
               );
@@ -97,27 +142,60 @@ export const Route = createFileRoute("/api/meetings")({
               bookedMap[dateKey].push(slot.timeSlot);
             }
 
-            return new Response(
-              JSON.stringify({ success: true, data: bookedMap }),
-              { headers: { "Content-Type": "application/json" } }
-            );
+            return json({ success: true, data: bookedMap });
           }
 
-          // Default: return all meetings
-          const meetings = await db
+          const authContext = await requireAuth(request);
+          if (authContext instanceof Response) return authContext;
+
+          const meetingsQuery = db
             .select()
             .from(meetingBooking)
             .orderBy(desc(meetingBooking.scheduledDate));
-          return new Response(
-            JSON.stringify({ success: true, data: meetings }),
-            { headers: { "Content-Type": "application/json" } }
-          );
+
+          if (authContext.isAdmin) {
+            const meetings = await meetingsQuery;
+            return json({ success: true, data: meetings });
+          }
+
+          const meetings = await db
+            .select()
+            .from(meetingBooking)
+            .where(eq(meetingBooking.email, authContext.user.email))
+            .orderBy(desc(meetingBooking.scheduledDate));
+          return json({ success: true, data: meetings });
         } catch (error) {
           console.error("Error fetching meetings:", error);
-          return new Response(
-            JSON.stringify({ success: false, error: "Failed to fetch meetings" }),
-            { status: 500, headers: { "Content-Type": "application/json" } }
-          );
+          return json({ success: false, error: "Failed to fetch meetings" }, { status: 500 });
+        }
+      },
+      PATCH: async ({ request }) => {
+        try {
+          const authContext = await requireAdmin(request);
+          if (authContext instanceof Response) return authContext;
+
+          const body = await request.json();
+          const parsed = adminMeetingPatchSchema.safeParse(body);
+
+          if (!parsed.success) {
+            return validationError(parsed.error.issues[0]?.message);
+          }
+
+          const { id, status, notes } = parsed.data;
+          const [updatedMeeting] = await db
+            .update(meetingBooking)
+            .set({ status, notes })
+            .where(eq(meetingBooking.id, id))
+            .returning();
+
+          if (!updatedMeeting) {
+            return json({ success: false, error: "Meeting not found" }, { status: 404 });
+          }
+
+          return json({ success: true, data: updatedMeeting });
+        } catch (error) {
+          console.error("Error updating meeting:", error);
+          return json({ success: false, error: "Failed to update meeting" }, { status: 500 });
         }
       },
     },

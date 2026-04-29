@@ -78,7 +78,7 @@ export const auth = betterAuth({
         compare(password, hashedPassword),
     },
     sendResetPassword: async ({ user, token }) => {
-      const url = `https://app.driivo.fr/set-password?token=${token}`;
+      const url = `${env.VITE_BASE_URL}/set-password?token=${token}`;
       sendSetPasswordEmail({
         email: user.email,
         firstName: user.name?.split(" ")[0] || "Chauffeur",

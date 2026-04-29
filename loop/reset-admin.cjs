@@ -3,13 +3,21 @@ const postgres = require("postgres");
 const crypto = require("crypto");
 
 async function main() {
-  const h = await hash("admin123", 10);
+  const adminEmail = process.env.ADMIN_EMAIL || "admin@driivo.fr";
+  const adminName = process.env.ADMIN_NAME || "Admin Driivo";
+  const rawAdminPassword = process.env.ADMIN_PASSWORD;
+
+  if (!rawAdminPassword || rawAdminPassword.length < 12) {
+    throw new Error("ADMIN_PASSWORD must be set and at least 12 characters long.");
+  }
+
+  const h = await hash(rawAdminPassword, 10);
   const sql = postgres(process.env.DATABASE_URL);
 
   const now = new Date().toISOString();
 
   // Check if admin user exists
-  const existing = await sql`SELECT id FROM "user" WHERE email = 'admin@loop.fr'`;
+  const existing = await sql`SELECT id FROM "user" WHERE email = ${adminEmail}`;
   
   let userId;
   if (existing.length > 0) {
@@ -28,12 +36,12 @@ async function main() {
   } else {
     userId = crypto.randomBytes(16).toString("hex");
     const accId = crypto.randomBytes(16).toString("hex");
-    await sql`INSERT INTO "user" (id, name, email, email_verified, role, created_at, updated_at) VALUES (${userId}, 'Admin Loop', 'admin@loop.fr', true, 'ADMIN', ${now}, ${now})`;
+    await sql`INSERT INTO "user" (id, name, email, email_verified, role, created_at, updated_at) VALUES (${userId}, ${adminName}, ${adminEmail}, true, 'ADMIN', ${now}, ${now})`;
     await sql`INSERT INTO account (id, account_id, provider_id, user_id, password, created_at, updated_at) VALUES (${accId}, ${userId}, 'credential', ${userId}, ${h}, ${now}, ${now})`;
     console.log("Created new admin user and account.");
   }
 
-  console.log("Admin password set with bcryptjs hash. Done.");
+  console.log(`Admin password set for ${adminEmail}. Done.`);
   await sql.end();
 }
 

@@ -26,10 +26,10 @@ Completed comprehensive end-to-end testing of both **client** and **admin** flow
 5. 🔴 **BUG FOUND:** /reunion is NOT Cal.com embedded
 6. ✅ Login page loads correctly
 7. ✅ Client espace dashboard functional
-8. 🔴 **BUG FOUND:** Email FROM_EMAIL using sandbox domain
+8. ✅ Email FROM_EMAIL is configurable through environment
 
 ### Admin Flow (4 checkpoints)
-1. ✅ Admin login successful (admin@loop.fr)
+1. ✅ Admin login successful with configured admin account
 2. ✅ Admin dashboard displays all applications (17 total)
 3. ✅ Application detail page shows complete information
 4. ✅ Status update (Approve/Reject/Under Review) works correctly
@@ -58,12 +58,12 @@ Resend sandbox domain (`onboarding@resend.dev`) restricts sending to unverified 
 
 **Fix Applied:**
 ```typescript
-// FIXED - Using verified siratscolaire.fr domain
-const FROM_EMAIL = "Driivo <noreply@siratscolaire.fr>";
+// FIXED - sender is configured by environment
+const FROM_EMAIL = process.env.FROM_EMAIL || "Driivo <noreply@driivo.fr>";
 ```
 
 **Status:** ✅ FIXED  
-**Domain Status:** `siratscolaire.fr` verified on Resend (DNS auto-configured via Cloudflare)
+**Domain Status:** configure a verified sender domain through `FROM_EMAIL`
 
 ---
 
@@ -237,7 +237,7 @@ Console: [Email] Resend API error: {
 ```
 
 **After Fix:**
-- All emails will be sent via `noreply@siratscolaire.fr`
+- All emails will be sent via the configured `FROM_EMAIL`
 - No more 403 errors
 - Password reset flow will work correctly
 - Admin notifications will arrive
@@ -382,7 +382,7 @@ Console: [Email] Resend API error: {
 ## Deployment Checklist
 
 ### Pre-Deployment
-- [x] Update FROM_EMAIL to siratscolaire.fr
+- [x] Make FROM_EMAIL environment-configurable
 - [x] Fix confirmation page link bypass
 - [ ] Get Cal.com booking URL from client
 - [ ] Implement Cal.com embed
@@ -423,9 +423,9 @@ The Driivo platform is **well-architected** with modern technologies (TanStack R
 
 For any questions about this testing report or implementation details, refer to:
 - Code: `/home/rick/Documents/websites/driivo/loop`
-- Admin credentials: `admin@loop.fr` / `admin123`
+- Admin credentials: configured through `ADMIN_EMAIL` and `ADMIN_PASSWORD`
 - Deployment: Coolify at `37.27.62.87`
-- Email: Resend dashboard (siratscolaire.fr domain)
+- Email: Resend dashboard for the configured sender domain
 
 ---
 

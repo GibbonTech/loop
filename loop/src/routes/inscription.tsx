@@ -30,9 +30,10 @@ function InscriptionPage() {
     vehiculeModele: "",
     plateformes: [] as string[],
     caMensuel: "",
+    consentAccepted: false,
   });
 
-  const updateField = (field: string, value: string | string[]) => {
+  const updateField = (field: string, value: string | string[] | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -83,6 +84,10 @@ function InscriptionPage() {
       toast.error("Veuillez sélectionner au moins une plateforme");
       return;
     }
+    if (!formData.consentAccepted) {
+      toast.error("Veuillez accepter d'être recontacté au sujet de votre candidature");
+      return;
+    }
     setIsSubmitting(true);
 
     try {
@@ -92,13 +97,17 @@ function InscriptionPage() {
         lastName: formData.nom,
         email: formData.email,
         phone: formData.telephone,
+        city: formData.ville,
         activityType: "VTC",
         hasVtcLicense: formData.carteVtc,
+        vtcCardNumber: formData.numeroCarteVtc,
         yearsExperience: formData.experience,
         currentPlatforms: formData.plateformes,
-        hasVehicle: formData.vehicule ? "yes" : "no",
+        hasVehicle: formData.vehicule,
         vehicleType: formData.vehiculeModele,
         monthlyRevenue: formData.caMensuel,
+        consentAccepted: formData.consentAccepted,
+        consentAcceptedAt: new Date().toISOString(),
       };
       
       const res = await fetch("/api/applications", {
@@ -493,6 +502,17 @@ function InscriptionPage() {
                       <option value="plus_10000">Plus de 10 000 €</option>
                     </select>
                   </div>
+                  <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/60 bg-white/70 px-4 py-3 text-sm shadow-sm">
+                    <input
+                      type="checkbox"
+                      checked={formData.consentAccepted}
+                      onChange={(e) => updateField("consentAccepted", e.target.checked)}
+                      className="mt-1 accent-[#fd521a]"
+                    />
+                    <span className="text-gray-600">
+                      J&apos;accepte d&apos;être recontacté par Driivo au sujet de ma candidature.
+                    </span>
+                  </label>
                 </div>
 
                 <div className="mt-6 flex gap-4">

@@ -1,11 +1,20 @@
-import { getRouterManifest } from "@tanstack/react-start/router-manifest";
 import {
   createStartHandler,
   defaultStreamHandler,
+  type RequestHandler,
 } from "@tanstack/react-start/server";
-import { createRouter } from "./router";
+import type { Register } from "@tanstack/react-router";
 
-export default createStartHandler({
-  createRouter,
-  getRouterManifest,
-})(defaultStreamHandler);
+const fetch = createStartHandler(defaultStreamHandler);
+
+type ServerEntry = { fetch: RequestHandler<Register> };
+
+function createServerEntry(entry: ServerEntry): ServerEntry {
+  return {
+    async fetch(...args) {
+      return await entry.fetch(...args);
+    },
+  };
+}
+
+export default createServerEntry({ fetch });

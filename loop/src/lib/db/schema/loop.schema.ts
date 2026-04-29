@@ -1,5 +1,13 @@
 import { relations } from "drizzle-orm";
-import { index, integer, jsonb, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import {
+  index,
+  integer,
+  jsonb,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+} from "drizzle-orm/pg-core";
 import { user } from "./better-auth.schema";
 
 // File entity type enum
@@ -32,29 +40,29 @@ export const lead = pgTable(
   "Lead",
   {
     id: text("id").primaryKey(),
-    
+
     // Contact info
     firstName: text("firstName").notNull(),
     email: text("email").notNull(),
     phone: text("phone"),
-    
+
     // Simulator data
     monthlyRevenue: integer("monthlyRevenue"),
     estimatedNet: integer("estimatedNet"),
-    
+
     // Lead tracking
     source: leadSourceEnum("source").default("SIMULATEUR").notNull(),
     status: leadStatusEnum("status").default("NEW").notNull(),
-    
+
     // UTM tracking
     utmSource: text("utmSource"),
     utmMedium: text("utmMedium"),
     utmCampaign: text("utmCampaign"),
-    
+
     // Notes and follow-up
     notes: text("notes"),
     lastContactedAt: timestamp("lastContactedAt"),
-    
+
     // Metadata
     createdAt: timestamp("createdAt").defaultNow().notNull(),
     updatedAt: timestamp("updatedAt")
@@ -75,27 +83,27 @@ export const meetingBooking = pgTable(
   "MeetingBooking",
   {
     id: text("id").primaryKey(),
-    
+
     // Contact info
     firstName: text("firstName").notNull(),
     lastName: text("lastName"),
     email: text("email").notNull(),
     phone: text("phone"),
-    
+
     // Booking details
     scheduledDate: timestamp("scheduledDate").notNull(),
     timeSlot: text("timeSlot").notNull(),
     duration: integer("duration").default(15).notNull(), // in minutes
-    
+
     // Status
     status: text("status").default("SCHEDULED").notNull(), // SCHEDULED, COMPLETED, CANCELLED, NO_SHOW
-    
+
     // Notes
     notes: text("notes"),
-    
+
     // Link to lead if exists
     leadId: text("leadId").references(() => lead.id),
-    
+
     // Metadata
     createdAt: timestamp("createdAt").defaultNow().notNull(),
     updatedAt: timestamp("updatedAt")
@@ -132,43 +140,43 @@ export const application = pgTable(
     status: applicationStatusEnum("status").default("DRAFT").notNull(),
     currentStep: integer("currentStep").default(1).notNull(),
     totalSteps: integer("totalSteps").default(6).notNull(),
-    
+
     // Step 1: Activity Type
     activityType: text("activityType"),
-    
+
     // Step 2: Structure
     structureType: text("structureType"),
     isAlone: text("isAlone"),
-    
+
     // Step 3: Personal Info
     firstName: text("firstName"),
     lastName: text("lastName"),
     email: text("email"),
     phone: text("phone"),
-    
+
     // Step 4: Experience
     hasVtcLicense: text("hasVtcLicense"),
     yearsExperience: text("yearsExperience"),
     currentPlatforms: text("currentPlatforms"),
-    
+
     // Step 5: Vehicle
     hasVehicle: text("hasVehicle"),
     vehicleType: text("vehicleType"),
     vehicleYear: text("vehicleYear"),
-    
+
     // Step 6: Revenue
     monthlyRevenue: text("monthlyRevenue"),
     expectedStartDate: text("expectedStartDate"),
-    
+
     // All form data as JSON for flexibility
     formData: jsonb("formData").$type<Record<string, unknown>>(),
-    
+
     // Metadata
     submittedAt: timestamp("submittedAt"),
     reviewedAt: timestamp("reviewedAt"),
     reviewedBy: text("reviewedBy").references(() => user.id),
     notes: text("notes"),
-    
+
     createdAt: timestamp("createdAt").defaultNow().notNull(),
     updatedAt: timestamp("updatedAt")
       .defaultNow()
@@ -204,12 +212,18 @@ export const storedFile = pgTable(
     entityType: fileEntityTypeEnum("entityType").notNull(),
     entityId: text("entityId").notNull(), // FK to application.id, etc.
     uploadedBy: text("uploadedBy"), // userId if authenticated upload, null for public
+    documentCategory: text("documentCategory").default("OTHER").notNull(),
+    reviewStatus: text("reviewStatus").default("UPLOADED").notNull(),
+    reviewNotes: text("reviewNotes"),
+    reviewedAt: timestamp("reviewedAt"),
+    reviewedBy: text("reviewedBy").references(() => user.id),
     createdAt: timestamp("createdAt").defaultNow().notNull(),
   },
   (table) => [
     index("storedFile_entityType_idx").on(table.entityType),
     index("storedFile_entityId_idx").on(table.entityId),
     index("storedFile_key_idx").on(table.key),
+    index("storedFile_documentCategory_idx").on(table.documentCategory),
+    index("storedFile_reviewStatus_idx").on(table.reviewStatus),
   ],
 );
-

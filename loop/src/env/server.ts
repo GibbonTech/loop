@@ -8,6 +8,13 @@ export const env = createEnv({
 
     // Email - Resend
     RESEND_API_KEY: z.string().optional(),
+    FROM_EMAIL: z.string().optional(),
+    ADMIN_NOTIFICATION_EMAIL: z.string().email().optional(),
+
+    // Admin bootstrap scripts
+    ADMIN_EMAIL: z.string().email().optional(),
+    ADMIN_NAME: z.string().optional(),
+    ADMIN_PASSWORD: z.string().optional(),
 
     // Cloudflare R2 (S3-compatible) file storage
     R2_ACCOUNT_ID: z.string().optional(),

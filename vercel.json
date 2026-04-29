@@ -1,6 +1,7 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "cd loop && npm ci --legacy-peer-deps",
   "buildCommand": "cd loop && npm run build",
-  "outputDirectory": "loop/.next",
-  "installCommand": "cd loop && npm install",
-  "framework": "nextjs"
+  "outputDirectory": "loop/dist/client",
+  "framework": "vite"
 }

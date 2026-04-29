@@ -1,6 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Search, LogOut, ChevronRight, Users, Clock, CheckCircle2, XCircle, CalendarDays, Zap } from "lucide-react";
+import { toast } from "sonner";
 import { signOut, useSession } from "~/lib/auth/auth-client";
 import { validateSession } from "~/lib/auth/auth-functions";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
@@ -86,6 +87,9 @@ const formatRevenue = (v: string | undefined | null): string => {
   return map[v] || v;
 };
 
+const leadStatusOptions = ["NEW", "CONTACTED", "QUALIFIED", "CONVERTED", "LOST"];
+const meetingStatusOptions = ["SCHEDULED", "COMPLETED", "CANCELLED", "NO_SHOW"];
+
 function AdminDashboard() {
   const { data: session, isPending } = useSession();
   const [applications, setApplications] = useState<Application[]>([]);
@@ -132,6 +136,46 @@ function AdminDashboard() {
     }
   };
 
+  const updateLeadStatus = async (id: string, status: string) => {
+    try {
+      const response = await fetch("/api/leads", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        toast.error(data.error || "Mise à jour du lead impossible");
+        return;
+      }
+      setLeads((prev) => prev.map((lead) => (lead.id === id ? data.data : lead)));
+      toast.success("Lead mis à jour");
+    } catch (error) {
+      console.error("Error updating lead:", error);
+      toast.error("Mise à jour du lead impossible");
+    }
+  };
+
+  const updateMeetingStatus = async (id: string, status: string) => {
+    try {
+      const response = await fetch("/api/meetings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        toast.error(data.error || "Mise à jour de la réunion impossible");
+        return;
+      }
+      setMeetings((prev) => prev.map((meeting) => (meeting.id === id ? data.data : meeting)));
+      toast.success("Réunion mise à jour");
+    } catch (error) {
+      console.error("Error updating meeting:", error);
+      toast.error("Mise à jour de la réunion impossible");
+    }
+  };
+
   const filteredApplications = applications.filter((app) => {
     const matchesFilter = filter === "all" || app.status === filter;
     const matchesSearch =
@@ -169,6 +213,8 @@ function AdminDashboard() {
         return <Badge className="bg-emerald-50 text-emerald-700 hover:bg-emerald-50 border-emerald-200">Approuvée</Badge>;
       case "REJECTED":
         return <Badge variant="destructive">Refusée</Badge>;
+      case "UNDER_REVIEW":
+        return <Badge variant="outline">En examen</Badge>;
       default:
         return <Badge variant="secondary">En attente</Badge>;
     }
@@ -397,10 +443,11 @@ function AdminDashboard() {
                       <TableHead className="hidden sm:table-cell">CA estimé</TableHead>
                       <TableHead className="hidden md:table-cell">Source</TableHead>
                       <TableHead className="hidden md:table-cell">UTM</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Statut</TableHead>
-                    </TableRow>
-                  </TableHeader>
+	                      <TableHead>Date</TableHead>
+	                      <TableHead>Statut</TableHead>
+	                      <TableHead className="w-[220px]">Action</TableHead>
+	                    </TableRow>
+	                  </TableHeader>
                   <TableBody>
                     {leads.map((lead) => (
                       <TableRow key={lead.id}>
@@ -423,12 +470,28 @@ function AdminDashboard() {
                         <TableCell className="text-muted-foreground">
                           {new Date(lead.createdAt).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
                         </TableCell>
-                        <TableCell>
-                          <Badge variant={lead.status === "CONVERTED" ? "default" : lead.status === "LOST" ? "destructive" : "secondary"} className="text-xs">
-                            {lead.status}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
+	                        <TableCell>
+	                          <Badge variant={lead.status === "CONVERTED" ? "default" : lead.status === "LOST" ? "destructive" : "secondary"} className="text-xs">
+	                            {lead.status}
+	                          </Badge>
+	                        </TableCell>
+	                        <TableCell>
+	                          <div className="flex flex-wrap gap-1">
+	                            {leadStatusOptions
+	                              .filter((status) => status !== lead.status)
+	                              .map((status) => (
+	                                <Button
+	                                  key={status}
+	                                  variant="outline"
+	                                  size="xs"
+	                                  onClick={() => updateLeadStatus(lead.id, status)}
+	                                >
+	                                  {status}
+	                                </Button>
+	                              ))}
+	                          </div>
+	                        </TableCell>
+	                      </TableRow>
                     ))}
                   </TableBody>
                 </Table>
@@ -460,9 +523,10 @@ function AdminDashboard() {
                       <TableHead>Contact</TableHead>
                       <TableHead className="hidden sm:table-cell">Téléphone</TableHead>
                       <TableHead>Date</TableHead>
-                      <TableHead>Créneau</TableHead>
-                      <TableHead>Statut</TableHead>
-                    </TableRow>
+	                      <TableHead>Créneau</TableHead>
+	                      <TableHead>Statut</TableHead>
+	                      <TableHead className="w-[220px]">Action</TableHead>
+	                    </TableRow>
                   </TableHeader>
                   <TableBody>
                     {meetings.map((meeting) => (
@@ -478,12 +542,29 @@ function AdminDashboard() {
                           {new Date(meeting.scheduledDate).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
                         </TableCell>
                         <TableCell className="font-mono text-sm">{meeting.timeSlot}</TableCell>
-                        <TableCell>
-                          <Badge variant={meeting.status === "COMPLETED" ? "default" : meeting.status === "CANCELLED" || meeting.status === "NO_SHOW" ? "destructive" : "secondary"} className="text-xs">
-                            {meeting.status}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
+	                        <TableCell>
+	                          <Badge variant={meeting.status === "COMPLETED" ? "default" : meeting.status === "CANCELLED" || meeting.status === "NO_SHOW" ? "destructive" : "secondary"} className="text-xs">
+	                            {meeting.status}
+	                          </Badge>
+	                        </TableCell>
+	                        <TableCell>
+	                          <div className="flex flex-wrap gap-1">
+	                            {meetingStatusOptions
+	                              .filter((status) => status !== meeting.status)
+	                              .slice(0, 3)
+	                              .map((status) => (
+	                                <Button
+	                                  key={status}
+	                                  variant="outline"
+	                                  size="xs"
+	                                  onClick={() => updateMeetingStatus(meeting.id, status)}
+	                                >
+	                                  {status}
+	                                </Button>
+	                              ))}
+	                          </div>
+	                        </TableCell>
+	                      </TableRow>
                     ))}
                   </TableBody>
                 </Table>

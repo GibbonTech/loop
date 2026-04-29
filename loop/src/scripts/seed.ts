@@ -3,27 +3,47 @@ import { db } from "../lib/db";
 import { user, account } from "../lib/db/schema";
 import { hash } from "bcryptjs";
 import { nanoid } from "nanoid";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 async function seed() {
-  console.log("🌱 Seeding database...");
+  console.log("Seeding database...");
 
-  const adminPassword = await hash("admin123", 10);
-  const userId = nanoid();
+  const adminEmail = process.env.ADMIN_EMAIL || "admin@driivo.fr";
+  const adminName = process.env.ADMIN_NAME || "Admin Driivo";
+  const rawAdminPassword = process.env.ADMIN_PASSWORD;
+
+  if (!rawAdminPassword || rawAdminPassword.length < 12) {
+    throw new Error("ADMIN_PASSWORD must be set and at least 12 characters long.");
+  }
+
+  const adminPassword = await hash(rawAdminPassword, 10);
   const accountId = nanoid();
-  
-  // Delete existing admin user if exists
-  await db.delete(account).where(eq(account.providerId, "credential"));
-  await db.delete(user).where(eq(user.email, "admin@loop.fr"));
-  
-  // Create user
-  await db.insert(user).values({
-    id: userId,
-    name: "Admin Loop",
-    email: "admin@loop.fr",
-    emailVerified: true,
-    role: "ADMIN",
-  });
+  const [existingAdmin] = await db
+    .select()
+    .from(user)
+    .where(eq(user.email, adminEmail))
+    .limit(1);
+
+  const userId = existingAdmin?.id || nanoid();
+
+  if (existingAdmin) {
+    await db
+      .update(user)
+      .set({ name: adminName, emailVerified: true, role: "ADMIN" })
+      .where(eq(user.id, userId));
+  } else {
+    await db.insert(user).values({
+      id: userId,
+      name: adminName,
+      email: adminEmail,
+      emailVerified: true,
+      role: "ADMIN",
+    });
+  }
+
+  await db
+    .delete(account)
+    .where(and(eq(account.userId, userId), eq(account.providerId, "credential")));
 
   // Create account with password (Better Auth stores password in account table)
   await db.insert(account).values({
@@ -34,12 +54,12 @@ async function seed() {
     password: adminPassword,
   });
 
-  console.log("✅ Admin user created: admin@loop.fr / admin123");
-  console.log("🎉 Seeding complete!");
+  console.log(`Admin user ready: ${adminEmail}`);
+  console.log("Seeding complete.");
   process.exit(0);
 }
 
 seed().catch((error) => {
-  console.error("❌ Seeding failed:", error);
+  console.error("Seeding failed:", error);
   process.exit(1);
 });
