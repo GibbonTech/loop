@@ -258,6 +258,28 @@ if login(ADMIN_EMAIL, ADMIN_PASSWORD, "/admin"):
     admin_text = text(2200)
     add("admin dashboard shows seeded candidates", all(name in admin_text for name in ["Amine", "Sarah", "Karim", "Mehdi"]), page=page(), textStart=admin_text[:1000])
 
+    integration = browser_fetch(
+        """
+        const r = await fetch('/api/health?integrations=1');
+        const data = await r.json();
+        return {
+          status: r.status,
+          serviceStatus: data.status,
+          resend: data.integrations?.resend,
+          r2: data.integrations?.r2
+        };
+        """
+    )
+    add(
+        "admin integration smoke checks Resend and R2",
+        integration.get("status") == 200
+        and integration.get("serviceStatus") in ["ok", "degraded"]
+        and integration.get("resend", {}).get("configured") is True
+        and integration.get("r2", {}).get("configured") is True
+        and integration.get("r2", {}).get("status") == "ok",
+        response=integration,
+    )
+
     goto_url(f"{APP}/admin/applications/demo-app-mehdi")
     wait_for_load(15)
     wait(2)
