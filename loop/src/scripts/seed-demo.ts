@@ -243,6 +243,14 @@ export async function seedDemo() {
   const invoiceIds = clients.map((client) => `demo-invoice-${client.userId}`);
 
   console.log("Resetting existing demo records...");
+  const existingInvoiceIds = await db
+    .select({ id: invoiceRecord.id })
+    .from(invoiceRecord)
+    .where(inArray(invoiceRecord.driverProfileId, profileIds));
+  const invoiceIdsToReset = [
+    ...new Set([...invoiceIds, ...existingInvoiceIds.map((row) => row.id)]),
+  ];
+
   await db
     .delete(timelineEvent)
     .where(inArray(timelineEvent.driverProfileId, profileIds));
@@ -252,7 +260,9 @@ export async function seedDemo() {
   await db
     .delete(expenseRecord)
     .where(inArray(expenseRecord.driverProfileId, profileIds));
-  await db.delete(paymentRecord).where(inArray(paymentRecord.invoiceId, invoiceIds));
+  await db
+    .delete(paymentRecord)
+    .where(inArray(paymentRecord.invoiceId, invoiceIdsToReset));
   await db
     .delete(invoiceRecord)
     .where(inArray(invoiceRecord.driverProfileId, profileIds));
