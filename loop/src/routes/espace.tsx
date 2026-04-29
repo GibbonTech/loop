@@ -15,6 +15,7 @@ import {
   XCircle,
   Download,
   AlertCircle,
+  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useSession, signOut } from "~/lib/auth/auth-client";
@@ -282,6 +283,29 @@ function EspacePage() {
     } catch (error) {
       console.error("Download error:", error);
       toast.error("Téléchargement impossible");
+    }
+  };
+
+  const deleteFile = async (file: StoredFile) => {
+    if (file.reviewStatus === "APPROVED") {
+      toast.error("Ce document est déjà validé. Contactez Driivo pour le remplacer.");
+      return;
+    }
+    if (!confirm("Supprimer ce document ?")) return;
+    try {
+      const response = await fetch(`/api/files?fileId=${encodeURIComponent(file.id)}`, {
+        method: "DELETE",
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        toast.error(data.error || "Suppression impossible");
+        return;
+      }
+      setFiles((prev) => prev.filter((item) => item.id !== file.id));
+      toast.success("Document supprimé");
+    } catch (error) {
+      console.error("Delete error:", error);
+      toast.error("Suppression impossible");
     }
   };
 
@@ -931,6 +955,15 @@ function EspacePage() {
                                   Voir
                                 </button>
                               )}
+                              {file && file.reviewStatus !== "APPROVED" && (
+                                <button
+                                  onClick={() => deleteFile(file)}
+                                  className="inline-flex h-8 items-center justify-center rounded-md border border-red-200 px-2.5 text-xs font-medium text-red-700 transition-colors hover:bg-red-50"
+                                >
+                                  <Trash2 className="mr-1 h-3.5 w-3.5" />
+                                  Supprimer
+                                </button>
+                              )}
                               <button
                                 onClick={() =>
                                   startDocumentUpload(category.value)
@@ -980,12 +1013,32 @@ function EspacePage() {
                                 {formatFileSize(file.size)}
                               </p>
                             )}
+                            <div className="flex gap-2">
+                              {file && (
+                                <button
+                                  onClick={() => downloadFile(file.key)}
+                                  className="inline-flex h-8 flex-1 items-center justify-center rounded-md border border-gray-200 px-2.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                                >
+                                  <Download className="mr-1 h-3.5 w-3.5" />
+                                  Voir
+                                </button>
+                              )}
+                              {file && file.reviewStatus !== "APPROVED" && (
+                                <button
+                                  onClick={() => deleteFile(file)}
+                                  className="inline-flex h-8 flex-1 items-center justify-center rounded-md border border-red-200 px-2.5 text-xs font-medium text-red-700 transition-colors hover:bg-red-50"
+                                >
+                                  <Trash2 className="mr-1 h-3.5 w-3.5" />
+                                  Supprimer
+                                </button>
+                              )}
+                            </div>
                             <button
                               onClick={() =>
                                 startDocumentUpload(category.value)
                               }
                               disabled={uploading}
-                              className="inline-flex h-8 w-full items-center justify-center rounded-md border border-gray-200 px-2.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                              className="mt-2 inline-flex h-8 w-full items-center justify-center rounded-md border border-gray-200 px-2.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                               <Upload className="mr-1 h-3.5 w-3.5" />
                               {file ? "Remplacer" : "Ajouter"}

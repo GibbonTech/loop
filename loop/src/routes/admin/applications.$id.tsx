@@ -657,6 +657,24 @@ function ApplicationDetailPage() {
   };
 
   const documentCompletion = getDocumentCompletion(files);
+  const formString = (key: string) => {
+    const value = application.formData?.[key];
+    return typeof value === "string" && value.trim() ? value.trim() : "";
+  };
+  const vehicleModel =
+    application.vehicleType ||
+    formString("vehicleType") ||
+    formString("vehiculeModele");
+  const vehicleYear =
+    application.vehicleYear ||
+    formString("vehicleYear") ||
+    formString("vehiculeAnnee");
+  const vehicleRegistrationPlate =
+    formString("vehicleRegistrationPlate") ||
+    formString("immatriculation");
+  const vehicleCarteGriseHolder =
+    formString("vehicleCarteGriseHolder") ||
+    formString("carteGriseTitulaire");
 
   // Readiness score: count key fields that are filled
   const readinessFields = [
@@ -668,6 +686,7 @@ function ApplicationDetailPage() {
     { label: "Expérience", filled: !!application.yearsExperience },
     { label: "CA visé", filled: !!application.monthlyRevenue },
     { label: "Véhicule", filled: !!application.hasVehicle },
+    { label: "Immatriculation", filled: !!vehicleRegistrationPlate },
     { label: "Docs reçus", filled: documentCompletion.uploadComplete },
     { label: "Docs validés", filled: documentCompletion.reviewComplete },
   ];
@@ -720,8 +739,10 @@ function ApplicationDetailPage() {
       label: "Possède un véhicule",
       value: formatYesNo(application.hasVehicle),
     },
-    { label: "Type de véhicule", value: application.vehicleType },
-    { label: "Année du véhicule", value: application.vehicleYear },
+    { label: "Marque et modèle", value: vehicleModel },
+    { label: "Année du véhicule", value: vehicleYear },
+    { label: "Immatriculation", value: vehicleRegistrationPlate },
+    { label: "Titulaire carte grise", value: vehicleCarteGriseHolder },
   ].filter((f) => f.value);
   const missingDocumentCategories = requiredDocumentCategories.filter(
     (category) => !getLatestFileByCategory(files, category),
@@ -1161,7 +1182,7 @@ function ApplicationDetailPage() {
           {vehicleFields.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm">Véhicule</CardTitle>
+                <CardTitle className="text-sm">Détails véhicule</CardTitle>
               </CardHeader>
               <CardContent>{renderFieldsTable(vehicleFields)}</CardContent>
             </Card>

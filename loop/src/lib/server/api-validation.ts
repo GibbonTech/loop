@@ -118,7 +118,7 @@ export const applicationCreateSchema = z.object({
   lastName: requiredString(80),
   email,
   phone,
-  city: optionalString(120),
+  city: requiredString(120),
   vtcCardNumber: optionalString(120),
   activityType: optionalString(60).transform((value) => value ?? "VTC"),
   isAlone: optionalString(40),
@@ -127,10 +127,40 @@ export const applicationCreateSchema = z.object({
   currentPlatforms: platformList,
   hasVehicle: requiredString(40),
   vehicleType: optionalString(160),
-  monthlyRevenue: optionalString(80),
+  vehicleYear: optionalString(20),
+  vehicleRegistrationPlate: optionalString(40),
+  vehicleCarteGriseHolder: optionalString(120),
+  monthlyRevenue: requiredString(80),
   expectedStartDate: optionalString(80),
-  consentAccepted: z.boolean().optional().default(false),
+  consentAccepted: z.boolean().refine(Boolean, "Le consentement est requis"),
   consentAcceptedAt: optionalString(80),
+}).superRefine((value, ctx) => {
+  if (value.hasVtcLicense === "oui" && !value.vtcCardNumber) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["vtcCardNumber"],
+      message: "Le numéro de carte VTC est requis",
+    });
+  }
+
+  if (value.hasVehicle === "oui") {
+    const requiredVehicleFields: Array<[keyof typeof value, string]> = [
+      ["vehicleType", "Le modèle du véhicule est requis"],
+      ["vehicleYear", "L'année du véhicule est requise"],
+      ["vehicleRegistrationPlate", "L'immatriculation est requise"],
+      ["vehicleCarteGriseHolder", "Le titulaire de la carte grise est requis"],
+    ];
+
+    for (const [field, message] of requiredVehicleFields) {
+      if (!value[field]) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [field],
+          message,
+        });
+      }
+    }
+  }
 });
 
 export const adminApplicationPatchSchema = z

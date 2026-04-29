@@ -16,8 +16,13 @@ import {
   FileX2,
   Ban,
   Star,
+  MessageCircle,
 } from "lucide-react";
 import { getHostname } from "~/lib/auth/hostname";
+
+const whatsappContactUrl =
+  import.meta.env.VITE_WHATSAPP_URL ||
+  "https://wa.me/?text=Bonjour%20Driivo%2C%20je%20souhaite%20avoir%20des%20informations%20sur%20le%20statut%20entrepreneur%20salari%C3%A9%20VTC.";
 
 export const Route = createFileRoute("/")({
   component: IndexPage,
@@ -88,6 +93,17 @@ function LoginPage() {
 
   return (
     <div className="flex min-h-screen bg-white">
+      <a
+        href={whatsappContactUrl}
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Contacter Driivo sur WhatsApp"
+        className="fixed bottom-5 right-5 z-50 inline-flex h-12 items-center gap-2 rounded-full bg-[#25D366] px-4 text-sm font-bold text-white shadow-[0_12px_30px_rgba(37,211,102,0.35)] transition-transform hover:-translate-y-0.5"
+      >
+        <MessageCircle className="h-5 w-5" />
+        <span className="hidden sm:inline">WhatsApp</span>
+      </a>
+
       {/* Left panel - branding */}
       <div className="hidden w-[480px] flex-col justify-between bg-[#111] p-10 text-white lg:flex">
         <div>
@@ -258,6 +274,17 @@ function LandingPage() {
           </div>
         </div>
       </nav>
+
+      <a
+        href={whatsappContactUrl}
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Contacter Driivo sur WhatsApp"
+        className="fixed bottom-5 right-5 z-50 inline-flex h-12 items-center gap-2 rounded-full bg-[#25D366] px-4 text-sm font-bold text-white shadow-[0_12px_30px_rgba(37,211,102,0.35)] transition-transform hover:-translate-y-0.5"
+      >
+        <MessageCircle className="h-5 w-5" />
+        <span className="hidden sm:inline">WhatsApp</span>
+      </a>
 
       {/* Main Container */}
       <main className="relative z-10 mx-auto max-w-[1040px] px-4 pt-32 md:px-8 md:pt-40">

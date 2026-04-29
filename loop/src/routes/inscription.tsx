@@ -28,6 +28,9 @@ function InscriptionPage() {
     experience: "",
     vehicule: "",
     vehiculeModele: "",
+    vehiculeAnnee: "",
+    immatriculation: "",
+    carteGriseTitulaire: "",
     plateformes: [] as string[],
     caMensuel: "",
     consentAccepted: false,
@@ -62,6 +65,10 @@ function InscriptionPage() {
         toast.error("Veuillez indiquer si vous avez une carte VTC");
         return;
       }
+      if (formData.carteVtc === "oui" && !formData.numeroCarteVtc.trim()) {
+        toast.error("Veuillez indiquer votre numéro de carte VTC");
+        return;
+      }
       if (!formData.experience) {
         toast.error("Veuillez sélectionner votre expérience");
         return;
@@ -80,8 +87,23 @@ function InscriptionPage() {
       toast.error("Veuillez indiquer si vous avez un véhicule");
       return;
     }
+    if (formData.vehicule === "oui") {
+      if (
+        !formData.vehiculeModele.trim() ||
+        !formData.vehiculeAnnee.trim() ||
+        !formData.immatriculation.trim() ||
+        !formData.carteGriseTitulaire.trim()
+      ) {
+        toast.error("Veuillez compléter les informations du véhicule");
+        return;
+      }
+    }
     if (formData.plateformes.length === 0) {
       toast.error("Veuillez sélectionner au moins une plateforme");
+      return;
+    }
+    if (!formData.caMensuel) {
+      toast.error("Veuillez sélectionner votre chiffre d'affaires mensuel");
       return;
     }
     if (!formData.consentAccepted) {
@@ -95,7 +117,7 @@ function InscriptionPage() {
       const apiData = {
         firstName: formData.prenom,
         lastName: formData.nom,
-        email: formData.email,
+        email: formData.email.trim().toLowerCase(),
         phone: formData.telephone,
         city: formData.ville,
         activityType: "VTC",
@@ -105,6 +127,9 @@ function InscriptionPage() {
         currentPlatforms: formData.plateformes,
         hasVehicle: formData.vehicule,
         vehicleType: formData.vehiculeModele,
+        vehicleYear: formData.vehiculeAnnee,
+        vehicleRegistrationPlate: formData.immatriculation,
+        vehicleCarteGriseHolder: formData.carteGriseTitulaire,
         monthlyRevenue: formData.caMensuel,
         consentAccepted: formData.consentAccepted,
         consentAcceptedAt: new Date().toISOString(),
@@ -314,6 +339,7 @@ function InscriptionPage() {
                           type="radio"
                           name="carteVtc"
                           value="oui"
+                          required
                           checked={formData.carteVtc === "oui"}
                           onChange={(e) => updateField("carteVtc", e.target.value)}
                           className="accent-[#fd521a]"
@@ -331,6 +357,7 @@ function InscriptionPage() {
                           type="radio"
                           name="carteVtc"
                           value="non"
+                          required
                           checked={formData.carteVtc === "non"}
                           onChange={(e) => updateField("carteVtc", e.target.value)}
                           className="accent-[#fd521a]"
@@ -341,18 +368,21 @@ function InscriptionPage() {
                   </div>
                   <div>
                     <label className="mb-2 block text-sm font-bold text-gray-700">
-                      Numéro de carte VTC
+                      Numéro de carte VTC {formData.carteVtc === "oui" ? "*" : ""}
                     </label>
                     <input
                       type="text"
+                      required={formData.carteVtc === "oui"}
                       placeholder="VTC-XXXXXXXX"
                       value={formData.numeroCarteVtc}
                       onChange={(e) => updateField("numeroCarteVtc", e.target.value)}
                       className="w-full rounded-xl border border-white/60 bg-white/70 px-4 py-3 text-sm shadow-sm backdrop-blur-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10"
                     />
-                    <p className="mt-1 text-xs text-gray-400">
-                      Optionnel pour le moment
-                    </p>
+                    {formData.carteVtc !== "oui" && (
+                      <p className="mt-1 text-xs text-gray-400">
+                        À compléter dès réception de la carte.
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="mb-2 block text-sm font-bold text-gray-700">
@@ -423,6 +453,7 @@ function InscriptionPage() {
                           type="radio"
                           name="vehicule"
                           value="oui"
+                          required
                           checked={formData.vehicule === "oui"}
                           onChange={(e) => updateField("vehicule", e.target.value)}
                           className="accent-[#fd521a]"
@@ -440,6 +471,7 @@ function InscriptionPage() {
                           type="radio"
                           name="vehicule"
                           value="besoin"
+                          required
                           checked={formData.vehicule === "besoin"}
                           onChange={(e) => updateField("vehicule", e.target.value)}
                           className="accent-[#fd521a]"
@@ -450,14 +482,61 @@ function InscriptionPage() {
                   </div>
                   <div>
                     <label className="mb-2 block text-sm font-bold text-gray-700">
-                      Marque et modèle
+                      Marque et modèle {formData.vehicule === "oui" ? "*" : ""}
                     </label>
                     <input
                       type="text"
+                      required={formData.vehicule === "oui"}
+                      disabled={formData.vehicule === "besoin"}
                       placeholder="Ex: Tesla Model 3"
                       value={formData.vehiculeModele}
                       onChange={(e) => updateField("vehiculeModele", e.target.value)}
-                      className="w-full rounded-xl border border-white/60 bg-white/70 px-4 py-3 text-sm shadow-sm backdrop-blur-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10"
+                      className="w-full rounded-xl border border-white/60 bg-white/70 px-4 py-3 text-sm shadow-sm backdrop-blur-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10 disabled:cursor-not-allowed disabled:opacity-50"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="mb-2 block text-sm font-bold text-gray-700">
+                        Année {formData.vehicule === "oui" ? "*" : ""}
+                      </label>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        required={formData.vehicule === "oui"}
+                        disabled={formData.vehicule === "besoin"}
+                        placeholder="2023"
+                        value={formData.vehiculeAnnee}
+                        onChange={(e) => updateField("vehiculeAnnee", e.target.value)}
+                        className="w-full rounded-xl border border-white/60 bg-white/70 px-4 py-3 text-sm shadow-sm backdrop-blur-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10 disabled:cursor-not-allowed disabled:opacity-50"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-sm font-bold text-gray-700">
+                        Immatriculation {formData.vehicule === "oui" ? "*" : ""}
+                      </label>
+                      <input
+                        type="text"
+                        required={formData.vehicule === "oui"}
+                        disabled={formData.vehicule === "besoin"}
+                        placeholder="AB-123-CD"
+                        value={formData.immatriculation}
+                        onChange={(e) => updateField("immatriculation", e.target.value.toUpperCase())}
+                        className="w-full rounded-xl border border-white/60 bg-white/70 px-4 py-3 text-sm shadow-sm backdrop-blur-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10 disabled:cursor-not-allowed disabled:opacity-50"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-bold text-gray-700">
+                      Titulaire carte grise {formData.vehicule === "oui" ? "*" : ""}
+                    </label>
+                    <input
+                      type="text"
+                      required={formData.vehicule === "oui"}
+                      disabled={formData.vehicule === "besoin"}
+                      placeholder="Nom du titulaire"
+                      value={formData.carteGriseTitulaire}
+                      onChange={(e) => updateField("carteGriseTitulaire", e.target.value)}
+                      className="w-full rounded-xl border border-white/60 bg-white/70 px-4 py-3 text-sm shadow-sm backdrop-blur-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10 disabled:cursor-not-allowed disabled:opacity-50"
                     />
                   </div>
                   <div>
@@ -487,9 +566,10 @@ function InscriptionPage() {
                   </div>
                   <div>
                     <label className="mb-2 block text-sm font-bold text-gray-700">
-                      Chiffre d&apos;affaires mensuel moyen
+                      Chiffre d&apos;affaires mensuel moyen *
                     </label>
                     <select
+                      required
                       value={formData.caMensuel}
                       onChange={(e) => updateField("caMensuel", e.target.value)}
                       className="w-full rounded-xl border border-white/60 bg-white/70 px-4 py-3 text-sm shadow-sm backdrop-blur-sm transition-all focus:border-[#fd521a] focus:outline-none focus:ring-[3px] focus:ring-[#fd521a]/10"
@@ -505,6 +585,7 @@ function InscriptionPage() {
                   <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/60 bg-white/70 px-4 py-3 text-sm shadow-sm">
                     <input
                       type="checkbox"
+                      required
                       checked={formData.consentAccepted}
                       onChange={(e) => updateField("consentAccepted", e.target.checked)}
                       className="mt-1 accent-[#fd521a]"

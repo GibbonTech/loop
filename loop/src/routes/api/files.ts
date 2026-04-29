@@ -364,7 +364,7 @@ export const Route = createFileRoute("/api/files")({
       // Delete a file
       DELETE: async ({ request }) => {
         try {
-          const authContext = await requireAdmin(request);
+          const authContext = await requireAuth(request);
           if (authContext instanceof Response) return authContext;
 
           const url = new URL(request.url);
@@ -377,21 +377,40 @@ export const Route = createFileRoute("/api/files")({
             );
           }
 
-          const file = await db
+          const [file] = await db
             .select()
             .from(storedFile)
-            .where(eq(storedFile.id, fileId));
-          if (!file.length) {
+            .where(eq(storedFile.id, fileId))
+            .limit(1);
+          if (!file) {
             return json(
               { success: false, error: "Fichier non trouvé" },
               { status: 404 },
             );
           }
 
+          const allowed = await canAccessStoredFile(authContext, file);
+          if (!allowed) {
+            return json(
+              { success: false, error: "Accès refusé" },
+              { status: 403 },
+            );
+          }
+
+          if (!authContext.isAdmin && file.reviewStatus === "APPROVED") {
+            return json(
+              {
+                success: false,
+                error: "Document déjà validé. Contactez Driivo pour le remplacer.",
+              },
+              { status: 403 },
+            );
+          }
+
           // Delete from R2
           if (isStorageConfigured()) {
             try {
-              await deleteFile(file[0].key);
+              await deleteFile(file.key);
             } catch (e) {
               console.error("[API] R2 delete error:", e);
             }

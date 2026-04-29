@@ -20,6 +20,11 @@ function ReunionPage() {
   const { data: session } = useSession();
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const [existingMeeting, setExistingMeeting] = useState<{
+    id: string;
+    scheduledDate: string;
+    timeSlot: string;
+  } | null>(null);
   const [currentWeekOffset, setCurrentWeekOffset] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookedSlots, setBookedSlots] = useState<Record<string, string[]>>({});
@@ -47,6 +52,33 @@ function ReunionPage() {
       email: prev.email || session.user.email || "",
       phone: prev.phone,
     }));
+  }, [session]);
+
+  useEffect(() => {
+    if (!session?.user) return;
+
+    const fetchExistingMeeting = async () => {
+      try {
+        const res = await fetch("/api/meetings");
+        const result = await res.json();
+        if (!result.success) return;
+        const scheduled = (result.data || [])
+          .filter((meeting: { status: string }) => meeting.status === "SCHEDULED")
+          .sort(
+            (
+              a: { scheduledDate: string },
+              b: { scheduledDate: string },
+            ) =>
+              new Date(a.scheduledDate).getTime() -
+              new Date(b.scheduledDate).getTime(),
+          )[0];
+        if (scheduled) setExistingMeeting(scheduled);
+      } catch (error) {
+        console.error("Error fetching existing meeting:", error);
+      }
+    };
+
+    fetchExistingMeeting();
   }, [session]);
 
   // Fetch real availability from database
@@ -105,6 +137,11 @@ function ReunionPage() {
   };
 
   const handleConfirm = async () => {
+    if (existingMeeting) {
+      toast.error("Vous avez déjà un rendez-vous programmé.");
+      return;
+    }
+
     const formData = {
       name: contactInfo.name,
       email: contactInfo.email,
@@ -136,8 +173,16 @@ function ReunionPage() {
       const result = await res.json();
       if (!res.ok || !result.success) {
         toast.error(result.error || "Erreur lors de la réservation");
+        if (result.data?.id) {
+          setExistingMeeting(result.data);
+        }
         return;
       }
+      setExistingMeeting({
+        id: result.id,
+        scheduledDate: result.data?.scheduledDate || selectedDay || "",
+        timeSlot: result.data?.timeSlot || selectedSlot || "",
+      });
       toast.success("Créneau réservé ! Vous recevrez un email de confirmation.");
       // Redirect to espace after short delay
       setTimeout(() => {
@@ -160,6 +205,7 @@ function ReunionPage() {
   };
 
   const isFormValid = selectedDay && selectedSlot && contactInfo.name && contactInfo.email && contactInfo.phone;
+  const hasActiveMeeting = Boolean(existingMeeting);
 
   return (
     <PageLayout showNavLinks={false}>
@@ -245,11 +291,23 @@ function ReunionPage() {
               </button>
             </div>
 
+            {existingMeeting && (
+              <div className="mb-5 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+                <div className="font-bold">Rendez-vous déjà réservé</div>
+                <div className="mt-0.5 text-xs text-emerald-800">
+                  {new Date(existingMeeting.scheduledDate).toLocaleDateString("fr-FR")} à{" "}
+                  {existingMeeting.timeSlot}. Un seul créneau peut être actif à
+                  la fois.
+                </div>
+              </div>
+            )}
+
             {/* Days */}
             <div className="mb-6 grid grid-cols-5 gap-2">
               {getDays().map((day) => (
                 <button
                   key={day.date}
+                  disabled={hasActiveMeeting}
                   onClick={() => {
                     setSelectedDay(day.date);
                     setSelectedSlot(null);
@@ -280,7 +338,7 @@ function ReunionPage() {
                     return (
                       <button
                         key={slot}
-                        disabled={!available || loadingAvailability}
+                        disabled={!available || loadingAvailability || hasActiveMeeting}
                         onClick={() => setSelectedSlot(slot)}
                         className={`rounded-lg border px-3 py-2 text-sm font-medium transition-all ${
                           selectedSlot === slot
@@ -304,6 +362,7 @@ function ReunionPage() {
                 <div className="text-xs font-bold text-gray-400">Vos coordonnées</div>
                 <input
                   type="text"
+                  required
                   placeholder="Votre nom"
                   value={contactInfo.name}
                   onChange={(e) => setContactInfo({ ...contactInfo, name: e.target.value })}
@@ -311,6 +370,7 @@ function ReunionPage() {
                 />
                 <input
                   type="email"
+                  required
                   placeholder="Votre email"
                   value={contactInfo.email}
                   onChange={(e) => setContactInfo({ ...contactInfo, email: e.target.value })}
@@ -318,6 +378,7 @@ function ReunionPage() {
                 />
                 <input
                   type="tel"
+                  required
                   placeholder="Votre téléphone"
                   value={contactInfo.phone}
                   onChange={(e) => setContactInfo({ ...contactInfo, phone: e.target.value })}
@@ -328,7 +389,7 @@ function ReunionPage() {
 
             {/* Confirm Button */}
             <button
-              disabled={!isFormValid || isSubmitting}
+              disabled={!isFormValid || isSubmitting || hasActiveMeeting}
               onClick={handleConfirm}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#fd521a] py-4 text-base font-bold text-white shadow-[0_8px_20px_-4px_rgba(253,82,26,0.3)] transition-all hover:-translate-y-0.5 hover:bg-[#e0410e] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
             >

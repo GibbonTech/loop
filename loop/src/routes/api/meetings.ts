@@ -36,6 +36,33 @@ export const Route = createFileRoute("/api/meetings")({
             );
           }
 
+          const [existingActiveMeeting] = await db
+            .select({
+              id: meetingBooking.id,
+              scheduledDate: meetingBooking.scheduledDate,
+              timeSlot: meetingBooking.timeSlot,
+            })
+            .from(meetingBooking)
+            .where(
+              and(
+                eq(meetingBooking.email, data.email),
+                eq(meetingBooking.status, "SCHEDULED"),
+              ),
+            )
+            .limit(1);
+
+          if (existingActiveMeeting) {
+            return json(
+              {
+                success: false,
+                error:
+                  "Vous avez déjà un rendez-vous programmé. Un seul créneau peut être réservé.",
+                data: existingActiveMeeting,
+              },
+              { status: 409 },
+            );
+          }
+
           const { start, end } = utcDayRange(dateKey);
           const [existingSlot] = await db
             .select({ id: meetingBooking.id })

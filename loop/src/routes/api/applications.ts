@@ -3,7 +3,7 @@ import { json } from "@tanstack/react-start";
 import { db } from "~/lib/db";
 import { application } from "~/lib/db/schema";
 import { nanoid } from "nanoid";
-import { and, desc, eq, ne } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 import { auth } from "~/lib/auth/auth";
 import { sendApplicationConfirmationEmail, sendApplicationStatusEmail, sendNewApplicationAdminEmail } from "~/lib/server/email";
 import crypto from "crypto";
@@ -32,12 +32,7 @@ export const Route = createFileRoute("/api/applications")({
           const [existingApplication] = await db
             .select()
             .from(application)
-            .where(
-              and(
-                eq(application.email, data.email),
-                ne(application.status, "REJECTED"),
-              ),
-            )
+            .where(sql`lower(${application.email}) = ${data.email}`)
             .orderBy(desc(application.createdAt))
             .limit(1);
 
@@ -54,8 +49,12 @@ export const Route = createFileRoute("/api/applications")({
 
           const formData = {
             ...body,
+            email: data.email,
             city: data.city,
             vtcCardNumber: data.vtcCardNumber,
+            vehicleYear: data.vehicleYear,
+            vehicleRegistrationPlate: data.vehicleRegistrationPlate,
+            vehicleCarteGriseHolder: data.vehicleCarteGriseHolder,
             consentAccepted: data.consentAccepted,
             consentAcceptedAt:
               data.consentAcceptedAt ??
@@ -75,6 +74,7 @@ export const Route = createFileRoute("/api/applications")({
             currentPlatforms: data.currentPlatforms.join(","),
             hasVehicle: data.hasVehicle,
             vehicleType: data.vehicleType,
+            vehicleYear: data.vehicleYear,
             monthlyRevenue: data.monthlyRevenue,
             expectedStartDate: data.expectedStartDate,
             formData,
@@ -153,7 +153,11 @@ export const Route = createFileRoute("/api/applications")({
               return json({ success: false, error: "Application not found" }, { status: 404 });
             }
             // Non-admin users can only view their own applications
-            if (!authContext.isAdmin && app.email !== authContext.user.email) {
+            const sessionEmail = authContext.user.email?.trim().toLowerCase();
+            if (
+              !authContext.isAdmin &&
+              app.email?.trim().toLowerCase() !== sessionEmail
+            ) {
               return json({ success: false, error: "Unauthorized" }, { status: 403 });
             }
             return json({ success: true, data: app });
@@ -161,9 +165,9 @@ export const Route = createFileRoute("/api/applications")({
 
           // Regular users: return only their own applications (by email)
           if (!authContext.isAdmin) {
-            const userEmail = authContext.user.email;
+            const userEmail = authContext.user.email?.trim().toLowerCase();
             const userApps = await db.select().from(application)
-              .where(eq(application.email, userEmail))
+              .where(sql`lower(${application.email}) = ${userEmail}`)
               .orderBy(desc(application.createdAt));
             return json({ success: true, data: userApps });
           }
@@ -224,7 +228,7 @@ export const Route = createFileRoute("/api/applications")({
               email: updated.email,
               firstName: updated.firstName,
               status: status as "APPROVED" | "REJECTED" | "UNDER_REVIEW",
-              notes: notes || undefined,
+              notes: undefined,
             }).catch((e) => console.error("[Email] Status notification error:", e));
           }
 
