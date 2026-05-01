@@ -214,7 +214,9 @@ function ApplicationDetailPage() {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const operationFileInputRef = useRef<HTMLInputElement>(null);
-  const pendingUploadPurposeRef = useRef<"contract" | "signedContract" | "payslip" | "invoice">("contract");
+  const pendingUploadPurposeRef = useRef<
+    "contract" | "signedContract" | "payslip" | "invoice"
+  >("contract");
 
   useEffect(() => {
     fetchApplication();
@@ -490,8 +492,10 @@ function ApplicationDetailPage() {
     }
     if (pendingUploadPurposeRef.current === "payslip") {
       const period =
-        window.prompt("Période du bulletin (YYYY-MM)", new Date().toISOString().slice(0, 7)) ||
-        "";
+        window.prompt(
+          "Période du bulletin (YYYY-MM)",
+          new Date().toISOString().slice(0, 7),
+        ) || "";
       if (!period) return;
       await runOperation({
         action: "upsertPayroll",
@@ -502,8 +506,10 @@ function ApplicationDetailPage() {
     }
     if (pendingUploadPurposeRef.current === "invoice") {
       const invoiceNumber =
-        window.prompt("Numéro de facture", `DRIIVO-${Date.now().toString().slice(-6)}`) ||
-        "";
+        window.prompt(
+          "Numéro de facture",
+          `DRIIVO-${Date.now().toString().slice(-6)}`,
+        ) || "";
       if (!invoiceNumber) return;
       await runOperation({
         action: "upsertInvoice",
@@ -532,8 +538,10 @@ function ApplicationDetailPage() {
 
   const promptMonthlyActivity = async () => {
     const period =
-      window.prompt("Période à ouvrir/mettre à jour (YYYY-MM)", new Date().toISOString().slice(0, 7)) ||
-      "";
+      window.prompt(
+        "Période à ouvrir/mettre à jour (YYYY-MM)",
+        new Date().toISOString().slice(0, 7),
+      ) || "";
     if (!period) return;
     const declaredRevenue = window.prompt("CA déclaré (€)", "6500") || "0";
     await runOperation({
@@ -551,8 +559,10 @@ function ApplicationDetailPage() {
     const periodActivity = operations.monthlyActivities[0];
     const amount = window.prompt("Montant facture TTC (€)", "6500") || "0";
     const invoiceNumber =
-      window.prompt("Numéro de facture", `DRIIVO-${Date.now().toString().slice(-6)}`) ||
-      "";
+      window.prompt(
+        "Numéro de facture",
+        `DRIIVO-${Date.now().toString().slice(-6)}`,
+      ) || "";
     if (!invoiceNumber) return;
     await runOperation({
       action: "upsertInvoice",
@@ -578,11 +588,14 @@ function ApplicationDetailPage() {
 
   const promptPayroll = async () => {
     const period =
-      window.prompt("Période de paie (YYYY-MM)", new Date().toISOString().slice(0, 7)) ||
-      "";
+      window.prompt(
+        "Période de paie (YYYY-MM)",
+        new Date().toISOString().slice(0, 7),
+      ) || "";
     if (!period) return;
     const netSalary = window.prompt("Salaire net (€)", "3900") || "0";
-    const payoutAmount = window.prompt("Versement chauffeur (€)", netSalary) || "0";
+    const payoutAmount =
+      window.prompt("Versement chauffeur (€)", netSalary) || "0";
     await runOperation({
       action: "upsertPayroll",
       period,
@@ -670,11 +683,9 @@ function ApplicationDetailPage() {
     formString("vehicleYear") ||
     formString("vehiculeAnnee");
   const vehicleRegistrationPlate =
-    formString("vehicleRegistrationPlate") ||
-    formString("immatriculation");
+    formString("vehicleRegistrationPlate") || formString("immatriculation");
   const vehicleCarteGriseHolder =
-    formString("vehicleCarteGriseHolder") ||
-    formString("carteGriseTitulaire");
+    formString("vehicleCarteGriseHolder") || formString("carteGriseTitulaire");
 
   // Readiness score: count key fields that are filled
   const readinessFields = [
@@ -986,19 +997,25 @@ function ApplicationDetailPage() {
                     </div>
                   </div>
                   <div className="rounded-lg border p-3">
-                    <div className="text-xs text-muted-foreground">Activités</div>
+                    <div className="text-xs text-muted-foreground">
+                      Activités
+                    </div>
                     <div className="mt-1 text-lg font-semibold">
                       {operations.monthlyActivities.length}
                     </div>
                   </div>
                   <div className="rounded-lg border p-3">
-                    <div className="text-xs text-muted-foreground">Factures</div>
+                    <div className="text-xs text-muted-foreground">
+                      Factures
+                    </div>
                     <div className="mt-1 text-lg font-semibold">
                       {operations.invoices.length}
                     </div>
                   </div>
                   <div className="rounded-lg border p-3">
-                    <div className="text-xs text-muted-foreground">Dernier payout</div>
+                    <div className="text-xs text-muted-foreground">
+                      Dernier payout
+                    </div>
                     <div className="mt-1 text-lg font-semibold">
                       {formatEuro(operations.payrollSummaries[0]?.payoutAmount)}
                     </div>
@@ -1081,6 +1098,7 @@ function ApplicationDetailPage() {
                       id: task.id,
                       main: task.label,
                       meta: task.status,
+                      actionLabel: "Marquer fait",
                       action:
                         task.status !== "DONE"
                           ? () =>
@@ -1099,6 +1117,18 @@ function ApplicationDetailPage() {
                       id: activity.id,
                       main: activity.period,
                       meta: `${formatEuro(activity.declaredRevenue)} · ${activity.status}`,
+                      actionLabel: "Valider activité",
+                      action:
+                        activity.status !== "VALIDATED" &&
+                        activity.status !== "CLOSED"
+                          ? () =>
+                              runOperation({
+                                action: "upsertMonthlyActivity",
+                                period: activity.period,
+                                declaredRevenue: activity.declaredRevenue,
+                                status: "VALIDATED",
+                              })
+                          : undefined,
                     }))}
                   />
                   <AdminOpsList
@@ -1108,6 +1138,7 @@ function ApplicationDetailPage() {
                       id: invoice.id,
                       main: invoice.invoiceNumber,
                       meta: `${invoice.recipient} · ${formatEuro(invoice.amountTTC)} · ${invoice.status}`,
+                      actionLabel: "Marquer payé",
                       action:
                         invoice.status !== "PAID"
                           ? () => promptPayment(invoice.id, invoice.amountTTC)
@@ -1123,6 +1154,7 @@ function ApplicationDetailPage() {
                       meta: `${formatEuro(expense.amount)} · ${expense.status}${
                         expense.reviewNotes ? ` · ${expense.reviewNotes}` : ""
                       }`,
+                      actionLabel: "Valider frais",
                       action:
                         expense.status === "SUBMITTED"
                           ? () =>
@@ -1145,7 +1177,10 @@ function ApplicationDetailPage() {
                         id: payroll.id,
                         main: payroll.period,
                         meta: `${formatEuro(payroll.payoutAmount)} · ${payroll.status}`,
-                        action: payslip ? () => downloadFile(payslip.key) : undefined,
+                        actionLabel: "Voir bulletin",
+                        action: payslip
+                          ? () => downloadFile(payslip.key)
+                          : undefined,
                       };
                     })}
                   />
@@ -1273,9 +1308,11 @@ function ApplicationDetailPage() {
                                     updateFileReview(file.id, "APPROVED")
                                   }
                                   disabled={updating}
+                                  aria-label={`Valider ${category.label}`}
+                                  title={`Valider ${category.label}`}
                                 >
                                   <CheckCircle2 className="h-3.5 w-3.5" />
-                                  Valider
+                                  Valider ce document
                                 </Button>
                               )}
                               <Button
@@ -1287,15 +1324,18 @@ function ApplicationDetailPage() {
                                 size="sm"
                                 onClick={() => rejectFile(file)}
                                 disabled={updating}
+                                aria-label={`Demander correction ${category.label}`}
+                                title={`Demander correction ${category.label}`}
                               >
                                 <XCircle className="h-3.5 w-3.5" />
-                                Corriger
+                                Demander correction
                               </Button>
                               <Button
                                 variant="ghost"
                                 size="icon-sm"
                                 onClick={() => downloadFile(file.key)}
-                                title="Télécharger"
+                                aria-label={`Télécharger ${category.label}`}
+                                title={`Télécharger ${category.label}`}
                               >
                                 <Download className="h-3.5 w-3.5" />
                               </Button>
@@ -1303,7 +1343,8 @@ function ApplicationDetailPage() {
                                 variant="ghost"
                                 size="icon-sm"
                                 onClick={() => handleDeleteFile(file.id)}
-                                title="Supprimer"
+                                aria-label={`Supprimer ${category.label}`}
+                                title={`Supprimer ${category.label}`}
                               >
                                 <Trash2 className="h-3.5 w-3.5 text-destructive" />
                               </Button>
@@ -1356,23 +1397,27 @@ function ApplicationDetailPage() {
                         <div className="flex items-center gap-1">
                           {file.reviewStatus !== "APPROVED" && (
                             <Button
-                              variant="ghost"
-                              size="icon-sm"
+                              variant="outline"
+                              size="sm"
                               onClick={() =>
                                 updateFileReview(file.id, "APPROVED")
                               }
-                              title="Valider"
+                              aria-label={`Valider complément ${file.originalName}`}
+                              title={`Valider complément ${file.originalName}`}
                             >
                               <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                              Valider complément
                             </Button>
                           )}
                           <Button
-                            variant="ghost"
-                            size="icon-sm"
+                            variant="outline"
+                            size="sm"
                             onClick={() => rejectFile(file)}
-                            title="Corriger"
+                            aria-label={`Demander correction complément ${file.originalName}`}
+                            title={`Demander correction complément ${file.originalName}`}
                           >
                             <XCircle className="h-3.5 w-3.5 text-destructive" />
+                            Demander correction
                           </Button>
                           <Button
                             variant="ghost"
@@ -1435,6 +1480,7 @@ function AdminOpsList({
     id: string;
     main: string;
     meta: string;
+    actionLabel?: string;
     action?: () => void | Promise<void | boolean>;
   }>;
 }) {
@@ -1453,16 +1499,20 @@ function AdminOpsList({
               </div>
             </div>
             {row.action && (
-              <Button variant="outline" size="xs" onClick={() => row.action?.()}>
-                Action
+              <Button
+                variant="outline"
+                size="xs"
+                onClick={() => row.action?.()}
+                aria-label={`${row.actionLabel || "Action"} - ${row.main}`}
+                title={`${row.actionLabel || "Action"} - ${row.main}`}
+              >
+                {row.actionLabel || "Action"}
               </Button>
             )}
           </div>
         ))}
         {rows.length === 0 && (
-          <div className="px-4 py-6 text-sm text-muted-foreground">
-            {empty}
-          </div>
+          <div className="px-4 py-6 text-sm text-muted-foreground">{empty}</div>
         )}
       </div>
     </div>

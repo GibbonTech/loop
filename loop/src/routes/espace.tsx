@@ -923,6 +923,11 @@ function EspacePage() {
                       Une fois envoyé, un document reste dans votre dossier pour
                       garder la traçabilité.
                     </p>
+                    <p className="mt-1 text-xs text-gray-400">
+                      Utilisez les boutons de chaque ligne pour les documents
+                      obligatoires. Le bouton complément sert aux pièces
+                      additionnelles.
+                    </p>
                   </div>
                   <button
                     onClick={() => startDocumentUpload("OTHER")}
@@ -930,7 +935,7 @@ function EspacePage() {
                     className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md bg-gray-900 px-3 text-xs font-medium text-white transition-colors hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <Upload className="h-3.5 w-3.5" />
-                    {uploading ? "Envoi..." : "Ajouter un autre document"}
+                    {uploading ? "Envoi..." : "Ajouter un complément"}
                   </button>
                 </div>
 
@@ -1028,7 +1033,9 @@ function EspacePage() {
                                 className="inline-flex h-8 items-center justify-center rounded-md bg-gray-900 px-2.5 text-xs font-medium text-white transition-colors hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
                               >
                                 <Upload className="mr-1 h-3.5 w-3.5" />
-                                {file ? "Ajouter une version" : "Téléverser"}
+                                {file
+                                  ? "Ajouter une version"
+                                  : "Téléverser ce document"}
                               </button>
                             </div>
                           </div>
@@ -1088,7 +1095,9 @@ function EspacePage() {
                               className="mt-2 inline-flex h-8 w-full items-center justify-center rounded-md border border-gray-200 px-2.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                               <Upload className="mr-1 h-3.5 w-3.5" />
-                              {file ? "Ajouter une version" : "Ajouter"}
+                              {file
+                                ? "Ajouter une version"
+                                : "Ajouter ce complément"}
                             </button>
                           </div>
                         );
