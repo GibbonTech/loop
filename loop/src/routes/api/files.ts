@@ -397,11 +397,11 @@ export const Route = createFileRoute("/api/files")({
             );
           }
 
-          if (!authContext.isAdmin && file.reviewStatus === "APPROVED") {
+          if (!authContext.isAdmin) {
             return json(
               {
                 success: false,
-                error: "Document déjà validé. Contactez Driivo pour le remplacer.",
+                error: "Document déjà envoyé. Contactez Driivo pour ajouter une correction.",
               },
               { status: 403 },
             );

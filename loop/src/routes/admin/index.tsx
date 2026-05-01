@@ -1,10 +1,26 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Search, LogOut, ChevronRight, Users, Clock, CheckCircle2, XCircle, CalendarDays, Zap } from "lucide-react";
+import {
+  Search,
+  LogOut,
+  ChevronRight,
+  Users,
+  Clock,
+  CheckCircle2,
+  CalendarDays,
+  Zap,
+  FileText,
+} from "lucide-react";
 import { toast } from "sonner";
 import { signOut, useSession } from "~/lib/auth/auth-client";
 import { validateSession } from "~/lib/auth/auth-functions";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -74,35 +90,81 @@ interface Meeting {
   createdAt: string;
 }
 
+interface ClientSummary {
+  profileId: string;
+  applicationId: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+  status: string;
+  startDate?: string | null;
+  contractStatus: string;
+  latestActivity: {
+    period: string;
+    status: string;
+    declaredRevenue: number;
+  } | null;
+  latestPayroll: {
+    period: string;
+    status: string;
+    payoutAmount: number;
+  } | null;
+  invoiceTotal: number;
+  paidTotal: number;
+  unpaidInvoices: number;
+  pendingExpenses: number;
+  pendingTasks: number;
+  lastEventTitle?: string | null;
+  lastEventAt?: string | null;
+  createdAt: string;
+}
+
 const formatRevenue = (v: string | undefined | null): string => {
   if (!v) return "—";
   const map: Record<string, string> = {
-    "moins_3000": "< 3k \u20ac",
+    moins_3000: "< 3k \u20ac",
     "3000_5000": "3\u20135k \u20ac",
     "5000_7000": "5\u20137k \u20ac",
     "7000_10000": "7\u201310k \u20ac",
-    "plus_10000": "> 10k \u20ac",
+    plus_10000: "> 10k \u20ac",
     "5000-7000\u20ac": "5\u20137k \u20ac",
   };
   return map[v] || v;
 };
 
-const leadStatusOptions = ["NEW", "CONTACTED", "QUALIFIED", "CONVERTED", "LOST"];
+const formatEuro = (value?: number | null) =>
+  `${Math.round(value || 0).toLocaleString("fr-FR")} €`;
+
+const leadStatusOptions = [
+  "NEW",
+  "CONTACTED",
+  "QUALIFIED",
+  "CONVERTED",
+  "LOST",
+];
 const meetingStatusOptions = ["SCHEDULED", "COMPLETED", "CANCELLED", "NO_SHOW"];
 
 function AdminDashboard() {
   const { data: session, isPending } = useSession();
   const [applications, setApplications] = useState<Application[]>([]);
+  const [clients, setClients] = useState<ClientSummary[]>([]);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeSection, setActiveSection] = useState<"applications" | "leads" | "meetings">("applications");
+  const [activeSection, setActiveSection] = useState<
+    "clients" | "applications" | "leads" | "meetings"
+  >("clients");
 
   useEffect(() => {
     if (session?.user) {
-      Promise.all([fetchApplications(), fetchLeads(), fetchMeetings()]).finally(() => setLoading(false));
+      Promise.all([
+        fetchApplications(),
+        fetchClients(),
+        fetchLeads(),
+        fetchMeetings(),
+      ]).finally(() => setLoading(false));
     }
   }, [session]);
 
@@ -113,6 +175,16 @@ function AdminDashboard() {
       if (data.success) setApplications(data.data);
     } catch (error) {
       console.error("Error fetching applications:", error);
+    }
+  };
+
+  const fetchClients = async () => {
+    try {
+      const response = await fetch("/api/operations?mode=clients");
+      const data = await response.json();
+      if (data.success) setClients(data.data);
+    } catch (error) {
+      console.error("Error fetching clients:", error);
     }
   };
 
@@ -148,7 +220,9 @@ function AdminDashboard() {
         toast.error(data.error || "Mise à jour du lead impossible");
         return;
       }
-      setLeads((prev) => prev.map((lead) => (lead.id === id ? data.data : lead)));
+      setLeads((prev) =>
+        prev.map((lead) => (lead.id === id ? data.data : lead)),
+      );
       toast.success("Lead mis à jour");
     } catch (error) {
       console.error("Error updating lead:", error);
@@ -168,7 +242,9 @@ function AdminDashboard() {
         toast.error(data.error || "Mise à jour de la réunion impossible");
         return;
       }
-      setMeetings((prev) => prev.map((meeting) => (meeting.id === id ? data.data : meeting)));
+      setMeetings((prev) =>
+        prev.map((meeting) => (meeting.id === id ? data.data : meeting)),
+      );
       toast.success("Réunion mise à jour");
     } catch (error) {
       console.error("Error updating meeting:", error);
@@ -180,16 +256,36 @@ function AdminDashboard() {
     const matchesFilter = filter === "all" || app.status === filter;
     const matchesSearch =
       !searchQuery ||
-      `${app.firstName} ${app.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      `${app.firstName} ${app.lastName}`
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
       app.email?.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
   });
 
+  const filteredClients = clients.filter((client) => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      client.name.toLowerCase().includes(query) ||
+      client.email.toLowerCase().includes(query) ||
+      client.phone?.toLowerCase().includes(query)
+    );
+  });
+
   const stats = {
-    total: applications.length,
+    clients: clients.length,
     submitted: applications.filter((a) => a.status === "SUBMITTED").length,
-    approved: applications.filter((a) => a.status === "APPROVED").length,
-    rejected: applications.filter((a) => a.status === "REJECTED").length,
+    scheduledMeetings: meetings.filter(
+      (meeting) => meeting.status === "SCHEDULED",
+    ).length,
+    pendingOps: clients.filter(
+      (client) =>
+        client.pendingTasks > 0 ||
+        client.pendingExpenses > 0 ||
+        client.unpaidInvoices > 0 ||
+        client.latestActivity?.status === "SUBMITTED",
+    ).length,
   };
 
   const handleLogout = async () => {
@@ -210,7 +306,11 @@ function AdminDashboard() {
   const statusBadge = (status: string) => {
     switch (status) {
       case "APPROVED":
-        return <Badge className="bg-emerald-50 text-emerald-700 hover:bg-emerald-50 border-emerald-200">Approuvée</Badge>;
+        return (
+          <Badge className="bg-emerald-50 text-emerald-700 hover:bg-emerald-50 border-emerald-200">
+            Approuvée
+          </Badge>
+        );
       case "REJECTED":
         return <Badge variant="destructive">Refusée</Badge>;
       case "UNDER_REVIEW":
@@ -230,10 +330,14 @@ function AdminDashboard() {
               <div className="flex h-7 w-7 items-center justify-center rounded-full bg-foreground">
                 <div className="h-1.5 w-1.5 rounded-full bg-background"></div>
               </div>
-              <span className="text-sm font-semibold tracking-tight">Driivo</span>
+              <span className="text-sm font-semibold tracking-tight">
+                Driivo
+              </span>
             </div>
             <Separator orientation="vertical" className="h-4" />
-            <span className="text-sm text-muted-foreground">Administration</span>
+            <span className="text-sm text-muted-foreground">
+              Administration
+            </span>
           </div>
 
           <div className="flex items-center gap-3">
@@ -241,15 +345,22 @@ function AdminDashboard() {
               <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Rechercher un candidat..."
+                placeholder="Rechercher chauffeur, candidat..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="h-9 w-60 pl-9"
               />
             </div>
             <Separator orientation="vertical" className="h-5" />
-            <span className="text-sm text-muted-foreground">{session?.user?.email}</span>
-            <Button variant="ghost" size="icon-sm" onClick={handleLogout} title="Déconnexion">
+            <span className="text-sm text-muted-foreground">
+              {session?.user?.email}
+            </span>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={handleLogout}
+              title="Déconnexion"
+            >
               <LogOut className="h-4 w-4" />
             </Button>
           </div>
@@ -258,55 +369,71 @@ function AdminDashboard() {
 
       <div className="mx-auto max-w-6xl px-6 py-8">
         {/* Stats */}
-        <div className="mb-8 grid grid-cols-4 gap-4">
+        <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
           <Card>
             <CardHeader className="pb-2">
               <CardDescription className="flex items-center gap-1.5">
                 <Users className="h-3.5 w-3.5" />
-                Total candidatures
+                Clients actifs
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold tracking-tight">{stats.total}</div>
+              <div className="text-3xl font-bold tracking-tight">
+                {stats.clients}
+              </div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
               <CardDescription className="flex items-center gap-1.5">
                 <Clock className="h-3.5 w-3.5" />
-                En attente
+                Candidatures à traiter
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold tracking-tight">{stats.submitted}</div>
+              <div className="text-3xl font-bold tracking-tight">
+                {stats.submitted}
+              </div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
               <CardDescription className="flex items-center gap-1.5">
                 <CheckCircle2 className="h-3.5 w-3.5" />
-                Approuvées
+                Actions opérations
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold tracking-tight">{stats.approved}</div>
+              <div className="text-3xl font-bold tracking-tight">
+                {stats.pendingOps}
+              </div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
               <CardDescription className="flex items-center gap-1.5">
-                <XCircle className="h-3.5 w-3.5" />
-                Refusées
+                <CalendarDays className="h-3.5 w-3.5" />
+                RDV à venir
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold tracking-tight">{stats.rejected}</div>
+              <div className="text-3xl font-bold tracking-tight">
+                {stats.scheduledMeetings}
+              </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Section navigation */}
-        <div className="mb-6 flex gap-2">
+        <div className="mb-6 flex flex-wrap gap-2">
+          <Button
+            variant={activeSection === "clients" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setActiveSection("clients")}
+          >
+            <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" />
+            Clients actifs ({clients.length})
+          </Button>
           <Button
             variant={activeSection === "applications" ? "default" : "outline"}
             size="sm"
@@ -333,90 +460,286 @@ function AdminDashboard() {
           </Button>
         </div>
 
-        {/* Applications table */}
-        {activeSection === "applications" && <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Candidatures</CardTitle>
-                <CardDescription className="mt-1">
-                  {filteredApplications.length} résultat{filteredApplications.length !== 1 ? "s" : ""}
-                </CardDescription>
+        {/* Active clients table */}
+        {activeSection === "clients" && (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Clients actifs</CardTitle>
+                  <CardDescription className="mt-1">
+                    {filteredClients.length} chauffeur
+                    {filteredClients.length !== 1 ? "s" : ""} en suivi
+                    opérations
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    window.open(
+                      `/api/operations?export=accounting&period=${new Date().toISOString().slice(0, 7)}`,
+                      "_blank",
+                    )
+                  }
+                >
+                  <FileText className="mr-1.5 h-3.5 w-3.5" />
+                  Export compta
+                </Button>
               </div>
-              <Tabs value={filter} onValueChange={setFilter}>
-                <TabsList>
-                  <TabsTrigger value="all">Toutes</TabsTrigger>
-                  <TabsTrigger value="SUBMITTED">En attente</TabsTrigger>
-                  <TabsTrigger value="APPROVED">Approuvées</TabsTrigger>
-                  <TabsTrigger value="REJECTED">Refusées</TabsTrigger>
-                </TabsList>
-              </Tabs>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {filteredApplications.length === 0 ? (
-              <div className="py-16 text-center">
-                <p className="text-sm text-muted-foreground">Aucune candidature trouvée</p>
-              </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[300px]">Candidat</TableHead>
-                    <TableHead className="hidden sm:table-cell">Téléphone</TableHead>
-                    <TableHead className="hidden sm:table-cell">CA visé</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Statut</TableHead>
-                    <TableHead className="w-8"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredApplications.map((app) => (
-                    <TableRow key={app.id} className="group cursor-pointer" onClick={() => window.location.href = `/admin/applications/${app.id}`}>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <Avatar>
-                            <AvatarFallback>
-                              {(app.firstName?.[0] || "").toUpperCase()}
-                              {(app.lastName?.[0] || "").toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="min-w-0">
-                            <div className="text-sm font-medium">
-                              {app.firstName && app.lastName
-                                ? `${app.firstName} ${app.lastName}`
-                                : app.email || "Sans nom"}
-                            </div>
-                            <div className="truncate text-xs text-muted-foreground">
-                              {app.email || "—"}
+            </CardHeader>
+            <CardContent>
+              {filteredClients.length === 0 ? (
+                <div className="py-16 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    Aucun client actif trouvé
+                  </p>
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[280px]">Chauffeur</TableHead>
+                      <TableHead>Statut</TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Activité
+                      </TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Paie
+                      </TableHead>
+                      <TableHead className="hidden lg:table-cell">
+                        Factures
+                      </TableHead>
+                      <TableHead className="hidden lg:table-cell">
+                        À traiter
+                      </TableHead>
+                      <TableHead className="w-8"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredClients.map((client) => (
+                      <TableRow
+                        key={client.profileId}
+                        className="group cursor-pointer"
+                        onClick={() =>
+                          (window.location.href = `/admin/applications/${client.applicationId}`)
+                        }
+                      >
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <Avatar>
+                              <AvatarFallback>
+                                {client.name
+                                  .split(" ")
+                                  .map((part) => part[0])
+                                  .join("")
+                                  .slice(0, 2)
+                                  .toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="min-w-0">
+                              <div className="text-sm font-medium">
+                                {client.name}
+                              </div>
+                              <div className="truncate text-xs text-muted-foreground">
+                                {client.email}
+                              </div>
+                              {client.phone && (
+                                <div className="truncate text-xs text-muted-foreground md:hidden">
+                                  {client.phone}
+                                </div>
+                              )}
                             </div>
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="hidden text-muted-foreground sm:table-cell">
-                        {app.phone || "—"}
-                      </TableCell>
-                      <TableCell className="hidden text-muted-foreground sm:table-cell">
-                        {formatRevenue(app.monthlyRevenue)}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {new Date(app.createdAt).toLocaleDateString("fr-FR", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </TableCell>
-                      <TableCell>{statusBadge(app.status)}</TableCell>
-                      <TableCell>
-                        <ChevronRight className="h-4 w-4 text-muted-foreground/40 transition-transform group-hover:translate-x-0.5 group-hover:text-muted-foreground" />
-                      </TableCell>
+                        </TableCell>
+                        <TableCell>
+                          <div className="space-y-1">
+                            <Badge variant="secondary" className="text-xs">
+                              {client.status}
+                            </Badge>
+                            <div className="text-xs text-muted-foreground">
+                              Contrat {client.contractStatus}
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">
+                          <div className="text-sm font-medium">
+                            {client.latestActivity
+                              ? formatEuro(
+                                  client.latestActivity.declaredRevenue,
+                                )
+                              : "—"}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {client.latestActivity
+                              ? `${client.latestActivity.period} · ${client.latestActivity.status}`
+                              : "Aucun mois"}
+                          </div>
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">
+                          <div className="text-sm font-medium">
+                            {client.latestPayroll
+                              ? formatEuro(client.latestPayroll.payoutAmount)
+                              : "—"}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {client.latestPayroll
+                              ? `${client.latestPayroll.period} · ${client.latestPayroll.status}`
+                              : "Aucun bulletin"}
+                          </div>
+                        </TableCell>
+                        <TableCell className="hidden lg:table-cell">
+                          <div className="text-sm font-medium">
+                            {formatEuro(client.invoiceTotal)}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {formatEuro(client.paidTotal)} encaissés ·{" "}
+                            {client.unpaidInvoices} ouverte
+                            {client.unpaidInvoices !== 1 ? "s" : ""}
+                          </div>
+                        </TableCell>
+                        <TableCell className="hidden lg:table-cell">
+                          <div className="flex flex-wrap gap-1">
+                            {client.pendingTasks > 0 && (
+                              <Badge variant="outline" className="text-xs">
+                                {client.pendingTasks} checklist
+                              </Badge>
+                            )}
+                            {client.pendingExpenses > 0 && (
+                              <Badge variant="outline" className="text-xs">
+                                {client.pendingExpenses} frais
+                              </Badge>
+                            )}
+                            {client.latestActivity?.status === "SUBMITTED" && (
+                              <Badge variant="outline" className="text-xs">
+                                activité
+                              </Badge>
+                            )}
+                            {client.pendingTasks === 0 &&
+                              client.pendingExpenses === 0 &&
+                              client.latestActivity?.status !== "SUBMITTED" && (
+                                <Badge className="bg-emerald-50 text-emerald-700 hover:bg-emerald-50 border-emerald-200">
+                                  OK
+                                </Badge>
+                              )}
+                          </div>
+                          {client.lastEventTitle && (
+                            <div className="mt-1 truncate text-xs text-muted-foreground">
+                              {client.lastEventTitle}
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <ChevronRight className="h-4 w-4 text-muted-foreground/40 transition-transform group-hover:translate-x-0.5 group-hover:text-muted-foreground" />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Applications table */}
+        {activeSection === "applications" && (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Candidatures</CardTitle>
+                  <CardDescription className="mt-1">
+                    {filteredApplications.length} résultat
+                    {filteredApplications.length !== 1 ? "s" : ""}
+                  </CardDescription>
+                </div>
+                <Tabs value={filter} onValueChange={setFilter}>
+                  <TabsList>
+                    <TabsTrigger value="all">Toutes</TabsTrigger>
+                    <TabsTrigger value="SUBMITTED">En attente</TabsTrigger>
+                    <TabsTrigger value="APPROVED">Approuvées</TabsTrigger>
+                    <TabsTrigger value="REJECTED">Refusées</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {filteredApplications.length === 0 ? (
+                <div className="py-16 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    Aucune candidature trouvée
+                  </p>
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[300px]">Candidat</TableHead>
+                      <TableHead className="hidden sm:table-cell">
+                        Téléphone
+                      </TableHead>
+                      <TableHead className="hidden sm:table-cell">
+                        CA visé
+                      </TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Statut</TableHead>
+                      <TableHead className="w-8"></TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>}
+                  </TableHeader>
+                  <TableBody>
+                    {filteredApplications.map((app) => (
+                      <TableRow
+                        key={app.id}
+                        className="group cursor-pointer"
+                        onClick={() =>
+                          (window.location.href = `/admin/applications/${app.id}`)
+                        }
+                      >
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <Avatar>
+                              <AvatarFallback>
+                                {(app.firstName?.[0] || "").toUpperCase()}
+                                {(app.lastName?.[0] || "").toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="min-w-0">
+                              <div className="text-sm font-medium">
+                                {app.firstName && app.lastName
+                                  ? `${app.firstName} ${app.lastName}`
+                                  : app.email || "Sans nom"}
+                              </div>
+                              <div className="truncate text-xs text-muted-foreground">
+                                {app.email || "—"}
+                              </div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="hidden text-muted-foreground sm:table-cell">
+                          {app.phone || "—"}
+                        </TableCell>
+                        <TableCell className="hidden text-muted-foreground sm:table-cell">
+                          {formatRevenue(app.monthlyRevenue)}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {new Date(app.createdAt).toLocaleDateString("fr-FR", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </TableCell>
+                        <TableCell>{statusBadge(app.status)}</TableCell>
+                        <TableCell>
+                          <ChevronRight className="h-4 w-4 text-muted-foreground/40 transition-transform group-hover:translate-x-0.5 group-hover:text-muted-foreground" />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Leads section */}
         {activeSection === "leads" && (
@@ -425,7 +748,9 @@ function AdminDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle>Leads</CardTitle>
-                  <CardDescription className="mt-1">{leads.length} lead{leads.length !== 1 ? "s" : ""}</CardDescription>
+                  <CardDescription className="mt-1">
+                    {leads.length} lead{leads.length !== 1 ? "s" : ""}
+                  </CardDescription>
                 </div>
               </div>
             </CardHeader>
@@ -439,59 +764,93 @@ function AdminDashboard() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Contact</TableHead>
-                      <TableHead className="hidden sm:table-cell">Téléphone</TableHead>
-                      <TableHead className="hidden sm:table-cell">CA estimé</TableHead>
-                      <TableHead className="hidden md:table-cell">Source</TableHead>
-                      <TableHead className="hidden md:table-cell">UTM</TableHead>
-	                      <TableHead>Date</TableHead>
-	                      <TableHead>Statut</TableHead>
-	                      <TableHead className="w-[220px]">Action</TableHead>
-	                    </TableRow>
-	                  </TableHeader>
+                      <TableHead className="hidden sm:table-cell">
+                        Téléphone
+                      </TableHead>
+                      <TableHead className="hidden sm:table-cell">
+                        CA estimé
+                      </TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Source
+                      </TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        UTM
+                      </TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Statut</TableHead>
+                      <TableHead className="w-[220px]">Action</TableHead>
+                    </TableRow>
+                  </TableHeader>
                   <TableBody>
                     {leads.map((lead) => (
                       <TableRow key={lead.id}>
                         <TableCell>
                           <div className="min-w-0">
-                            <div className="text-sm font-medium">{lead.firstName || "—"}</div>
-                            <div className="truncate text-xs text-muted-foreground">{lead.email}</div>
+                            <div className="text-sm font-medium">
+                              {lead.firstName || "—"}
+                            </div>
+                            <div className="truncate text-xs text-muted-foreground">
+                              {lead.email}
+                            </div>
                           </div>
                         </TableCell>
-                        <TableCell className="hidden text-muted-foreground sm:table-cell">{lead.phone || "—"}</TableCell>
+                        <TableCell className="hidden text-muted-foreground sm:table-cell">
+                          {lead.phone || "—"}
+                        </TableCell>
                         <TableCell className="hidden sm:table-cell">
-                          {lead.monthlyRevenue ? `${lead.monthlyRevenue.toLocaleString()} €` : "—"}
+                          {lead.monthlyRevenue
+                            ? `${lead.monthlyRevenue.toLocaleString()} €`
+                            : "—"}
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
-                          <Badge variant="outline" className="text-xs">{lead.source}</Badge>
+                          <Badge variant="outline" className="text-xs">
+                            {lead.source}
+                          </Badge>
                         </TableCell>
                         <TableCell className="hidden md:table-cell text-xs text-muted-foreground">
-                          {lead.utmSource || lead.utmCampaign ? `${lead.utmSource || ""}${lead.utmCampaign ? ` / ${lead.utmCampaign}` : ""}` : "—"}
+                          {lead.utmSource || lead.utmCampaign
+                            ? `${lead.utmSource || ""}${lead.utmCampaign ? ` / ${lead.utmCampaign}` : ""}`
+                            : "—"}
                         </TableCell>
                         <TableCell className="text-muted-foreground">
-                          {new Date(lead.createdAt).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
+                          {new Date(lead.createdAt).toLocaleDateString(
+                            "fr-FR",
+                            { day: "numeric", month: "short", year: "numeric" },
+                          )}
                         </TableCell>
-	                        <TableCell>
-	                          <Badge variant={lead.status === "CONVERTED" ? "default" : lead.status === "LOST" ? "destructive" : "secondary"} className="text-xs">
-	                            {lead.status}
-	                          </Badge>
-	                        </TableCell>
-	                        <TableCell>
-	                          <div className="flex flex-wrap gap-1">
-	                            {leadStatusOptions
-	                              .filter((status) => status !== lead.status)
-	                              .map((status) => (
-	                                <Button
-	                                  key={status}
-	                                  variant="outline"
-	                                  size="xs"
-	                                  onClick={() => updateLeadStatus(lead.id, status)}
-	                                >
-	                                  {status}
-	                                </Button>
-	                              ))}
-	                          </div>
-	                        </TableCell>
-	                      </TableRow>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              lead.status === "CONVERTED"
+                                ? "default"
+                                : lead.status === "LOST"
+                                  ? "destructive"
+                                  : "secondary"
+                            }
+                            className="text-xs"
+                          >
+                            {lead.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-1">
+                            {leadStatusOptions
+                              .filter((status) => status !== lead.status)
+                              .map((status) => (
+                                <Button
+                                  key={status}
+                                  variant="outline"
+                                  size="xs"
+                                  onClick={() =>
+                                    updateLeadStatus(lead.id, status)
+                                  }
+                                >
+                                  {status}
+                                </Button>
+                              ))}
+                          </div>
+                        </TableCell>
+                      </TableRow>
                     ))}
                   </TableBody>
                 </Table>
@@ -507,64 +866,93 @@ function AdminDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle>Réunions</CardTitle>
-                  <CardDescription className="mt-1">{meetings.length} réunion{meetings.length !== 1 ? "s" : ""}</CardDescription>
+                  <CardDescription className="mt-1">
+                    {meetings.length} réunion{meetings.length !== 1 ? "s" : ""}
+                  </CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
               {meetings.length === 0 ? (
                 <div className="py-16 text-center">
-                  <p className="text-sm text-muted-foreground">Aucune réunion</p>
+                  <p className="text-sm text-muted-foreground">
+                    Aucune réunion
+                  </p>
                 </div>
               ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Contact</TableHead>
-                      <TableHead className="hidden sm:table-cell">Téléphone</TableHead>
+                      <TableHead className="hidden sm:table-cell">
+                        Téléphone
+                      </TableHead>
                       <TableHead>Date</TableHead>
-	                      <TableHead>Créneau</TableHead>
-	                      <TableHead>Statut</TableHead>
-	                      <TableHead className="w-[220px]">Action</TableHead>
-	                    </TableRow>
+                      <TableHead>Créneau</TableHead>
+                      <TableHead>Statut</TableHead>
+                      <TableHead className="w-[220px]">Action</TableHead>
+                    </TableRow>
                   </TableHeader>
                   <TableBody>
                     {meetings.map((meeting) => (
                       <TableRow key={meeting.id}>
                         <TableCell>
                           <div className="min-w-0">
-                            <div className="text-sm font-medium">{meeting.firstName} {meeting.lastName || ""}</div>
-                            <div className="truncate text-xs text-muted-foreground">{meeting.email}</div>
+                            <div className="text-sm font-medium">
+                              {meeting.firstName} {meeting.lastName || ""}
+                            </div>
+                            <div className="truncate text-xs text-muted-foreground">
+                              {meeting.email}
+                            </div>
                           </div>
                         </TableCell>
-                        <TableCell className="hidden text-muted-foreground sm:table-cell">{meeting.phone || "—"}</TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {new Date(meeting.scheduledDate).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
+                        <TableCell className="hidden text-muted-foreground sm:table-cell">
+                          {meeting.phone || "—"}
                         </TableCell>
-                        <TableCell className="font-mono text-sm">{meeting.timeSlot}</TableCell>
-	                        <TableCell>
-	                          <Badge variant={meeting.status === "COMPLETED" ? "default" : meeting.status === "CANCELLED" || meeting.status === "NO_SHOW" ? "destructive" : "secondary"} className="text-xs">
-	                            {meeting.status}
-	                          </Badge>
-	                        </TableCell>
-	                        <TableCell>
-	                          <div className="flex flex-wrap gap-1">
-	                            {meetingStatusOptions
-	                              .filter((status) => status !== meeting.status)
-	                              .slice(0, 3)
-	                              .map((status) => (
-	                                <Button
-	                                  key={status}
-	                                  variant="outline"
-	                                  size="xs"
-	                                  onClick={() => updateMeetingStatus(meeting.id, status)}
-	                                >
-	                                  {status}
-	                                </Button>
-	                              ))}
-	                          </div>
-	                        </TableCell>
-	                      </TableRow>
+                        <TableCell className="text-muted-foreground">
+                          {new Date(meeting.scheduledDate).toLocaleDateString(
+                            "fr-FR",
+                            { day: "numeric", month: "short", year: "numeric" },
+                          )}
+                        </TableCell>
+                        <TableCell className="font-mono text-sm">
+                          {meeting.timeSlot}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              meeting.status === "COMPLETED"
+                                ? "default"
+                                : meeting.status === "CANCELLED" ||
+                                    meeting.status === "NO_SHOW"
+                                  ? "destructive"
+                                  : "secondary"
+                            }
+                            className="text-xs"
+                          >
+                            {meeting.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-1">
+                            {meetingStatusOptions
+                              .filter((status) => status !== meeting.status)
+                              .slice(0, 3)
+                              .map((status) => (
+                                <Button
+                                  key={status}
+                                  variant="outline"
+                                  size="xs"
+                                  onClick={() =>
+                                    updateMeetingStatus(meeting.id, status)
+                                  }
+                                >
+                                  {status}
+                                </Button>
+                              ))}
+                          </div>
+                        </TableCell>
+                      </TableRow>
                     ))}
                   </TableBody>
                 </Table>

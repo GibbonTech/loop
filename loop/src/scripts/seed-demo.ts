@@ -35,6 +35,9 @@ type DemoClient = {
   experience: string;
   hasVehicle: string;
   vehicleType: string;
+  vehicleYear: string;
+  vehicleRegistrationPlate: string;
+  vehicleCarteGriseHolder: string;
   platforms: string;
   notes: string;
   documents: Array<{
@@ -68,6 +71,9 @@ const clients: DemoClient[] = [
     experience: "3_5",
     hasVehicle: "yes",
     vehicleType: "Tesla Model 3",
+    vehicleYear: "2022",
+    vehicleRegistrationPlate: "GW-318-AM",
+    vehicleCarteGriseHolder: "Amine Benkacem",
     platforms: "Uber,Bolt",
     notes: "Dossier complet et validé, profil prêt pour intégration portage.",
     documents: [
@@ -92,6 +98,9 @@ const clients: DemoClient[] = [
     experience: "1_3",
     hasVehicle: "yes",
     vehicleType: "Toyota Prius",
+    vehicleYear: "2020",
+    vehicleRegistrationPlate: "FR-842-SM",
+    vehicleCarteGriseHolder: "Sarah Meunier",
     platforms: "Uber,Heetch",
     notes: "Dossier en revue avec tous les documents reçus.",
     documents: requiredDocuments.map((category) => ({
@@ -112,6 +121,9 @@ const clients: DemoClient[] = [
     experience: "more_5",
     hasVehicle: "yes",
     vehicleType: "Mercedes Classe E",
+    vehicleYear: "2021",
+    vehicleRegistrationPlate: "HT-204-KD",
+    vehicleCarteGriseHolder: "Karim Diallo",
     platforms: "Uber,Bolt,Free Now",
     notes: "Dossier incomplet: carte VTC à renvoyer et assurance manquante.",
     documents: [
@@ -139,6 +151,9 @@ const clients: DemoClient[] = [
     experience: "none",
     hasVehicle: "no",
     vehicleType: "Aucun véhicule",
+    vehicleYear: "",
+    vehicleRegistrationPlate: "",
+    vehicleCarteGriseHolder: "",
     platforms: "Uber",
     notes: "Dossier refusé: pas de véhicule exploitable et carte VTC absente.",
     documents: [
@@ -160,6 +175,9 @@ const clients: DemoClient[] = [
     experience: "more_5",
     hasVehicle: "yes",
     vehicleType: "Renault Arkana E-Tech",
+    vehicleYear: "2023",
+    vehicleRegistrationPlate: "KJ-719-MA",
+    vehicleCarteGriseHolder: "Mehdi Aouad",
     platforms: "Uber,Bolt,Free Now",
     notes: "Chauffeur expérimenté, documents validés et rendez-vous terminé.",
     documents: [
@@ -183,6 +201,9 @@ const clients: DemoClient[] = [
     experience: "1_3",
     hasVehicle: "yes",
     vehicleType: "Peugeot 508",
+    vehicleYear: "2021",
+    vehicleRegistrationPlate: "GD-552-CB",
+    vehicleCarteGriseHolder: "Camille Bernard",
     platforms: "Uber,Heetch",
     notes: "Nouvelle candidature à qualifier, premiers documents reçus.",
     documents: [
@@ -330,7 +351,7 @@ export async function seedDemo() {
       currentPlatforms: client.platforms,
       hasVehicle: client.hasVehicle,
       vehicleType: client.vehicleType,
-      vehicleYear: client.hasVehicle === "yes" ? "2021" : null,
+      vehicleYear: client.vehicleYear || null,
       monthlyRevenue: client.monthlyRevenue,
       expectedStartDate: "Sous 30 jours",
       formData: {
@@ -340,6 +361,8 @@ export async function seedDemo() {
         )
           ? `DEMO-${client.appId.toUpperCase()}`
           : null,
+        vehicleRegistrationPlate: client.vehicleRegistrationPlate || null,
+        vehicleCarteGriseHolder: client.vehicleCarteGriseHolder || null,
         consentAccepted: true,
         consentAcceptedAt: now.toISOString(),
         demo: true,

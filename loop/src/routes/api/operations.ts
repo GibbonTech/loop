@@ -64,7 +64,9 @@ const operationActionSchema = z.object({
   socialContributions: z.union([z.string(), z.number()]).optional(),
   expensesReimbursed: z.union([z.string(), z.number()]).optional(),
   payoutAmount: z.union([z.string(), z.number()]).optional(),
-  platformBreakdown: z.record(z.string(), z.union([z.string(), z.number()])).optional(),
+  platformBreakdown: z
+    .record(z.string(), z.union([z.string(), z.number()]))
+    .optional(),
 });
 
 const defaultOnboardingTasks = [
@@ -248,6 +250,113 @@ async function getOperationsBundle(profile: typeof driverProfile.$inferSelect) {
   };
 }
 
+async function getClientSummaries() {
+  const [
+    profileRows,
+    appRows,
+    contractRows,
+    activityRows,
+    invoiceRows,
+    paymentRows,
+    expenseRows,
+    payrollRows,
+    taskRows,
+    timelineRows,
+  ] = await Promise.all([
+    db.select().from(driverProfile).orderBy(desc(driverProfile.createdAt)),
+    db.select().from(application),
+    db.select().from(contractRecord),
+    db.select().from(monthlyActivity),
+    db.select().from(invoiceRecord),
+    db.select().from(paymentRecord),
+    db.select().from(expenseRecord),
+    db.select().from(payrollSummary),
+    db.select().from(onboardingTask),
+    db.select().from(timelineEvent).orderBy(desc(timelineEvent.createdAt)),
+  ]);
+
+  return profileRows.map((profile) => {
+    const app = appRows.find((item) => item.id === profile.applicationId);
+    const profileContracts = contractRows
+      .filter((item) => item.driverProfileId === profile.id)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    const profileActivities = activityRows
+      .filter((item) => item.driverProfileId === profile.id)
+      .sort((a, b) => b.period.localeCompare(a.period));
+    const profileInvoices = invoiceRows.filter(
+      (item) => item.driverProfileId === profile.id,
+    );
+    const invoiceIds = new Set(profileInvoices.map((invoice) => invoice.id));
+    const profilePayments = paymentRows.filter((payment) =>
+      invoiceIds.has(payment.invoiceId),
+    );
+    const profileExpenses = expenseRows.filter(
+      (item) => item.driverProfileId === profile.id,
+    );
+    const profilePayrolls = payrollRows
+      .filter((item) => item.driverProfileId === profile.id)
+      .sort((a, b) => b.period.localeCompare(a.period));
+    const profileTasks = taskRows.filter(
+      (item) => item.driverProfileId === profile.id,
+    );
+    const lastEvent = timelineRows.find(
+      (item) => item.driverProfileId === profile.id,
+    );
+
+    const invoiceTotal = profileInvoices.reduce(
+      (sum, invoice) => sum + invoice.amountTTC,
+      0,
+    );
+    const paidTotal = profilePayments
+      .filter(
+        (payment) =>
+          payment.status === "RECEIVED" || payment.status === "RECONCILED",
+      )
+      .reduce((sum, payment) => sum + payment.amount, 0);
+
+    return {
+      profileId: profile.id,
+      applicationId: profile.applicationId,
+      name:
+        app?.firstName || app?.lastName
+          ? `${app?.firstName || ""} ${app?.lastName || ""}`.trim()
+          : profile.userEmail,
+      email: profile.userEmail,
+      phone: app?.phone ?? null,
+      status: profile.status,
+      startDate: profile.startDate,
+      contractStatus: profileContracts[0]?.status ?? "DRAFT",
+      latestActivity: profileActivities[0]
+        ? {
+            period: profileActivities[0].period,
+            status: profileActivities[0].status,
+            declaredRevenue: profileActivities[0].declaredRevenue,
+          }
+        : null,
+      latestPayroll: profilePayrolls[0]
+        ? {
+            period: profilePayrolls[0].period,
+            status: profilePayrolls[0].status,
+            payoutAmount: profilePayrolls[0].payoutAmount,
+          }
+        : null,
+      invoiceTotal,
+      paidTotal,
+      unpaidInvoices: profileInvoices.filter(
+        (invoice) => invoice.status !== "PAID",
+      ).length,
+      pendingExpenses: profileExpenses.filter(
+        (expense) => expense.status === "SUBMITTED",
+      ).length,
+      pendingTasks: profileTasks.filter((task) => task.status !== "DONE")
+        .length,
+      lastEventTitle: lastEvent?.title ?? null,
+      lastEventAt: lastEvent?.createdAt ?? null,
+      createdAt: profile.createdAt,
+    };
+  });
+}
+
 async function setTaskDone(
   profileId: string,
   taskKey: string,
@@ -296,7 +405,8 @@ async function findOrCreateMonthlyActivity(input: {
     )
     .limit(1);
 
-  const status = input.status ?? (input.authContext.isAdmin ? "OPEN" : "SUBMITTED");
+  const status =
+    input.status ?? (input.authContext.isAdmin ? "OPEN" : "SUBMITTED");
   const updateData = {
     status,
     declaredRevenue: input.declaredRevenue ?? existing?.declaredRevenue ?? 0,
@@ -305,16 +415,16 @@ async function findOrCreateMonthlyActivity(input: {
     notes: input.notes ?? existing?.notes ?? null,
     submittedAt:
       status === "SUBMITTED" || status === "UNDER_REVIEW"
-        ? existing?.submittedAt ?? new Date()
-        : existing?.submittedAt ?? null,
+        ? (existing?.submittedAt ?? new Date())
+        : (existing?.submittedAt ?? null),
     validatedAt:
       status === "VALIDATED" || status === "CLOSED"
-        ? existing?.validatedAt ?? new Date()
-        : existing?.validatedAt ?? null,
+        ? (existing?.validatedAt ?? new Date())
+        : (existing?.validatedAt ?? null),
     validatedBy:
       status === "VALIDATED" || status === "CLOSED"
         ? input.authContext.user.id
-        : existing?.validatedBy ?? null,
+        : (existing?.validatedBy ?? null),
   };
 
   const [activity] = existing
@@ -360,10 +470,7 @@ async function exportAccountingCsv(period: string) {
       .where(eq(monthlyActivity.period, period))
       .orderBy(asc(monthlyActivity.period)),
     db.select().from(invoiceRecord),
-    db
-      .select()
-      .from(payrollSummary)
-      .where(eq(payrollSummary.period, period)),
+    db.select().from(payrollSummary).where(eq(payrollSummary.period, period)),
   ]);
 
   const rows = profiles.map((profile) => {
@@ -373,7 +480,9 @@ async function exportAccountingCsv(period: string) {
     const profileInvoices = invoices.filter(
       (invoice) => invoice.driverProfileId === profile.id,
     );
-    const payroll = payrolls.find((item) => item.driverProfileId === profile.id);
+    const payroll = payrolls.find(
+      (item) => item.driverProfileId === profile.id,
+    );
     const invoiceTotal = profileInvoices.reduce(
       (sum, invoice) => sum + invoice.amountTTC,
       0,
@@ -411,9 +520,7 @@ async function exportAccountingCsv(period: string) {
 
   const csv = [header, ...rows]
     .map((row) =>
-      row
-        .map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
-        .join(","),
+      row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
     )
     .join("\n");
 
@@ -445,6 +552,12 @@ export const Route = createFileRoute("/api/operations")({
             return exportAccountingCsv(period);
           }
 
+          if (url.searchParams.get("mode") === "clients") {
+            const authContext = await requireAdmin(request);
+            if (authContext instanceof Response) return authContext;
+            return json({ success: true, data: await getClientSummaries() });
+          }
+
           const authContext = await requireAuth(request);
           if (authContext instanceof Response) return authContext;
 
@@ -454,14 +567,20 @@ export const Route = createFileRoute("/api/operations")({
           });
 
           if (profile === "FORBIDDEN") {
-            return json({ success: false, error: "Unauthorized" }, { status: 403 });
+            return json(
+              { success: false, error: "Unauthorized" },
+              { status: 403 },
+            );
           }
 
           if (!profile) {
             return json({ success: true, data: null });
           }
 
-          return json({ success: true, data: await getOperationsBundle(profile) });
+          return json({
+            success: true,
+            data: await getOperationsBundle(profile),
+          });
         } catch (error) {
           console.error("[Operations] GET error:", error);
           return json(
@@ -485,7 +604,8 @@ export const Route = createFileRoute("/api/operations")({
           if (body.action === "activateProfile") {
             const adminContext = await requireAdmin(request);
             if (adminContext instanceof Response) return adminContext;
-            if (!body.applicationId) return validationError("applicationId requis");
+            if (!body.applicationId)
+              return validationError("applicationId requis");
 
             const [app] = await db
               .select()
@@ -575,7 +695,10 @@ export const Route = createFileRoute("/api/operations")({
           });
 
           if (profile === "FORBIDDEN") {
-            return json({ success: false, error: "Unauthorized" }, { status: 403 });
+            return json(
+              { success: false, error: "Unauthorized" },
+              { status: 403 },
+            );
           }
           if (!profile) {
             return json(
@@ -645,17 +768,21 @@ export const Route = createFileRoute("/api/operations")({
             const status = body.status ?? existing?.status ?? "DRAFT";
             const data = {
               status,
-              providerLabel: body.providerLabel ?? existing?.providerLabel ?? "Manual",
-              unsignedFileId: body.unsignedFileId ?? existing?.unsignedFileId ?? null,
+              providerLabel:
+                body.providerLabel ?? existing?.providerLabel ?? "Manual",
+              unsignedFileId:
+                body.unsignedFileId ?? existing?.unsignedFileId ?? null,
               signedFileId: body.signedFileId ?? existing?.signedFileId ?? null,
               sentAt:
-                status === "SENT" || status === "SIGNED" || status === "COUNTERSIGNED"
-                  ? existing?.sentAt ?? new Date()
-                  : existing?.sentAt ?? null,
+                status === "SENT" ||
+                status === "SIGNED" ||
+                status === "COUNTERSIGNED"
+                  ? (existing?.sentAt ?? new Date())
+                  : (existing?.sentAt ?? null),
               signedAt:
                 status === "SIGNED" || status === "COUNTERSIGNED"
-                  ? existing?.signedAt ?? new Date()
-                  : existing?.signedAt ?? null,
+                  ? (existing?.signedAt ?? new Date())
+                  : (existing?.signedAt ?? null),
             };
             const [contract] = existing
               ? await db
@@ -712,7 +839,8 @@ export const Route = createFileRoute("/api/operations")({
             if (adminContext instanceof Response) return adminContext;
             const amountHT = parseAmount(body.amountHT);
             const vatAmount = parseAmount(body.vatAmount);
-            const amountTTC = parseAmount(body.amountTTC) || amountHT + vatAmount;
+            const amountTTC =
+              parseAmount(body.amountTTC) || amountHT + vatAmount;
             const invoiceNumber =
               body.invoiceNumber ||
               `DRIIVO-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${String(Date.now()).slice(-4)}`;
@@ -822,7 +950,9 @@ export const Route = createFileRoute("/api/operations")({
                 amount,
                 description: body.description,
                 receiptFileId: body.receiptFileId,
-                status: authContext.isAdmin ? body.status ?? "APPROVED" : "SUBMITTED",
+                status: authContext.isAdmin
+                  ? (body.status ?? "APPROVED")
+                  : "SUBMITTED",
                 reviewedAt: authContext.isAdmin ? new Date() : null,
                 reviewedBy: authContext.isAdmin ? authContext.user.id : null,
               })
@@ -880,9 +1010,12 @@ export const Route = createFileRoute("/api/operations")({
               .limit(1);
 
             const data = {
-              monthlyActivityId: body.monthlyActivityId ?? existing?.monthlyActivityId ?? null,
-              grossSalary: parseAmount(body.grossSalary) || existing?.grossSalary || 0,
-              netSalary: parseAmount(body.netSalary) || existing?.netSalary || 0,
+              monthlyActivityId:
+                body.monthlyActivityId ?? existing?.monthlyActivityId ?? null,
+              grossSalary:
+                parseAmount(body.grossSalary) || existing?.grossSalary || 0,
+              netSalary:
+                parseAmount(body.netSalary) || existing?.netSalary || 0,
               managementFee:
                 parseAmount(body.managementFee) || existing?.managementFee || 0,
               socialContributions:
@@ -896,9 +1029,12 @@ export const Route = createFileRoute("/api/operations")({
               payoutAmount:
                 parseAmount(body.payoutAmount) || existing?.payoutAmount || 0,
               status: body.status ?? existing?.status ?? "READY",
-              payslipFileId: body.payslipFileId ?? existing?.payslipFileId ?? null,
+              payslipFileId:
+                body.payslipFileId ?? existing?.payslipFileId ?? null,
               paidAt:
-                body.status === "PAID" ? existing?.paidAt ?? new Date() : existing?.paidAt ?? null,
+                body.status === "PAID"
+                  ? (existing?.paidAt ?? new Date())
+                  : (existing?.paidAt ?? null),
             };
 
             const [payroll] = existing

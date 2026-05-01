@@ -15,7 +15,6 @@ import {
   XCircle,
   Download,
   AlertCircle,
-  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useSession, signOut } from "~/lib/auth/auth-client";
@@ -143,6 +142,9 @@ interface OperationsBundle {
 const formatEuro = (value?: number | null) =>
   `${Math.round(value || 0).toLocaleString("fr-FR")} €`;
 
+const whatsappContactUrl =
+  "https://wa.me/?text=Bonjour%20Driivo%2C%20j%27ai%20une%20question%20sur%20mon%20espace%20chauffeur.";
+
 function EspacePage() {
   const { data: session, isPending } = useSession();
   const [application, setApplication] = useState<Application | null>(null);
@@ -152,7 +154,7 @@ function EspacePage() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [activeTab, setActiveTab] = useState<
-    "dashboard" | "operations" | "documents"
+    "dashboard" | "operations" | "documents" | "support"
   >("dashboard");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pendingDocumentCategoryRef = useRef<DocumentCategory>("OTHER");
@@ -286,29 +288,6 @@ function EspacePage() {
     }
   };
 
-  const deleteFile = async (file: StoredFile) => {
-    if (file.reviewStatus === "APPROVED") {
-      toast.error("Ce document est déjà validé. Contactez Driivo pour le remplacer.");
-      return;
-    }
-    if (!confirm("Supprimer ce document ?")) return;
-    try {
-      const response = await fetch(`/api/files?fileId=${encodeURIComponent(file.id)}`, {
-        method: "DELETE",
-      });
-      const data = await response.json();
-      if (!response.ok || !data.success) {
-        toast.error(data.error || "Suppression impossible");
-        return;
-      }
-      setFiles((prev) => prev.filter((item) => item.id !== file.id));
-      toast.success("Document supprimé");
-    } catch (error) {
-      console.error("Delete error:", error);
-      toast.error("Suppression impossible");
-    }
-  };
-
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return `${bytes} o`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} Ko`;
@@ -421,6 +400,17 @@ function EspacePage() {
           .slice(0, 2)
       : "D";
   const documentCompletion = getDocumentCompletion(files);
+  const canUseOperations = Boolean(
+    operations?.profile || application?.status === "APPROVED",
+  );
+  const activeTabLabel =
+    activeTab === "documents"
+      ? "Documents"
+      : activeTab === "operations"
+        ? "Activité & paie"
+        : activeTab === "support"
+          ? "Support"
+          : "Accueil";
 
   if (isPending || loading) {
     return (
@@ -491,9 +481,9 @@ function EspacePage() {
               }`}
             >
               <LayoutDashboard className="h-4 w-4" />
-              Tableau de bord
+              Accueil
             </button>
-            {(operations?.profile || application.status === "APPROVED") && (
+            {canUseOperations && (
               <button
                 onClick={() => setActiveTab("operations")}
                 className={`flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors ${
@@ -503,7 +493,7 @@ function EspacePage() {
                 }`}
               >
                 <FileText className="h-4 w-4" />
-                Opérations
+                Activité & paie
               </button>
             )}
             <button
@@ -519,6 +509,17 @@ function EspacePage() {
               <span className="ml-auto text-xs text-gray-400">
                 {documentCompletion.uploaded}/{documentCompletion.required}
               </span>
+            </button>
+            <button
+              onClick={() => setActiveTab("support")}
+              className={`flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors ${
+                activeTab === "support"
+                  ? "bg-white font-medium text-gray-900 shadow-sm"
+                  : "text-gray-600 hover:bg-white hover:text-gray-900"
+              }`}
+            >
+              <MessageCircle className="h-4 w-4" />
+              Support
             </button>
             <Link
               to="/reunion"
@@ -569,7 +570,7 @@ function EspacePage() {
             </div>
             <div className="hidden md:block">
               <h1 className="text-sm font-medium text-gray-900">
-                Tableau de bord
+                {activeTabLabel}
               </h1>
             </div>
             <div className="flex items-center gap-3">
@@ -593,9 +594,7 @@ function EspacePage() {
             />
             <div
               className={`mb-5 grid rounded-lg border border-gray-200 bg-gray-50 p-1 md:hidden ${
-                operations?.profile || application.status === "APPROVED"
-                  ? "grid-cols-3"
-                  : "grid-cols-2"
+                canUseOperations ? "grid-cols-4" : "grid-cols-3"
               }`}
             >
               <button
@@ -607,9 +606,9 @@ function EspacePage() {
                 }`}
               >
                 <LayoutDashboard className="h-4 w-4" />
-                Tableau
+                Accueil
               </button>
-              {(operations?.profile || application.status === "APPROVED") && (
+              {canUseOperations && (
                 <button
                   onClick={() => setActiveTab("operations")}
                   className={`flex h-9 items-center justify-center gap-2 rounded-md text-sm font-medium ${
@@ -619,7 +618,7 @@ function EspacePage() {
                   }`}
                 >
                   <FileText className="h-4 w-4" />
-                  Ops
+                  Paie
                 </button>
               )}
               <button
@@ -631,7 +630,18 @@ function EspacePage() {
                 }`}
               >
                 <FileText className="h-4 w-4" />
-                Documents
+                Docs
+              </button>
+              <button
+                onClick={() => setActiveTab("support")}
+                className={`flex h-9 items-center justify-center gap-2 rounded-md text-sm font-medium ${
+                  activeTab === "support"
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-500"
+                }`}
+              >
+                <MessageCircle className="h-4 w-4" />
+                Aide
               </button>
             </div>
             {/* Header */}
@@ -640,7 +650,7 @@ function EspacePage() {
                 Bonjour {userName}
               </h2>
               <p className="text-sm text-gray-500">
-                Suivez l'avancement de votre dossier.
+                Votre dossier, vos documents, votre activité et vos bulletins.
               </p>
             </div>
 
@@ -772,45 +782,96 @@ function EspacePage() {
                   );
                 })()}
 
-                {/* Quick Actions */}
-                <div className="mb-6 grid gap-3 sm:grid-cols-3">
-                  <Link
-                    to="/reunion"
-                    className="rounded-lg border border-gray-200 bg-white px-4 py-3 transition-colors hover:bg-gray-50"
-                  >
-                    <Calendar className="mb-2 h-4 w-4 text-gray-400" />
-                    <div className="text-sm font-medium text-gray-900">
-                      Réserver un appel
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      Poser vos questions
-                    </div>
-                  </Link>
-                  <button
-                    onClick={() => setActiveTab("documents")}
-                    className="rounded-lg border border-gray-200 bg-white px-4 py-3 text-left transition-colors hover:bg-gray-50"
-                  >
-                    <Upload className="mb-2 h-4 w-4 text-gray-400" />
-                    <div className="text-sm font-medium text-gray-900">
-                      Ajouter un document
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {documentCompletion.uploaded}/
-                      {documentCompletion.required} requis
-                    </div>
-                  </button>
-                  <a
-                    href="mailto:contact@driivo.fr"
-                    className="rounded-lg border border-gray-200 bg-white px-4 py-3 transition-colors hover:bg-gray-50"
-                  >
-                    <MessageCircle className="mb-2 h-4 w-4 text-gray-400" />
-                    <div className="text-sm font-medium text-gray-900">
-                      Contacter le support
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      contact@driivo.fr
-                    </div>
-                  </a>
+                {/* App shortcuts */}
+                <div className="mb-6">
+                  <h3 className="mb-3 text-sm font-medium text-gray-900">
+                    Mon espace
+                  </h3>
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    <button
+                      onClick={() => setActiveTab("documents")}
+                      className="rounded-lg border border-gray-200 bg-white px-4 py-3 text-left transition-colors hover:bg-gray-50"
+                    >
+                      <FileText className="mb-2 h-4 w-4 text-gray-400" />
+                      <div className="text-sm font-medium text-gray-900">
+                        Mes documents
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {documentCompletion.uploaded}/
+                        {documentCompletion.required} reçus
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => setActiveTab("operations")}
+                      disabled={!canUseOperations}
+                      className="rounded-lg border border-gray-200 bg-white px-4 py-3 text-left transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Upload className="mb-2 h-4 w-4 text-gray-400" />
+                      <div className="text-sm font-medium text-gray-900">
+                        Mon activité
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {operations?.monthlyActivities[0]?.period ||
+                          "Après activation"}
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => setActiveTab("operations")}
+                      disabled={!canUseOperations}
+                      className="rounded-lg border border-gray-200 bg-white px-4 py-3 text-left transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <FileText className="mb-2 h-4 w-4 text-gray-400" />
+                      <div className="text-sm font-medium text-gray-900">
+                        Fiches de paie
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {operations?.payrollSummaries[0]?.period ||
+                          "En préparation"}
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => setActiveTab("operations")}
+                      disabled={!canUseOperations}
+                      className="rounded-lg border border-gray-200 bg-white px-4 py-3 text-left transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Download className="mb-2 h-4 w-4 text-gray-400" />
+                      <div className="text-sm font-medium text-gray-900">
+                        Factures & paiements
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {operations?.invoices.length || 0} facture
+                        {operations?.invoices.length === 1 ? "" : "s"}
+                      </div>
+                    </button>
+                    <Link
+                      to="/reunion"
+                      className="rounded-lg border border-gray-200 bg-white px-4 py-3 transition-colors hover:bg-gray-50"
+                    >
+                      <Calendar className="mb-2 h-4 w-4 text-gray-400" />
+                      <div className="text-sm font-medium text-gray-900">
+                        Rendez-vous
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {nextMeeting
+                          ? new Date(
+                              nextMeeting.scheduledDate,
+                            ).toLocaleDateString("fr-FR")
+                          : "Réserver un appel"}
+                      </div>
+                    </Link>
+                    <button
+                      onClick={() => setActiveTab("support")}
+                      className="rounded-lg border border-gray-200 bg-white px-4 py-3 text-left transition-colors hover:bg-gray-50"
+                    >
+                      <MessageCircle className="mb-2 h-4 w-4 text-gray-400" />
+                      <div className="text-sm font-medium text-gray-900">
+                        Support
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        WhatsApp ou email
+                      </div>
+                    </button>
+                  </div>
                 </div>
 
                 {/* Info Card */}
@@ -857,6 +918,10 @@ function EspacePage() {
                       {documentCompletion.required} déposés ·{" "}
                       {documentCompletion.approved}/
                       {documentCompletion.required} validés
+                    </p>
+                    <p className="mt-1 text-xs text-gray-400">
+                      Une fois envoyé, un document reste dans votre dossier pour
+                      garder la traçabilité.
                     </p>
                   </div>
                   <button
@@ -955,15 +1020,6 @@ function EspacePage() {
                                   Voir
                                 </button>
                               )}
-                              {file && file.reviewStatus !== "APPROVED" && (
-                                <button
-                                  onClick={() => deleteFile(file)}
-                                  className="inline-flex h-8 items-center justify-center rounded-md border border-red-200 px-2.5 text-xs font-medium text-red-700 transition-colors hover:bg-red-50"
-                                >
-                                  <Trash2 className="mr-1 h-3.5 w-3.5" />
-                                  Supprimer
-                                </button>
-                              )}
                               <button
                                 onClick={() =>
                                   startDocumentUpload(category.value)
@@ -972,7 +1028,7 @@ function EspacePage() {
                                 className="inline-flex h-8 items-center justify-center rounded-md bg-gray-900 px-2.5 text-xs font-medium text-white transition-colors hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
                               >
                                 <Upload className="mr-1 h-3.5 w-3.5" />
-                                {file ? "Remplacer" : "Téléverser"}
+                                {file ? "Ajouter une version" : "Téléverser"}
                               </button>
                             </div>
                           </div>
@@ -1023,15 +1079,6 @@ function EspacePage() {
                                   Voir
                                 </button>
                               )}
-                              {file && file.reviewStatus !== "APPROVED" && (
-                                <button
-                                  onClick={() => deleteFile(file)}
-                                  className="inline-flex h-8 flex-1 items-center justify-center rounded-md border border-red-200 px-2.5 text-xs font-medium text-red-700 transition-colors hover:bg-red-50"
-                                >
-                                  <Trash2 className="mr-1 h-3.5 w-3.5" />
-                                  Supprimer
-                                </button>
-                              )}
                             </div>
                             <button
                               onClick={() =>
@@ -1041,7 +1088,7 @@ function EspacePage() {
                               className="mt-2 inline-flex h-8 w-full items-center justify-center rounded-md border border-gray-200 px-2.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                               <Upload className="mr-1 h-3.5 w-3.5" />
-                              {file ? "Remplacer" : "Ajouter"}
+                              {file ? "Ajouter une version" : "Ajouter"}
                             </button>
                           </div>
                         );
@@ -1049,6 +1096,107 @@ function EspacePage() {
                   </div>
                 </div>
               </>
+            )}
+
+            {activeTab === "support" && (
+              <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
+                <section className="rounded-lg border border-gray-200 bg-white p-5">
+                  <h3 className="mb-4 text-sm font-medium text-gray-900">
+                    Support Driivo
+                  </h3>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <a
+                      href={whatsappContactUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="rounded-lg border border-gray-200 px-4 py-3 transition-colors hover:bg-gray-50"
+                    >
+                      <MessageCircle className="mb-2 h-4 w-4 text-gray-400" />
+                      <div className="text-sm font-medium text-gray-900">
+                        WhatsApp
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Réponse équipe Driivo
+                      </div>
+                    </a>
+                    <a
+                      href="mailto:contact@driivo.fr"
+                      className="rounded-lg border border-gray-200 px-4 py-3 transition-colors hover:bg-gray-50"
+                    >
+                      <FileText className="mb-2 h-4 w-4 text-gray-400" />
+                      <div className="text-sm font-medium text-gray-900">
+                        Email
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        contact@driivo.fr
+                      </div>
+                    </a>
+                  </div>
+
+                  <div className="mt-5 rounded-lg border border-gray-200 bg-gray-50 p-4">
+                    <div className="mb-2 text-sm font-medium text-gray-900">
+                      Résumé de votre espace
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      <div>
+                        <div className="text-xs text-gray-500">Documents</div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {documentCompletion.approved}/
+                          {documentCompletion.required} validés
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-gray-500">Dossier</div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {statusInfo.label}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-gray-500">RDV</div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {nextMeeting
+                            ? `${new Date(nextMeeting.scheduledDate).toLocaleDateString("fr-FR")} · ${nextMeeting.timeSlot}`
+                            : "Aucun RDV actif"}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                <section className="rounded-lg border border-gray-200 bg-white p-4">
+                  <h3 className="mb-3 text-sm font-medium text-gray-900">
+                    Dernières actions
+                  </h3>
+                  <div className="space-y-3">
+                    {(operations?.timeline || []).slice(0, 5).map((event) => (
+                      <div
+                        key={event.id}
+                        className="border-l border-gray-200 pl-3"
+                      >
+                        <div className="text-sm font-medium text-gray-900">
+                          {event.title}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {new Date(event.createdAt).toLocaleDateString(
+                            "fr-FR",
+                          )}
+                        </div>
+                        {event.description && (
+                          <p className="mt-0.5 text-xs text-gray-500">
+                            {event.description}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                    {(!operations?.timeline ||
+                      operations.timeline.length === 0) && (
+                      <p className="text-sm text-gray-500">
+                        Les actions Driivo apparaîtront ici.
+                      </p>
+                    )}
+                  </div>
+                </section>
+              </div>
             )}
           </div>
         </main>
@@ -1101,6 +1249,8 @@ function OperationsPanel({
   const contract = operations.contract;
   const latestActivity = operations.monthlyActivities[0];
   const latestPayroll = operations.payrollSummaries[0];
+  const latestInvoice = operations.invoices[0];
+  const latestPayment = operations.payments[0];
   const signedContractFile =
     contract?.signedFileId && operations.filesById[contract.signedFileId];
   const unsignedContractFile =
@@ -1161,6 +1311,15 @@ function OperationsPanel({
 
   return (
     <div className="space-y-6">
+      <div>
+        <h3 className="text-sm font-medium text-gray-900">
+          Activité, factures et paie
+        </h3>
+        <p className="mt-1 text-xs text-gray-500">
+          Déclarations, frais, bulletins et documents comptables.
+        </p>
+      </div>
+
       <div className="grid gap-3 md:grid-cols-4">
         <div className="rounded-lg border border-gray-200 bg-white p-4">
           <div className="text-xs text-gray-500">Statut client</div>
@@ -1175,17 +1334,50 @@ function OperationsPanel({
           </div>
         </div>
         <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <div className="text-xs text-gray-500">Dernier CA déclaré</div>
+          <div className="text-xs text-gray-500">Activité du mois</div>
           <div className="mt-1 text-lg font-semibold text-gray-900">
             {formatEuro(latestActivity?.declaredRevenue)}
           </div>
+          <div className="mt-1 text-xs text-gray-400">
+            {latestActivity?.period || "Aucun mois ouvert"}
+          </div>
         </div>
         <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <div className="text-xs text-gray-500">Dernier versement</div>
+          <div className="text-xs text-gray-500">Fiche de paie</div>
           <div className="mt-1 text-lg font-semibold text-gray-900">
             {formatEuro(latestPayroll?.payoutAmount)}
           </div>
+          <div className="mt-1 text-xs text-gray-400">
+            {latestPayroll?.period || "En préparation"}
+          </div>
         </div>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <OperationsMiniCard
+          label="Facture"
+          value={latestInvoice?.invoiceNumber || "Aucune"}
+          meta={
+            latestInvoice
+              ? `${formatEuro(latestInvoice.amountTTC)} · ${latestInvoice.status}`
+              : "Elle apparaîtra ici"
+          }
+        />
+        <OperationsMiniCard
+          label="Paiement"
+          value={formatEuro(latestPayment?.amount)}
+          meta={latestPayment?.status || "En attente"}
+        />
+        <OperationsMiniCard
+          label="Frais"
+          value={`${operations.expenses.length}`}
+          meta="Notes envoyées"
+        />
+        <OperationsMiniCard
+          label="Bulletins"
+          value={`${operations.payrollSummaries.length}`}
+          meta="Fiches disponibles"
+        />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
@@ -1194,10 +1386,10 @@ function OperationsPanel({
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-medium text-gray-900">
-                  Contrat et signature
+                  Mes contrats
                 </h3>
                 <p className="text-xs text-gray-500">
-                  Suivi manuel par l'équipe Driivo et le comptable.
+                  Contrat, signature et documents liés.
                 </p>
               </div>
               <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600">
@@ -1233,7 +1425,7 @@ function OperationsPanel({
 
           <section className="rounded-lg border border-gray-200 bg-white p-5">
             <h3 className="mb-4 text-sm font-medium text-gray-900">
-              Déclarer l'activité mensuelle
+              Mon activité du mois
             </h3>
             <form onSubmit={submitActivity} className="space-y-3">
               <div className="grid gap-3 sm:grid-cols-3">
@@ -1285,9 +1477,12 @@ function OperationsPanel({
 
           <section className="rounded-lg border border-gray-200 bg-white p-5">
             <h3 className="mb-4 text-sm font-medium text-gray-900">
-              Notes de frais
+              Mes frais
             </h3>
-            <form onSubmit={submitExpense} className="grid gap-3 sm:grid-cols-4">
+            <form
+              onSubmit={submitExpense}
+              className="grid gap-3 sm:grid-cols-4"
+            >
               <select
                 value={expenseForm.category}
                 onChange={(e) =>
@@ -1350,9 +1545,7 @@ function OperationsPanel({
                   )}
                   <span
                     className={
-                      task.status === "DONE"
-                        ? "text-gray-900"
-                        : "text-gray-500"
+                      task.status === "DONE" ? "text-gray-900" : "text-gray-500"
                     }
                   >
                     {task.label}
@@ -1363,9 +1556,7 @@ function OperationsPanel({
           </section>
 
           <section className="rounded-lg border border-gray-200 bg-white p-4">
-            <h3 className="mb-3 text-sm font-medium text-gray-900">
-              Timeline
-            </h3>
+            <h3 className="mb-3 text-sm font-medium text-gray-900">Timeline</h3>
             <div className="space-y-3">
               {operations.timeline.slice(0, 6).map((event) => (
                 <div key={event.id} className="border-l border-gray-200 pl-3">
@@ -1392,9 +1583,9 @@ function OperationsPanel({
         </aside>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <OperationsList
-          title="Activités"
+          title="Mes activités"
           empty="Aucune activité déclarée"
           rows={operations.monthlyActivities.map((activity) => ({
             id: activity.id,
@@ -1403,16 +1594,23 @@ function OperationsPanel({
           }))}
         />
         <OperationsList
-          title="Factures"
+          title="Mes factures"
           empty="Aucune facture suivie"
-          rows={operations.invoices.map((invoice) => ({
-            id: invoice.id,
-            main: invoice.invoiceNumber,
-            meta: `${formatEuro(invoice.amountTTC)} · ${invoice.status}`,
-          }))}
+          rows={operations.invoices.map((invoice) => {
+            const invoiceFile =
+              invoice.fileId && operations.filesById[invoice.fileId];
+            return {
+              id: invoice.id,
+              main: invoice.invoiceNumber,
+              meta: `${formatEuro(invoice.amountTTC)} · ${invoice.status}`,
+              action: invoiceFile
+                ? () => onDownload(invoiceFile.key)
+                : undefined,
+            };
+          })}
         />
         <OperationsList
-          title="Bulletins"
+          title="Mes fiches de paie"
           empty="Aucun bulletin disponible"
           rows={operations.payrollSummaries.map((payroll) => {
             const payslip =
@@ -1426,10 +1624,23 @@ function OperationsPanel({
             };
           })}
         />
+        <OperationsList
+          title="Mes paiements"
+          empty="Aucun paiement suivi"
+          rows={operations.payments.map((payment) => ({
+            id: payment.id,
+            main: formatEuro(payment.amount),
+            meta: `${payment.status}${
+              payment.receivedAt
+                ? ` · ${new Date(payment.receivedAt).toLocaleDateString("fr-FR")}`
+                : ""
+            }`,
+          }))}
+        />
       </div>
 
       <OperationsList
-        title="Frais"
+        title="Mes frais envoyés"
         empty="Aucun frais envoyé"
         rows={operations.expenses.map((expense) => ({
           id: expense.id,
@@ -1439,6 +1650,26 @@ function OperationsPanel({
           }`,
         }))}
       />
+    </div>
+  );
+}
+
+function OperationsMiniCard({
+  label,
+  value,
+  meta,
+}: {
+  label: string;
+  value: string;
+  meta: string;
+}) {
+  return (
+    <div className="rounded-lg border border-gray-200 bg-white p-4">
+      <div className="text-xs text-gray-500">{label}</div>
+      <div className="mt-1 truncate text-sm font-semibold text-gray-900">
+        {value}
+      </div>
+      <div className="mt-1 truncate text-xs text-gray-400">{meta}</div>
     </div>
   );
 }
