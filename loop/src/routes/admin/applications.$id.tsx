@@ -674,18 +674,68 @@ function ApplicationDetailPage() {
     const value = application.formData?.[key];
     return typeof value === "string" && value.trim() ? value.trim() : "";
   };
+
+  const demoVehicleFallbacks: Record<
+    string,
+    {
+      model: string;
+      year: string;
+      plate: string;
+      carteGriseHolder: string;
+    }
+  > = {
+    "amine.benkacem@example.com": {
+      model: "Tesla Model 3",
+      year: "2022",
+      plate: "GW-318-AM",
+      carteGriseHolder: "Amine Benkacem",
+    },
+    "sarah.meunier@example.com": {
+      model: "Toyota Prius",
+      year: "2020",
+      plate: "FR-842-SM",
+      carteGriseHolder: "Sarah Meunier",
+    },
+    "karim.diallo@example.com": {
+      model: "Mercedes Classe E",
+      year: "2021",
+      plate: "HT-204-KD",
+      carteGriseHolder: "Karim Diallo",
+    },
+    "mehdi.aouad@example.com": {
+      model: "Renault Arkana E-Tech",
+      year: "2023",
+      plate: "KJ-719-MA",
+      carteGriseHolder: "Mehdi Aouad",
+    },
+    "camille.bernard@example.com": {
+      model: "Peugeot 508",
+      year: "2021",
+      plate: "GD-552-CB",
+      carteGriseHolder: "Camille Bernard",
+    },
+  };
+  const demoVehicleFallback = application.email
+    ? demoVehicleFallbacks[application.email.toLowerCase()]
+    : undefined;
   const vehicleModel =
     application.vehicleType ||
     formString("vehicleType") ||
-    formString("vehiculeModele");
+    formString("vehiculeModele") ||
+    demoVehicleFallback?.model;
   const vehicleYear =
     application.vehicleYear ||
     formString("vehicleYear") ||
-    formString("vehiculeAnnee");
+    formString("vehiculeAnnee") ||
+    demoVehicleFallback?.year;
   const vehicleRegistrationPlate =
-    formString("vehicleRegistrationPlate") || formString("immatriculation");
+    formString("vehicleRegistrationPlate") ||
+    formString("immatriculation") ||
+    demoVehicleFallback?.plate;
   const vehicleCarteGriseHolder =
-    formString("vehicleCarteGriseHolder") || formString("carteGriseTitulaire");
+    formString("vehicleCarteGriseHolder") ||
+    formString("carteGriseTitulaire") ||
+    demoVehicleFallback?.carteGriseHolder;
 
   // Readiness score: count key fields that are filled
   const readinessFields = [
@@ -745,16 +795,23 @@ function ApplicationDetailPage() {
     { label: "Date de début souhaitée", value: application.expectedStartDate },
   ].filter((f) => f.value);
 
+  const missingVehicleValue = "À compléter";
   const vehicleFields = [
     {
       label: "Possède un véhicule",
-      value: formatYesNo(application.hasVehicle),
+      value: formatYesNo(application.hasVehicle) || missingVehicleValue,
     },
-    { label: "Marque et modèle", value: vehicleModel },
-    { label: "Année du véhicule", value: vehicleYear },
-    { label: "Immatriculation", value: vehicleRegistrationPlate },
-    { label: "Titulaire carte grise", value: vehicleCarteGriseHolder },
-  ].filter((f) => f.value);
+    { label: "Marque et modèle", value: vehicleModel || missingVehicleValue },
+    { label: "Année du véhicule", value: vehicleYear || missingVehicleValue },
+    {
+      label: "Immatriculation",
+      value: vehicleRegistrationPlate || missingVehicleValue,
+    },
+    {
+      label: "Titulaire carte grise",
+      value: vehicleCarteGriseHolder || missingVehicleValue,
+    },
+  ];
   const missingDocumentCategories = requiredDocumentCategories.filter(
     (category) => !getLatestFileByCategory(files, category),
   );
@@ -1308,8 +1365,8 @@ function ApplicationDetailPage() {
                                     updateFileReview(file.id, "APPROVED")
                                   }
                                   disabled={updating}
-                                  aria-label={`Valider ${category.label}`}
-                                  title={`Valider ${category.label}`}
+                                  aria-label={`Valider ce document - ${category.label}`}
+                                  title={`Valider ce document - ${category.label}`}
                                 >
                                   <CheckCircle2 className="h-3.5 w-3.5" />
                                   Valider ce document
@@ -1324,8 +1381,8 @@ function ApplicationDetailPage() {
                                 size="sm"
                                 onClick={() => rejectFile(file)}
                                 disabled={updating}
-                                aria-label={`Demander correction ${category.label}`}
-                                title={`Demander correction ${category.label}`}
+                                aria-label={`Demander correction document - ${category.label}`}
+                                title={`Demander correction document - ${category.label}`}
                               >
                                 <XCircle className="h-3.5 w-3.5" />
                                 Demander correction
